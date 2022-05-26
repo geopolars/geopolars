@@ -1,0 +1,11 @@
+[package]
+name = "arctic"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+geo = "0.20.1"
+geozero = "0.9.4"
+polars = "0.21.1"
