@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 geo = "0.20.1"
-geozero = "0.9.4"
-polars = "0.21.1"
+geozero = {version = "0.9.4", features = ["with-wkb"]}
+polars = {version = "0.21.1", features = ["ipc", "dtype-u8"]}
