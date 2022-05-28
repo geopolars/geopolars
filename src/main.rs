@@ -1,10 +1,11 @@
-use arctic::geodataframe::GeoDataFrame;
+use arctic::geodataframe::{GeoDataFrame, GeoSeries};
 use arrow2::io::ipc::{
     read::{read_file_metadata, FileReader},
     write::{FileWriter, WriteOptions},
 };
 use polars::prelude::{DataFrame, IpcReader, Result, SerReader};
 use std::fs::File;
+use std::time::Instant;
 
 fn main() -> Result<()> {
     let mut file = File::open("cities.arrow").expect("file not found");
@@ -27,7 +28,10 @@ fn main() -> Result<()> {
     let df = IpcReader::new(file).finish()?;
     println!("{}", df);
 
-    df.centroid();
+    let start = Instant::now();
+    df.centroid()?;
+    df.column("geometry")?.centroid()?;
+    println!("Debug: {}", start.elapsed().as_secs_f32());
 
     // let df = DataFrame::default();
     // df.hello_world();

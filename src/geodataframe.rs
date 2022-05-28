@@ -1,35 +1,29 @@
 use std::sync::Arc;
 
-use arrow2::array::{ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray};
+use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
 use geozero::{
     wkb::{Decode, Wkb},
     CoordDimensions, ToGeo, ToWkb,
 };
-use polars::{
-    chunked_array::ChunkedArray,
-    datatypes::ListType,
-    export::arrow::array::ListArray,
-    prelude::{DataFrame, IntoVec, NamedFrom, Result, Series},
-};
+use polars::prelude::{DataFrame, Result, Series};
 
 pub trait GeoDataFrame {
     fn centroid(&self) -> Result<Series>;
-
-    fn hello_world(&self) -> Result<()>;
-
-    // fn area(&self) -> Result<Series>;
 }
 
-impl GeoDataFrame for DataFrame {
+pub trait GeoSeries {
+    fn centroid(&self) -> Result<Series>;
+}
+
+impl GeoSeries for Series {
     fn centroid(&self) -> Result<Series> {
         use geo::algorithm::centroid::Centroid;
 
-        let geom_column = self.column("geometry")?;
-
-        let chunks = geom_column.list().expect("series was not a list type");
+        // TODO: add util for iterating over geometries
+        let chunks = self.list().expect("series was not a list type");
         let iter = chunks.into_iter();
 
-        let mut out_wkb = MutableBinaryArray::<i32>::with_capacity(geom_column.len());
+        let mut out_wkb = MutableBinaryArray::<i32>::with_capacity(self.len());
 
         for maybe_geom in iter {
             let geom = maybe_geom.expect("no geom?");
@@ -46,29 +40,18 @@ impl GeoDataFrame for DataFrame {
             out_wkb.push(Some(wkb));
         }
 
-        // let fixed_array = BinaryArray::<i32>::from(out_wkb);
         let result: BinaryArray<i32> = out_wkb.into();
 
         let out = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
         println!("{}", out);
-        // ListArray::n
-
-        // TODO: need to figure out how to reconstruct a series
-        // let test = Series::try_from(out_wkb);
-        // let test: ChunkedArray<ListType> = ChunkedArray::from_vec("centroid", out_wkb);
 
         Ok(out)
     }
+}
 
-    fn hello_world(&self) -> Result<()> {
-        println!("hello world from geodataframe!");
-
-        Ok(())
+impl GeoDataFrame for DataFrame {
+    fn centroid(&self) -> Result<Series> {
+        let geom_column = self.column("geometry")?;
+        Ok(geom_column.centroid()?)
     }
-
-    // fn area(&self) -> Result<Series> {
-    //     // Connect to geo's area function
-
-    //     todo!()
-    // }
 }
