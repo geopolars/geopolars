@@ -1,0 +1,15 @@
+[package]
+name = "py-arctic"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "py_arctic"
+crate-type = ["cdylib"]
+
+[dependencies]
+polars = "0.21.1"
+polars-arrow = "0.21.1"
+pyo3 = { version = "0.16.4", features = ["extension-module"] }
+arctic = { path = "../" }
