@@ -30,10 +30,5 @@ fn main() -> Result<()> {
     df.column("geometry")?.centroid()?;
     println!("Debug: {}", start.elapsed().as_secs_f32());
 
-    // let df = DataFrame::default();
-    // df.hello_world();
-
-    // println!("hello world from main!");
-
     Ok(())
 }

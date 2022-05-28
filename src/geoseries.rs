@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
+use crate::util::iter_geom;
 use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
+use geo::Geometry;
 use geozero::{
-    wkb::{Decode, Wkb},
-    CoordDimensions, ToGeo, ToWkb,
+    CoordDimensions, ToWkb,
 };
 use polars::prelude::{Result, Series};
 
@@ -15,32 +16,20 @@ impl GeoSeries for Series {
     fn centroid(&self) -> Result<Series> {
         use geo::algorithm::centroid::Centroid;
 
-        // TODO: add util for iterating over geometries
-        let chunks = self.list().expect("series was not a list type");
-        let iter = chunks.into_iter();
+        let mut output_array = MutableBinaryArray::<i32>::with_capacity(self.len());
 
-        let mut out_wkb = MutableBinaryArray::<i32>::with_capacity(self.len());
-
-        for maybe_geom in iter {
-            let geom = maybe_geom.expect("no geom?");
-            let buf = geom.u8().expect("could not extract buf");
-            let vec: Vec<u8> = buf.into_iter().map(|x| x.unwrap()).collect();
-            let decoded_geom = Wkb(vec).to_geo().expect("unable to convert to geo");
-            let center = decoded_geom.centroid().expect("could not create centroid");
-
-            let geo_types_geom: geo::Geometry<f64> = center.into();
-            let wkb = geo_types_geom
+        for geom in iter_geom(self) {
+            let value: Geometry<f64> = geom.centroid().expect("could not create centroid").into();
+            let wkb = value
                 .to_wkb(CoordDimensions::xy())
                 .expect("Unable to create wkb");
 
-            out_wkb.push(Some(wkb));
+            output_array.push(Some(wkb));
         }
 
-        let result: BinaryArray<i32> = out_wkb.into();
+        let result: BinaryArray<i32> = output_array.into();
 
-        let out = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
-        println!("{}", out);
-
-        Ok(out)
+        let output_series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        Ok(output_series)
     }
 }
