@@ -1,11 +1,19 @@
+use std::sync::Arc;
+
+use arrow2::array::{ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray};
 use geozero::{
     wkb::{Decode, Wkb},
-    ToGeo, CoordDimensions, ToWkb,
+    CoordDimensions, ToGeo, ToWkb,
 };
-use polars::{prelude::{DataFrame, IntoVec, Result, Series, NamedFrom}, chunked_array::ChunkedArray, datatypes::ListType};
+use polars::{
+    chunked_array::ChunkedArray,
+    datatypes::ListType,
+    export::arrow::array::ListArray,
+    prelude::{DataFrame, IntoVec, NamedFrom, Result, Series},
+};
 
 pub trait GeoDataFrame {
-    fn centroid(&self) -> Result<()>;
+    fn centroid(&self) -> Result<Series>;
 
     fn hello_world(&self) -> Result<()>;
 
@@ -13,7 +21,7 @@ pub trait GeoDataFrame {
 }
 
 impl GeoDataFrame for DataFrame {
-    fn centroid(&self) -> Result<()> {
+    fn centroid(&self) -> Result<Series> {
         use geo::algorithm::centroid::Centroid;
 
         let geom_column = self.column("geometry")?;
@@ -21,7 +29,8 @@ impl GeoDataFrame for DataFrame {
         let chunks = geom_column.list().expect("series was not a list type");
         let iter = chunks.into_iter();
 
-        let mut out_wkb: Vec<Vec<u8>> = Vec::new();
+        let mut out_wkb = MutableBinaryArray::<i32>::with_capacity(geom_column.len());
+
         for maybe_geom in iter {
             let geom = maybe_geom.expect("no geom?");
             let buf = geom.u8().expect("could not extract buf");
@@ -30,17 +39,25 @@ impl GeoDataFrame for DataFrame {
             let center = decoded_geom.centroid().expect("could not create centroid");
 
             let geo_types_geom: geo::Geometry<f64> = center.into();
-            let wkb = geo_types_geom.to_wkb(CoordDimensions::xy()).expect("Unable to create wkb");
+            let wkb = geo_types_geom
+                .to_wkb(CoordDimensions::xy())
+                .expect("Unable to create wkb");
 
-            out_wkb.push(wkb);
+            out_wkb.push(Some(wkb));
         }
 
+        // let fixed_array = BinaryArray::<i32>::from(out_wkb);
+        let result: BinaryArray<i32> = out_wkb.into();
+
+        let out = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        println!("{}", out);
+        // ListArray::n
+
         // TODO: need to figure out how to reconstruct a series
-        let test = Series::try_from(out_wkb);
+        // let test = Series::try_from(out_wkb);
         // let test: ChunkedArray<ListType> = ChunkedArray::from_vec("centroid", out_wkb);
 
-
-        Ok(())
+        Ok(out)
     }
 
     fn hello_world(&self) -> Result<()> {

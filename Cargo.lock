@@ -41,6 +41,7 @@ dependencies = [
 name = "arctic"
 version = "0.1.0"
 dependencies = [
+ "arrow2",
  "geo",
  "geozero",
  "polars",
