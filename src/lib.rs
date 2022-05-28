@@ -1,4 +1,5 @@
 pub mod geodataframe;
+pub mod geoseries;
 
 #[cfg(test)]
 mod tests {

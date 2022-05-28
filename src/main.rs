@@ -1,14 +1,11 @@
-use arctic::geodataframe::{GeoDataFrame, GeoSeries};
-use arrow2::io::ipc::{
-    read::{read_file_metadata, FileReader},
-    write::{FileWriter, WriteOptions},
-};
-use polars::prelude::{DataFrame, IpcReader, Result, SerReader};
+use arctic::geodataframe::GeoDataFrame;
+use arctic::geoseries::GeoSeries;
+use polars::prelude::{IpcReader, Result, SerReader};
 use std::fs::File;
 use std::time::Instant;
 
 fn main() -> Result<()> {
-    let mut file = File::open("cities.arrow").expect("file not found");
+    let file = File::open("cities.arrow").expect("file not found");
 
     // let metadata = read_file_metadata(&mut reader)?;
     // let mut filereader = FileReader::new(reader, metadata.clone(), None);
