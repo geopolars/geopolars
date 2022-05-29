@@ -1,0 +1,33 @@
+name: Build and lint rust
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  lint-rust:
+    name: Build and lint Rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v1
+
+      - name: Run formatting checks
+        run: |
+          cargo fmt --all -- --check
+
+      - name: Run linting checks
+        run: |
+          # do not produce debug symbols to keep memory usage down
+          export RUSTFLAGS="-C debuginfo=0"
+          cargo clippy --all-features -- -D warnings
