@@ -7,10 +7,20 @@ use geozero::{CoordDimensions, ToWkb};
 use polars::prelude::{Result, Series};
 
 pub trait GeoSeries {
+    fn area(&self) -> Result<Series>;
+
     fn centroid(&self) -> Result<Series>;
 }
 
 impl GeoSeries for Series {
+    fn area(&self) -> Result<Series> {
+        use geo::prelude::Area;
+
+        let output_series: Series = iter_geom(self).map(|geom| geom.unsigned_area()).collect();
+
+        Ok(output_series)
+    }
+
     fn centroid(&self) -> Result<Series> {
         use geo::algorithm::centroid::Centroid;
 
@@ -27,7 +37,6 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        let output_series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
-        Ok(output_series)
+        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
 }
