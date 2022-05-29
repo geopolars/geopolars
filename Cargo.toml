@@ -1,5 +1,2 @@
 [workspace]
-members = [
-  "arctic",
-  "py-arctic",
-]
+members = ["arctic"]

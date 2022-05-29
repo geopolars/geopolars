@@ -8,6 +8,6 @@ pub trait GeoDataFrame {
 impl GeoDataFrame for DataFrame {
     fn centroid(&self) -> Result<Series> {
         let geom_column = self.column("geometry")?;
-        Ok(geom_column.centroid()?)
+        geom_column.centroid()
     }
 }

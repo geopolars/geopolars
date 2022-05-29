@@ -1,0 +1,48 @@
+name: Build and lint rust
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - 'arctic/**'
+
+jobs:
+  fmt:
+    name: fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          components: rustfmt
+
+      - uses: Swatinem/rust-cache@v1
+
+      - name: Run
+        run: cd arctic && cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v1
+
+      - name: "clippy --all"
+        run: cd arctic && cargo clippy --all --all-features --tests -- -D warnings
