@@ -7,27 +7,40 @@ on:
   pull_request:
 
 jobs:
-  lint-rust:
-    name: Build and lint Rust
+  fmt:
+    name: fmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-      - name: Install Rust stable
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          profile: minimal
           override: true
-          components: rustfmt, clippy
+          components: rustfmt
 
       - uses: Swatinem/rust-cache@v1
 
-      - name: Run formatting checks
-        run: |
-          cargo fmt --all -- --check
+      - name: Run
+        run: cargo fmt --all -- --check
 
-      - name: Run linting checks
-        run: |
-          # do not produce debug symbols to keep memory usage down
-          export RUSTFLAGS="-C debuginfo=0"
-          cargo clippy --all-features -- -D warnings
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v1
+
+      - name: "clippy --all"
+        run: cargo clippy --all --all-features --tests -- -D warnings
