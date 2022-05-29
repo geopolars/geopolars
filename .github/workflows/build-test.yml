@@ -21,6 +21,9 @@ jobs:
           override: true
           components: rustfmt
 
+      - name: Version
+        run: rustc --version
+
       - uses: Swatinem/rust-cache@v1
 
       - name: Run
@@ -39,6 +42,9 @@ jobs:
           profile: minimal
           override: true
           components: clippy
+
+      - name: Version
+        run: rustc --version
 
       - uses: Swatinem/rust-cache@v1
 
