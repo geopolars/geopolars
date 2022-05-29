@@ -92,8 +92,8 @@ dependencies = [
 
 [[package]]
 name = "arrow2"
-version = "0.11.1"
-source = "git+https://github.com/jorgecarleitao/arrow2?rev=3c64e7ab957880d9d6c72289c34fffd96a6c7030#3c64e7ab957880d9d6c72289c34fffd96a6c7030"
+version = "0.11.2"
+source = "git+https://github.com/ritchie46/arrow2?branch=improve_mutable#f7c3daf3da2cdeda916db91a66f6ef92752a8991"
 dependencies = [
  "arrow-format",
  "avro-schema",
@@ -838,6 +838,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112c678d4050afce233f4f2852bb2eb519230b3cf12f33585275537d7e41578d"
 
 [[package]]
+name = "jemalloc-sys"
+version = "0.5.0+5.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f655c3ecfa6b0d03634595b4b54551d4bd5ac208b9e0124873949a7ab168f70b"
+dependencies = [
+ "cc",
+ "fs_extra",
+ "libc",
+]
+
+[[package]]
+name = "jemallocator"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16c2514137880c52b0b4822b563fadd38257c1f380858addb74a400889696ea6"
+dependencies = [
+ "jemalloc-sys",
+ "libc",
+]
+
+[[package]]
 name = "jobserver"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1334,7 +1355,7 @@ dependencies = [
 [[package]]
 name = "polars"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "polars-core",
  "polars-io",
@@ -1346,7 +1367,7 @@ dependencies = [
 [[package]]
 name = "polars-arrow"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "arrow2",
  "hashbrown 0.12.1",
@@ -1358,7 +1379,7 @@ dependencies = [
 [[package]]
 name = "polars-core"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1370,9 +1391,9 @@ dependencies = [
  "hex",
  "indexmap",
  "jsonpath_lib",
- "lazy_static",
  "ndarray",
  "num",
+ "once_cell",
  "polars-arrow",
  "polars-utils",
  "rand",
@@ -1387,7 +1408,7 @@ dependencies = [
 [[package]]
 name = "polars-io"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1395,11 +1416,11 @@ dependencies = [
  "csv-core",
  "dirs",
  "flate2",
- "lazy_static",
  "lexical",
  "memchr",
  "memmap2",
  "num",
+ "once_cell",
  "polars-arrow",
  "polars-core",
  "polars-time",
@@ -1414,7 +1435,7 @@ dependencies = [
 [[package]]
 name = "polars-lazy"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "ahash",
  "glob",
@@ -1422,8 +1443,10 @@ dependencies = [
  "polars-arrow",
  "polars-core",
  "polars-io",
+ "polars-ops",
  "polars-time",
  "polars-utils",
+ "pyo3",
  "rayon",
  "regex",
  "serde",
@@ -1432,15 +1455,16 @@ dependencies = [
 [[package]]
 name = "polars-ops"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
+ "polars-arrow",
  "polars-core",
 ]
 
 [[package]]
 name = "polars-time"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "chrono",
  "lexical",
@@ -1452,7 +1476,7 @@ dependencies = [
 [[package]]
 name = "polars-utils"
 version = "0.21.1"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "parking_lot",
  "rayon",
@@ -1541,11 +1565,12 @@ dependencies = [
 
 [[package]]
 name = "py-polars"
-version = "0.13.29"
-source = "git+https://github.com/pola-rs/polars?rev=b796cf9b599559f76e354cc5a8ee23e85bf60c60#b796cf9b599559f76e354cc5a8ee23e85bf60c60"
+version = "0.13.39"
+source = "git+https://github.com/pola-rs/polars?rev=eb31d98a612e3f5aaa9da08391c0e9e7173a65a1#eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"
 dependencies = [
  "ahash",
  "bincode",
+ "jemallocator",
  "libc",
  "mimalloc",
  "ndarray",
@@ -1553,10 +1578,10 @@ dependencies = [
  "once_cell",
  "polars",
  "polars-core",
+ "polars-lazy",
  "pyo3",
  "serde_json",
  "thiserror",
- "tikv-jemallocator",
 ]
 
 [[package]]
@@ -1979,27 +2004,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "tikv-jemalloc-sys"
-version = "0.4.3+5.2.1-patched.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1792ccb507d955b46af42c123ea8863668fae24d03721e40cad6a41773dbb49"
-dependencies = [
- "cc",
- "fs_extra",
- "libc",
-]
-
-[[package]]
-name = "tikv-jemallocator"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5b7bcecfafe4998587d636f9ae9d55eb9d0499877b88757767c346875067098"
-dependencies = [
- "libc",
- "tikv-jemalloc-sys",
 ]
 
 [[package]]

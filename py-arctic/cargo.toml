@@ -13,8 +13,8 @@ crate-type = ["cdylib"]
 # polars-arrow = "0.21.1"
 # polars = {git = "https://github.com/pola-rs/polars"}
 # polars-arrow = {git = "https://github.com/pola-rs/polars"}
-polars = {git = "https://github.com/pola-rs/polars", rev = "b796cf9b599559f76e354cc5a8ee23e85bf60c60"}
-polars-arrow = {git = "https://github.com/pola-rs/polars", rev = "b796cf9b599559f76e354cc5a8ee23e85bf60c60"}
-py-polars = {git = "https://github.com/pola-rs/polars", rev = "b796cf9b599559f76e354cc5a8ee23e85bf60c60"}
+polars = {git = "https://github.com/pola-rs/polars", rev = "eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"}
+polars-arrow = {git = "https://github.com/pola-rs/polars", rev = "eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"}
+py-polars = {git = "https://github.com/pola-rs/polars", rev = "eb31d98a612e3f5aaa9da08391c0e9e7173a65a1"}
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
 arctic = { path = "../" }
