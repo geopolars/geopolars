@@ -1,18 +1,5 @@
 [workspace]
 members = [
-  ".",
+  "arctic",
   "py-arctic",
 ]
-
-[package]
-name = "arctic"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-arrow2 = {version = "0.11.2", features = ["io_ipc"]}
-geo = "0.20.1"
-geozero = {version = "0.9.4", features = ["with-wkb"]}
-polars = {version = "0.21.1", features = ["ipc", "dtype-u8"]}

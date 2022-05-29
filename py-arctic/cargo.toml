@@ -12,4 +12,4 @@ crate-type = ["cdylib"]
 polars = "0.21.1"
 polars-arrow = "0.21.1"
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
-arctic = { path = "../" }
+arctic = { path = "../arctic/" }
