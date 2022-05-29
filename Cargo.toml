@@ -12,7 +12,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-arrow2 = {version = "0.11.2", features = ["io_ipc"]}
+# arrow2 = {version = "0.11.2", features = ["io_ipc"]}
 geo = "0.20.1"
 geozero = {version = "0.9.4", features = ["with-wkb"]}
-polars = {version = "0.21.1", features = ["ipc", "dtype-u8"]}
+# polars = {version = "0.21.1", features = ["ipc", "dtype-u8"]}
+polars = {git = "https://github.com/pola-rs/polars", rev = "b796cf9b599559f76e354cc5a8ee23e85bf60c60", features = ["ipc", "dtype-u8"]}
+arrow2 = { package = "arrow2", git = "https://github.com/jorgecarleitao/arrow2", rev = "3c64e7ab957880d9d6c72289c34fffd96a6c7030", default-features = false }

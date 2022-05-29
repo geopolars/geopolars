@@ -1,8 +1,10 @@
 mod ffi;
+pub mod geodataframe;
 
 use arctic::geoseries::GeoSeries;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use crate::geodataframe::{BaseClass, SubClass, SubSubClass};
 
 #[pyfunction]
 fn centroid(series: &PyAny) -> PyResult<PyObject> {
@@ -15,6 +17,9 @@ fn centroid(series: &PyAny) -> PyResult<PyObject> {
 
 #[pymodule]
 fn py_arctic(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_wrapped(wrap_pyfunction!(centroid)).unwrap();
+    m.add_wrapped(wrap_pyfunction!(centroid))?;
+    m.add_class::<BaseClass>()?;
+    m.add_class::<SubClass>()?;
+    m.add_class::<SubSubClass>()?;
     Ok(())
 }
