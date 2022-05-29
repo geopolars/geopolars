@@ -10,7 +10,6 @@ pub fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
         let value = row.expect("Row is null");
         let buffer = value.u8().expect("Row is not type u8");
         let vec: Vec<u8> = buffer.into_iter().map(|x| x.unwrap()).collect();
-        let decoded_geom = Wkb(vec).to_geo().expect("unable to convert to geo");
-        decoded_geom
+        Wkb(vec).to_geo().expect("unable to convert to geo")
     })
 }

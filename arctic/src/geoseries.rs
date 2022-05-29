@@ -3,9 +3,7 @@ use std::sync::Arc;
 use crate::util::iter_geom;
 use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
 use geo::Geometry;
-use geozero::{
-    CoordDimensions, ToWkb,
-};
+use geozero::{CoordDimensions, ToWkb};
 use polars::prelude::{Result, Series};
 
 pub trait GeoSeries {
