@@ -18,3 +18,5 @@ python example.py
 ## Compile a **release** build
 
 `$ maturin develop --release`
+
+touch readme
