@@ -26,8 +26,8 @@ fn main() -> Result<()> {
     println!("{}", df);
 
     let start = Instant::now();
-    let series = df.centroid()?;
-    let series = df.column("geometry")?.centroid()?;
+    let _ = df.centroid()?;
+    let _ = df.column("geometry")?.centroid()?;
     println!("Debug: {}", start.elapsed().as_secs_f32());
 
     Ok(())

@@ -5,6 +5,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - 'arctic/**'
 
 jobs:
   fmt:
@@ -27,7 +29,7 @@ jobs:
       - uses: Swatinem/rust-cache@v1
 
       - name: Run
-        run: cargo fmt --all -- --check
+        run: cd arctic && cargo fmt --all -- --check
 
   clippy:
     name: Clippy
@@ -49,4 +51,4 @@ jobs:
       - uses: Swatinem/rust-cache@v1
 
       - name: "clippy --all"
-        run: cargo clippy --all --all-features --tests -- -D warnings
+        run: cd arctic && cargo clippy --all --all-features --tests -- -D warnings
