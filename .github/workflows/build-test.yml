@@ -44,5 +44,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
 
+      - name: Install protobuf
+        run: |
+          apt install libprotobuf-dev protobuf-compiler
+
       - name: "clippy --all"
         run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings

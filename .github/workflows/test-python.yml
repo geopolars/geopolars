@@ -25,6 +25,10 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
 
+      - name: Install protobuf
+        run: |
+          apt install libprotobuf-dev protobuf-compiler
+
       - name: Rust linting
         run: |
           cd py-geopolars
