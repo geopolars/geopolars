@@ -3,7 +3,7 @@ requires = ["maturin>=0.12,<0.13"]
 build-backend = "maturin"
 
 [project]
-name = "arctic"
+name = "geopolars"
 version = "0.1.0"
 dependencies = [
   "numpy >= 1.16.0",

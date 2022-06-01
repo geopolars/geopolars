@@ -6,8 +6,8 @@ on:
       - master
   pull_request:
     paths:
-      - "py-arctic/**"
-      - "arctic/**"
+      - "py-geopolars/**"
+      - "geopolars/**"
 
 jobs:
   lint-rust:
@@ -25,9 +25,13 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
 
+      - name: Install protobuf
+        run: |
+          sudo apt-get install libprotobuf-dev protobuf-compiler
+
       - name: Rust linting
         run: |
-          cd py-arctic
+          cd py-geopolars
           cargo fmt --all -- --check
           cargo clippy
 

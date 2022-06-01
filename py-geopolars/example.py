@@ -1,5 +1,5 @@
 import polars as pl
-from py_arctic import centroid
+from geopolars import centroid
 import pyarrow as pa
 
 

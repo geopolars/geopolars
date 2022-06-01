@@ -1,2 +1,3 @@
-# arctic
+# geopolars
+
 Geospatial extensions for Polars

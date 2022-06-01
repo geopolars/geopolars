@@ -1,5 +1,5 @@
-use arctic::geodataframe::GeoDataFrame;
-use arctic::geoseries::GeoSeries;
+use geopolars::geodataframe::GeoDataFrame;
+use geopolars::geoseries::GeoSeries;
 use polars::prelude::{IpcReader, Result, SerReader};
 use std::fs::File;
 use std::time::Instant;
