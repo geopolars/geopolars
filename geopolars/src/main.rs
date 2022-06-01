@@ -25,7 +25,7 @@ fn main() -> Result<()> {
     let df = IpcReader::new(file).finish()?;
     println!("{}", df);
 
-    let x = df.column("geometry")?.geom_type()?;
+    let x = df.column("geometry")?.exterior()?;
     println!("{}", x);
 
     let start = Instant::now();

@@ -14,6 +14,12 @@ pub trait GeoSeries {
 
     fn centroid(&self) -> Result<Series>;
 
+    /// Returns a GeoSeries of LinearRings representing the outer boundary of each polygon in the
+    /// GeoSeries.
+    ///
+    /// Applies to GeoSeries containing only Polygons. Returns `None` for other geometry types.
+    fn exterior(&self) -> Result<Series>;
+
     /// Returns the type ids of each geometry
     /// This mimics the pygeos implementation
     /// https://pygeos.readthedocs.io/en/latest/geometry.html?highlight=id#pygeos.geometry.get_type_id
@@ -60,6 +66,25 @@ impl GeoSeries for Series {
                 .expect("Unable to create wkb");
 
             output_array.push(Some(wkb));
+        }
+
+        let result: BinaryArray<i32> = output_array.into();
+
+        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+    }
+
+    fn exterior(&self) -> Result<Series> {
+        let mut output_array = MutableBinaryArray::<i32>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let maybe_exterior = match geom {
+                Geometry::Polygon(polygon) => {
+                    let exterior: Geometry<f64> = polygon.exterior().clone().into();
+                    Some(exterior.to_wkb(CoordDimensions::xy()).unwrap())
+                }
+                _ => None,
+            };
+            output_array.push(maybe_exterior);
         }
 
         let result: BinaryArray<i32> = output_array.into();
