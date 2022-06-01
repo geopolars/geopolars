@@ -19,6 +19,13 @@ pub trait GeoSeries {
     /// Note that centroid does not have to be on or within original geometry.
     fn centroid(&self) -> Result<Series>;
 
+    /// Returns a GeoSeries of geometries representing the envelope of each geometry.
+    ///
+    /// The envelope of a geometry is the bounding rectangle. That is, the point or smallest
+    /// rectangular polygon (with sides parallel to the coordinate axes) that contains the
+    /// geometry.
+    fn envelope(&self) -> Result<Series>;
+
     /// Returns a GeoSeries of LinearRings representing the outer boundary of each polygon in the
     /// GeoSeries.
     ///
@@ -73,6 +80,25 @@ impl GeoSeries for Series {
 
         for geom in iter_geom(self) {
             let value: Geometry<f64> = geom.centroid().expect("could not create centroid").into();
+            let wkb = value
+                .to_wkb(CoordDimensions::xy())
+                .expect("Unable to create wkb");
+
+            output_array.push(Some(wkb));
+        }
+
+        let result: BinaryArray<i32> = output_array.into();
+
+        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+    }
+
+    fn envelope(&self) -> Result<Series> {
+        use geo::algorithm::bounding_rect::BoundingRect;
+
+        let mut output_array = MutableBinaryArray::<i32>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let value: Geometry<f64> = geom.bounding_rect().unwrap().into();
             let wkb = value
                 .to_wkb(CoordDimensions::xy())
                 .expect("Unable to create wkb");
