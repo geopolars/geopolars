@@ -46,7 +46,7 @@ jobs:
 
       - name: Install protobuf
         run: |
-          apt install libprotobuf-dev protobuf-compiler
+          sudo apt-get install libprotobuf-dev protobuf-compiler
 
       - name: "clippy --all"
         run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings

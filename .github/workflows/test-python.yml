@@ -27,7 +27,7 @@ jobs:
 
       - name: Install protobuf
         run: |
-          apt install libprotobuf-dev protobuf-compiler
+          sudo apt-get install libprotobuf-dev protobuf-compiler
 
       - name: Rust linting
         run: |
