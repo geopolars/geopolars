@@ -10,8 +10,13 @@ use geozero::{CoordDimensions, ToWkb};
 use polars::prelude::{PolarsError, Result, Series};
 
 pub trait GeoSeries {
+    /// Returns a Series containing the area of each geometry in the GeoSeries expressed in the
+    /// units of the CRS.
     fn area(&self) -> Result<Series>;
 
+    /// Returns a GeoSeries of points representing the centroid of each geometry.
+    ///
+    /// Note that centroid does not have to be on or within original geometry.
     fn centroid(&self) -> Result<Series>;
 
     /// Returns a GeoSeries of LinearRings representing the outer boundary of each polygon in the
@@ -37,6 +42,13 @@ pub trait GeoSeries {
 
     /// Returns a boolean Series with value True for empty geometries
     fn is_empty(&self) -> Result<Series>;
+
+    /// Returns a boolean Series with value True for features that are closed.
+    ///
+    /// When constructing a LinearRing, the sequence of coordinates may be explicitly closed by
+    /// passing identical values in the first and last indices. Otherwise, the sequence will be
+    /// implicitly closed by copying the first tuple to the last index.
+    fn is_ring(&self) -> Result<Series>;
 
     /// Return the x location of point geometries in a GeoSeries
     fn x(&self) -> Result<Series>;
@@ -123,6 +135,22 @@ impl GeoSeries for Series {
 
         for geom in iter_geom(self) {
             result.push(Some(geom.is_empty()));
+        }
+
+        let result: BooleanArray = result.into();
+        Series::try_from(("result", Arc::new(result) as ArrayRef))
+    }
+
+    fn is_ring(&self) -> Result<Series> {
+        let mut result = MutableBooleanArray::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let value = match geom {
+                Geometry::LineString(g) => Some(g.is_closed()),
+                Geometry::MultiLineString(g) => Some(g.is_closed()),
+                _ => None,
+            };
+            result.push(value);
         }
 
         let result: BooleanArray = result.into();
