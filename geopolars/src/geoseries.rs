@@ -34,7 +34,7 @@ impl GeoSeries for Series {
         let mut output_vec: Vec<Option<Vec<Option<f64>>>> = Vec::with_capacity(self.len() * 4);
 
         for geom in iter_geom(self) {
-            let value = geom.bounding_rect().expect("could not create centroid");
+            let value = geom.bounding_rect().expect("could not compute bounds");
             let mut item: Vec<Option<f64>> = Vec::with_capacity(4);
             item.push(Some(value.min().x));
             item.push(Some(value.min().y));
