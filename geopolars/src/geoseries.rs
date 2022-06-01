@@ -57,6 +57,15 @@ pub trait GeoSeries {
     /// implicitly closed by copying the first tuple to the last index.
     fn is_ring(&self) -> Result<Series>;
 
+    /// Returns a GeoSeries containing a simplified representation of each geometry.
+    ///
+    /// The algorithm (Douglas-Peucker) recursively splits the original line into smaller parts and
+    /// connects these parts’ endpoints by a straight line. Then, it removes all points whose
+    /// distance to the straight line is smaller than tolerance. It does not move any points and it
+    /// always preserves endpoints of the original line or polygon. See
+    /// https://docs.rs/geo/latest/geo/algorithm/simplify/trait.Simplify.html for details
+    fn simplify(&self, tolerance: f64) -> Result<Series>;
+
     /// Return the x location of point geometries in a GeoSeries
     fn x(&self) -> Result<Series>;
 
@@ -181,6 +190,34 @@ impl GeoSeries for Series {
 
         let result: BooleanArray = result.into();
         Series::try_from(("result", Arc::new(result) as ArrayRef))
+    }
+
+    fn simplify(&self, tolerance: f64) -> Result<Series> {
+        use geo::algorithm::simplify::Simplify;
+
+        let mut output_array = MutableBinaryArray::<i32>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let value = match geom {
+                Geometry::Point(g) => Geometry::Point(g),
+                Geometry::MultiPoint(g) => Geometry::MultiPoint(g),
+                Geometry::LineString(g) => Geometry::LineString(g.simplify(&tolerance)),
+                Geometry::MultiLineString(g) => Geometry::MultiLineString(g.simplify(&tolerance)),
+                Geometry::Polygon(g) => Geometry::Polygon(g.simplify(&tolerance)),
+                Geometry::MultiPolygon(g) => Geometry::MultiPolygon(g.simplify(&tolerance)),
+                _ => unimplemented!(),
+            };
+
+            let wkb = value
+                .to_wkb(CoordDimensions::xy())
+                .expect("Unable to create wkb");
+
+            output_array.push(Some(wkb));
+        }
+
+        let result: BinaryArray<i32> = output_array.into();
+
+        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
 
     fn x(&self) -> Result<Series> {
