@@ -6,7 +6,7 @@ on:
       - master
   pull_request:
     paths:
-      - "arctic/**"
+      - "geopolars/**"
 
 jobs:
   fmt:
@@ -26,7 +26,7 @@ jobs:
       - uses: Swatinem/rust-cache@v1
 
       - name: Run
-        run: cd arctic && cargo fmt --all -- --check
+        run: cd geopolars && cargo fmt --all -- --check
 
   clippy:
     name: Clippy
@@ -45,4 +45,4 @@ jobs:
       - uses: Swatinem/rust-cache@v1
 
       - name: "clippy --all"
-        run: cd arctic && cargo clippy --all --all-features --tests -- -D warnings
+        run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings

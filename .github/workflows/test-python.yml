@@ -6,8 +6,8 @@ on:
       - master
   pull_request:
     paths:
-      - "py-arctic/**"
-      - "arctic/**"
+      - "py-geopolars/**"
+      - "geopolars/**"
 
 jobs:
   lint-rust:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Rust linting
         run: |
-          cd py-arctic
+          cd py-geopolars
           cargo fmt --all -- --check
           cargo clippy
 

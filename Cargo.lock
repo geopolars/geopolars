@@ -38,16 +38,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arctic"
-version = "0.1.0"
-dependencies = [
- "arrow2",
- "geo",
- "geozero",
- "polars",
-]
-
-[[package]]
 name = "array-init-cursor"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -382,6 +372,16 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "geopolars"
+version = "0.1.0"
+dependencies = [
+ "arrow2",
+ "geo",
+ "geozero",
+ "polars",
 ]
 
 [[package]]

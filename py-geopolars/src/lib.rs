@@ -1,6 +1,6 @@
 mod ffi;
 
-use arctic::geoseries::GeoSeries;
+use geopolars::geoseries::GeoSeries;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -14,7 +14,7 @@ fn centroid(series: &PyAny) -> PyResult<PyObject> {
 }
 
 #[pymodule]
-fn py_arctic(_py: Python, m: &PyModule) -> PyResult<()> {
+fn geopolars(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(centroid)).unwrap();
     Ok(())
 }
