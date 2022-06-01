@@ -26,6 +26,9 @@ fn main() -> Result<()> {
     println!("{}", df);
 
     let start = Instant::now();
+    let bounds = df.column("geometry")?.bounds()?;
+    println!("{}", bounds);
+
     let _ = df.centroid()?;
     let _ = df.column("geometry")?.centroid()?;
     println!("Debug: {}", start.elapsed().as_secs_f32());
