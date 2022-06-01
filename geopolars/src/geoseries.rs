@@ -14,6 +14,21 @@ pub trait GeoSeries {
 
     fn centroid(&self) -> Result<Series>;
 
+    /// Returns the type ids of each geometry
+    /// This mimics the pygeos implementation
+    /// https://pygeos.readthedocs.io/en/latest/geometry.html?highlight=id#pygeos.geometry.get_type_id
+    ///
+    /// None (missing) is -1
+    /// POINT is 0
+    /// LINESTRING is 1
+    /// LINEARRING is 2
+    /// POLYGON is 3
+    /// MULTIPOINT is 4
+    /// MULTILINESTRING is 5
+    /// MULTIPOLYGON is 6
+    /// GEOMETRYCOLLECTION is 7
+    fn geom_type(&self) -> Result<Series>;
+
     /// Returns a boolean Series with value True for empty geometries
     fn is_empty(&self) -> Result<Series>;
 
@@ -50,6 +65,30 @@ impl GeoSeries for Series {
         let result: BinaryArray<i32> = output_array.into();
 
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+    }
+
+    fn geom_type(&self) -> Result<Series> {
+        let mut result = MutablePrimitiveArray::<i8>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let type_id: i8 = match geom {
+                Geometry::Point(_) => 0,
+                Geometry::Line(_) => 1,
+                Geometry::LineString(_) => 1,
+                Geometry::Polygon(_) => 3,
+                Geometry::MultiPoint(_) => 4,
+                Geometry::MultiLineString(_) => 5,
+                Geometry::MultiPolygon(_) => 6,
+                Geometry::GeometryCollection(_) => 7,
+                // Should these still call themselves polygon?
+                Geometry::Rect(_) => 3,
+                Geometry::Triangle(_) => 3,
+            };
+            result.push(Some(type_id));
+        }
+
+        let result: PrimitiveArray<i8> = result.into();
+        Series::try_from(("result", Arc::new(result) as ArrayRef))
     }
 
     fn is_empty(&self) -> Result<Series> {
