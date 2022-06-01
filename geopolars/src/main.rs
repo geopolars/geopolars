@@ -25,6 +25,9 @@ fn main() -> Result<()> {
     let df = IpcReader::new(file).finish()?;
     println!("{}", df);
 
+    let x = df.column("geometry")?.is_empty()?;
+    println!("{}", x);
+
     let start = Instant::now();
     let _ = df.centroid()?;
     let _ = df.column("geometry")?.centroid()?;
