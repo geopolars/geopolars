@@ -26,6 +26,11 @@ pub trait GeoSeries {
     /// geometry.
     fn envelope(&self) -> Result<Series>;
 
+    /// Returns a GeoSeries of geometries representing the convex hull of each geometry.
+    ///
+    /// The convex hull of a geometry is the smallest convex Polygon containing all the points in each geometr
+    fn convex_hull(&self) -> Result<Series>;
+
     /// Returns a GeoSeries of LinearRings representing the outer boundary of each polygon in the
     /// GeoSeries.
     ///
@@ -117,6 +122,31 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
+        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+    }
+
+    fn convex_hull(&self) -> Result<Series> {
+        use geo::algorithm::convex_hull::ConvexHull;
+        let mut output_array = MutableBinaryArray::<i32>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let hull = match geom {
+                Geometry::Polygon(polygon) => Ok(polygon.convex_hull()),
+                Geometry::MultiPolygon(multi_poly) => Ok(multi_poly.convex_hull()),
+                Geometry::MultiPoint(points) => Ok(points.convex_hull()),
+                Geometry::LineString(line_string) => Ok(line_string.convex_hull()),
+                Geometry::MultiLineString(multi_line_string) => Ok(multi_line_string.convex_hull()),
+                _ => Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                    "ConvexHull not supported for this geometry type",
+                ))),
+            }?;
+            let hull: Geometry<f64> = hull.into();
+            let hull_wkb = hull.to_wkb(CoordDimensions::xy()).unwrap();
+
+            output_array.push(Some(hull_wkb));
+        }
+
+        let result: BinaryArray<i32> = output_array.into();
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
 
@@ -256,5 +286,70 @@ impl GeoSeries for Series {
 
         let result: PrimitiveArray<f64> = result.into();
         Series::try_from(("result", Arc::new(result) as ArrayRef))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{geoseries::GeoSeries, util::iter_geom};
+    use polars::prelude::Series;
+    use std::sync::Arc;
+
+    use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
+    use geo::{polygon, Geometry, MultiPoint, Point, Polygon};
+    use geozero::{CoordDimensions, ToWkb};
+
+    #[test]
+    fn convex_hull_for_multipoint() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        // Values borrowed from this test in geo crate: https://docs.rs/geo/0.14.2/src/geo/algorithm/convexhull.rs.html#323
+        let v = vec![
+            Point::new(0.0, 10.0),
+            Point::new(1.0, 1.0),
+            Point::new(10.0, 0.0),
+            Point::new(1.0, -1.0),
+            Point::new(0.0, -10.0),
+            Point::new(-1.0, -1.0),
+            Point::new(-10.0, 0.0),
+            Point::new(-1.0, 1.0),
+            Point::new(0.0, 10.0),
+        ];
+        let mp = MultiPoint(v);
+
+        let correct_poly: Polygon<f64> = polygon![
+            (x:0.0, y: -10.0),
+            (x:10.0, y: 0.0),
+            (x:0.0, y:10.0),
+            (x:-10.0, y:0.0),
+            (x:0.0, y:-10.0),
+        ];
+
+        let correct: Geometry<f64> = correct_poly.into();
+
+        let test_geom: Geometry<f64> = mp.into();
+        let test_wkb = test_geom.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let convex_res = series.convex_hull();
+
+        assert!(
+            convex_res.is_ok(),
+            "Should get a valid result back from convex hull"
+        );
+        let convex_res = convex_res.unwrap();
+
+        assert_eq!(
+            convex_res.len(),
+            1,
+            "Should get a single result back from the series"
+        );
+        let mut geom_iter = iter_geom(&convex_res);
+        let result = geom_iter.next().unwrap();
+
+        assert_eq!(result, correct, "Should get the correct convex hull");
     }
 }
