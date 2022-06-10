@@ -50,3 +50,21 @@ jobs:
 
       - name: "clippy --all"
         run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings
+
+  clippy:
+    name: Test Rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - uses: Swatinem/rust-cache@v1
+
+      - name: "cargo test"
+        run: cd geopolars && cargo test --all --all-features
