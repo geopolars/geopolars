@@ -1,4 +1,4 @@
-name: Test python
+name: Python
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
     paths:
       - "py-geopolars/**"
       - "geopolars/**"
+      - ".github/**"
 
 jobs:
   lint-rust:
