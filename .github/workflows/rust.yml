@@ -1,4 +1,4 @@
-name: Build and lint rust
+name: Rust
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   fmt:
-    name: fmt
+    name: rustfmt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
         run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings
 
   test:
-    name: Test Rust
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
