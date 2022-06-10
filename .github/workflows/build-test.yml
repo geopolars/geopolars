@@ -51,7 +51,7 @@ jobs:
       - name: "clippy --all"
         run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings
 
-  clippy:
+  test:
     name: Test Rust
     runs-on: ubuntu-latest
     steps:
