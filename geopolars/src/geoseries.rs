@@ -31,11 +31,27 @@ pub trait GeoSeries {
     /// geometry.
     fn envelope(&self) -> Result<Series>;
 
+    /// Returns a Series with the value of the euclidean length of each geometry
+    ///
+    /// Calculates the euclidean length of each geometry in the series and returns it as a series.
+    /// Not valid for Point or MultiPoint geometries. For Polygon it's the
+    /// length of the exterior ring of the exterior ring of the Polygon and for MultiPolygon
+    /// it returns the
+    fn euclidean_length(&self) -> Result<Series>;
+
     /// Returns a GeoSeries of LinearRings representing the outer boundary of each polygon in the
     /// GeoSeries.
     ///
     /// Applies to GeoSeries containing only Polygons. Returns `None` for other geometry types.
     fn exterior(&self) -> Result<Series>;
+
+    /// Returns a Series with the value of the geodesic length of each geometry
+    ///
+    /// Calculates the geodesic length of each geometry in the series and returns it as a series.
+    /// Not valid for Point or MultiPoint geometries. For Polygon it's the
+    /// length of the exterior ring of the exterior ring of the Polygon and for MultiPolygon
+    /// it returns the
+    fn geodesic_length(&self) -> Result<Series>;
 
     /// Returns the type ids of each geometry
     /// This mimics the pygeos implementation
@@ -51,6 +67,14 @@ pub trait GeoSeries {
     /// MULTIPOLYGON is 6
     /// GEOMETRYCOLLECTION is 7
     fn geom_type(&self) -> Result<Series>;
+
+    /// Returns a Series with the value of the geodesic length of each geometry
+    ///
+    /// Calculates the haversine length of each geometry in the series and returns it as a series.
+    /// Not valid for Point or MultiPoint geometries. For Polygon it's the
+    /// length of the exterior ring of the exterior ring of the Polygon and for MultiPolygon
+    /// it returns the
+    fn haversine_length(&self) -> Result<Series>;
 
     /// Returns a boolean Series with value True for empty geometries
     fn is_empty(&self) -> Result<Series>;
@@ -150,6 +174,41 @@ impl GeoSeries for Series {
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
 
+    fn euclidean_length(&self) -> Result<Series> {
+        use geo::algorithm::euclidean_length::EuclideanLength;
+        let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let length: f64 = match geom {
+                Geometry::Point(_) => Ok(0.0),
+                Geometry::Line(line) => Ok(line.euclidean_length()),
+                Geometry::LineString(line_string) => Ok(line_string.euclidean_length()),
+                Geometry::Polygon(polygon) => Ok(polygon.exterior().euclidean_length()),
+                Geometry::MultiPoint(_) => Ok(0.0),
+                Geometry::MultiLineString(multi_line_string) => {
+                    Ok(multi_line_string.euclidean_length())
+                }
+                Geometry::MultiPolygon(mutli_polygon) => Ok(mutli_polygon
+                    .iter()
+                    .map(|poly| poly.exterior().euclidean_length())
+                    .sum()),
+                Geometry::GeometryCollection(_) => {
+                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                        "Length methods are not implemented for geometry collection",
+                    )))
+                }
+                Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().euclidean_length()),
+                Geometry::Triangle(triangle) => {
+                    Ok(triangle.to_polygon().exterior().euclidean_length())
+                }
+            }?;
+            result.push(Some(length));
+        }
+
+        let result: PrimitiveArray<f64> = result.into();
+        Series::try_from(("result", Arc::new(result) as ArrayRef))
+    }
+
     fn exterior(&self) -> Result<Series> {
         let mut output_array = MutableBinaryArray::<i32>::with_capacity(self.len());
 
@@ -167,6 +226,41 @@ impl GeoSeries for Series {
         let result: BinaryArray<i32> = output_array.into();
 
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+    }
+
+    fn geodesic_length(&self) -> Result<Series> {
+        use geo::algorithm::geodesic_length::GeodesicLength;
+        let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let length: f64 = match geom {
+                Geometry::Point(_) => Ok(0.0),
+                Geometry::Line(line) => Ok(line.geodesic_length()),
+                Geometry::LineString(line_string) => Ok(line_string.geodesic_length()),
+                Geometry::Polygon(polygon) => Ok(polygon.exterior().geodesic_length()),
+                Geometry::MultiPoint(_) => Ok(0.0),
+                Geometry::MultiLineString(multi_line_string) => {
+                    Ok(multi_line_string.geodesic_length())
+                }
+                Geometry::MultiPolygon(mutli_polygon) => Ok(mutli_polygon
+                    .iter()
+                    .map(|poly| poly.exterior().geodesic_length())
+                    .sum()),
+                Geometry::GeometryCollection(_) => {
+                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                        "Length methods are not implemented for geometry collection",
+                    )))
+                }
+                Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().geodesic_length()),
+                Geometry::Triangle(triangle) => {
+                    Ok(triangle.to_polygon().exterior().geodesic_length())
+                }
+            }?;
+            result.push(Some(length));
+        }
+
+        let result: PrimitiveArray<f64> = result.into();
+        Series::try_from(("result", Arc::new(result) as ArrayRef))
     }
 
     fn geom_type(&self) -> Result<Series> {
@@ -190,6 +284,42 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<i8> = result.into();
+        Series::try_from(("result", Arc::new(result) as ArrayRef))
+    }
+
+    fn haversine_length(&self) -> Result<Series> {
+        use geo::algorithm::haversine_length::HaversineLength;
+        let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
+
+        for geom in iter_geom(self) {
+            let length: f64 = match geom {
+                Geometry::Point(_) => Ok(0.0),
+                Geometry::Line(line) => Ok(line.haversine_length()),
+                Geometry::LineString(line_string) => Ok(line_string.haversine_length()),
+                Geometry::Polygon(polygon) => Ok(polygon.exterior().haversine_length()),
+                Geometry::MultiPoint(_) => Ok(0.0),
+                Geometry::MultiLineString(multi_line_string) => {
+                    Ok(multi_line_string.haversine_length())
+                }
+                Geometry::MultiPolygon(mutli_polygon) => Ok(mutli_polygon
+                    .iter()
+                    .map(|poly| poly.exterior().haversine_length())
+                    .sum()),
+                Geometry::GeometryCollection(_) => {
+                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                        "Length methods are not implemented for geometry collection",
+                    )))
+                }
+                // Should these still call themselves polygon?
+                Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().haversine_length()),
+                Geometry::Triangle(triangle) => {
+                    Ok(triangle.to_polygon().exterior().haversine_length())
+                }
+            }?;
+            result.push(Some(length));
+        }
+
+        let result: PrimitiveArray<f64> = result.into();
         Series::try_from(("result", Arc::new(result) as ArrayRef))
     }
 
@@ -296,7 +426,7 @@ mod tests {
     use std::sync::Arc;
 
     use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
-    use geo::{polygon, Geometry, MultiPoint, Point, Polygon};
+    use geo::{line_string, polygon, Geometry, LineString, MultiPoint, Point, Polygon};
     use geozero::{CoordDimensions, ToWkb};
 
     #[test]
@@ -351,5 +481,89 @@ mod tests {
         let result = geom_iter.next().unwrap();
 
         assert_eq!(result, correct, "Should get the correct convex hull");
+    }
+
+    #[test]
+    fn euclidean_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string: LineString<f64> = line_string![
+            (x: 1., y: 1.),
+            (x: 7., y: 1.),
+            (x: 8., y: 1.),
+            (x: 9., y: 1.),
+            (x: 10., y: 1.),
+            (x: 11., y: 1.)
+        ];
+
+        let line_string: Geometry<_> = line_string.into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let lengths = series.euclidean_length().unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(10.0_f64, as_vec[0]);
+    }
+    #[test]
+    fn haversine_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string = LineString::<f64>::from(vec![
+            // New York City
+            (-74.006, 40.7128),
+            // London
+            (-0.1278, 51.5074),
+        ]);
+
+        let line_string: Geometry<_> = line_string.into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let lengths = series.haversine_length().unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(
+            5_570_230., // meters
+            as_vec[0].round()
+        );
+    }
+
+    #[test]
+    fn geodesic_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string = LineString::<f64>::from(vec![
+            // New York City
+            (-74.006, 40.7128),
+            // London
+            (-0.1278, 51.5074),
+            // Osaka
+            (135.5244559, 34.687455),
+        ]);
+
+        let line_string: Geometry<_> = line_string.into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let lengths = series.geodesic_length().unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(
+            15_109_158., // meters
+            as_vec[0].round()
+        );
     }
 }
