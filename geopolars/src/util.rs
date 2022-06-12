@@ -1,6 +1,6 @@
 use geo::Geometry;
 use geozero::{wkb::Wkb, ToGeo};
-use polars::prelude::{Series,Result};
+use polars::prelude::{Result, Series};
 
 /// Helper function to iterate over geometries from polars Series
 pub fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
@@ -14,12 +14,12 @@ pub fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
     })
 }
 
-pub fn geom_at_index(series: &Series, index: usize) -> Result<Geometry<f64>>{
+pub fn geom_at_index(series: &Series, index: usize) -> Result<Geometry<f64>> {
     let chunks = series.list().expect("series was not a list type");
-    let row = chunks.into_iter().skip(index).next(); 
+    let row = chunks.into_iter().nth(index);
     let value = row.expect("Row is null").expect("Failed to get row");
     let buffer = value.u8().expect("Row is not of type u8");
-    let vec:Vec<u8> = buffer.into_iter().map(|x| x.unwrap()).collect();
+    let vec: Vec<u8> = buffer.into_iter().map(|x| x.unwrap()).collect();
     let geom = Wkb(vec).to_geo().expect("unable to convert geo");
     Ok(geom)
 }

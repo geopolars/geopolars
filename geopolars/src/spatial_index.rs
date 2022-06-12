@@ -7,6 +7,7 @@ use rstar::{RTree, RTreeObject, AABB};
 
 use crate::util::iter_geom;
 
+#[derive(Debug)]
 pub enum NodeEnvelope {
     Point([f64; 2]),
     BBox([[f64; 2]; 2]),
@@ -78,6 +79,7 @@ impl From<Line<f64>> for NodeEnvelope {
     }
 }
 
+#[derive(Debug)]
 pub struct TreeNode {
     pub index: usize,
     pub envelope: NodeEnvelope,
@@ -118,6 +120,22 @@ pub struct SpatialIndex {
 }
 
 impl SpatialIndex {}
+
+impl<'a> TryFrom<&'a Series> for SpatialIndex {
+    type Error = PolarsError;
+
+    fn try_from(series: &'a Series) -> Result<Self, Self::Error> {
+        let mut r_tree: RTree<TreeNode> = RTree::new();
+        for (index, geom) in iter_geom(series).enumerate() {
+            let node = TreeNode {
+                index,
+                envelope: geom.try_into()?,
+            };
+            r_tree.insert(node)
+        }
+        Ok(SpatialIndex { r_tree })
+    }
+}
 
 impl TryFrom<Series> for SpatialIndex {
     type Error = PolarsError;
