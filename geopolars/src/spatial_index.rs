@@ -131,7 +131,7 @@ impl TryFrom<Series> for SpatialIndex {
             };
             r_tree.insert(node)
         }
-        return Ok(SpatialIndex { r_tree });
+        Ok(SpatialIndex { r_tree })
     }
 }
 

@@ -38,7 +38,7 @@ pub trait GeoSeries {
     fn exterior(&self) -> Result<Series>;
 
     /// Create a Series from a vector of geometries
-    fn from_geom_vec(geoms: &Vec<Geometry<f64>>) -> Result<Series>;
+    fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series>;
 
     /// Returns the type ids of each geometry
     /// This mimics the pygeos implementation
@@ -172,7 +172,7 @@ impl GeoSeries for Series {
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
 
-    fn from_geom_vec(geoms: &Vec<Geometry<f64>>) -> Result<Self> {
+    fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Self> {
         let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
 
         for geom in geoms {
