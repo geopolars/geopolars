@@ -9,6 +9,12 @@ use geo::{Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
 use polars::prelude::{PolarsError, Result, Series};
 
+pub enum GeodesicLengthMethod {
+    Haversine,
+    Geodesic,
+    Vincenty,
+}
+
 pub trait GeoSeries {
     /// Returns a Series containing the area of each geometry in the GeoSeries expressed in the
     /// units of the CRS.
@@ -21,7 +27,7 @@ pub trait GeoSeries {
 
     /// Returns a GeoSeries of geometries representing the convex hull of each geometry.
     ///
-    /// The convex hull of a geometry is the smallest convex Polygon containing all the points in each geometr
+    /// The convex hull of a geometry is the smallest convex Polygon containing all the points in each geometry
     fn convex_hull(&self) -> Result<Series>;
 
     /// Returns a GeoSeries of geometries representing the envelope of each geometry.
@@ -51,7 +57,7 @@ pub trait GeoSeries {
     /// Not valid for Point or MultiPoint geometries. For Polygon it's the
     /// length of the exterior ring of the exterior ring of the Polygon and for MultiPolygon
     /// it returns the
-    fn geodesic_length(&self) -> Result<Series>;
+    fn geodesic_length(&self, method: GeodesicLengthMethod) -> Result<Series>;
 
     /// Returns the type ids of each geometry
     /// This mimics the pygeos implementation
@@ -67,14 +73,6 @@ pub trait GeoSeries {
     /// MULTIPOLYGON is 6
     /// GEOMETRYCOLLECTION is 7
     fn geom_type(&self) -> Result<Series>;
-
-    /// Returns a Series with the value of the geodesic length of each geometry
-    ///
-    /// Calculates the haversine length of each geometry in the series and returns it as a series.
-    /// Not valid for Point or MultiPoint geometries. For Polygon it's the
-    /// length of the exterior ring of the exterior ring of the Polygon and for MultiPolygon
-    /// it returns the
-    fn haversine_length(&self) -> Result<Series>;
 
     /// Returns a boolean Series with value True for empty geometries
     fn is_empty(&self) -> Result<Series>;
@@ -228,33 +226,115 @@ impl GeoSeries for Series {
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
 
-    fn geodesic_length(&self) -> Result<Series> {
-        use geo::algorithm::geodesic_length::GeodesicLength;
+    fn geodesic_length(&self, method: GeodesicLengthMethod) -> Result<Series> {
+        use geo::algorithm::{
+            geodesic_length::GeodesicLength, haversine_length::HaversineLength,
+            vincenty_length::VincentyLength,
+        };
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
+        let map_vincenty_error = |_| {
+            PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                "Failed to calculate vincenty length",
+            ))
+        };
+
         for geom in iter_geom(self) {
-            let length: f64 = match geom {
-                Geometry::Point(_) => Ok(0.0),
-                Geometry::Line(line) => Ok(line.geodesic_length()),
-                Geometry::LineString(line_string) => Ok(line_string.geodesic_length()),
-                Geometry::Polygon(polygon) => Ok(polygon.exterior().geodesic_length()),
-                Geometry::MultiPoint(_) => Ok(0.0),
-                Geometry::MultiLineString(multi_line_string) => {
+            let length: f64 = match (&method, geom) {
+                (_, Geometry::Point(_)) => Ok(0.0),
+
+                (GeodesicLengthMethod::Haversine, Geometry::Line(line)) => {
+                    Ok(line.haversine_length())
+                }
+                (GeodesicLengthMethod::Geodesic, Geometry::Line(line)) => {
+                    Ok(line.geodesic_length())
+                }
+                (GeodesicLengthMethod::Vincenty, Geometry::Line(line)) => {
+                    line.vincenty_length().map_err(map_vincenty_error)
+                }
+
+                (GeodesicLengthMethod::Haversine, Geometry::LineString(line_string)) => {
+                    Ok(line_string.haversine_length())
+                }
+                (GeodesicLengthMethod::Geodesic, Geometry::LineString(line_string)) => {
+                    Ok(line_string.geodesic_length())
+                }
+                (GeodesicLengthMethod::Vincenty, Geometry::LineString(line_string)) => {
+                    line_string.vincenty_length().map_err(map_vincenty_error)
+                }
+
+                (GeodesicLengthMethod::Haversine, Geometry::Polygon(polygon)) => {
+                    Ok(polygon.exterior().haversine_length())
+                }
+                (GeodesicLengthMethod::Geodesic, Geometry::Polygon(polygon)) => {
+                    Ok(polygon.exterior().geodesic_length())
+                }
+                (GeodesicLengthMethod::Vincenty, Geometry::Polygon(polygon)) => polygon
+                    .exterior()
+                    .vincenty_length()
+                    .map_err(map_vincenty_error),
+
+                (_, Geometry::MultiPoint(_)) => Ok(0.0),
+
+                (GeodesicLengthMethod::Haversine, Geometry::MultiLineString(multi_line_string)) => {
+                    Ok(multi_line_string.haversine_length())
+                }
+
+                (GeodesicLengthMethod::Geodesic, Geometry::MultiLineString(multi_line_string)) => {
                     Ok(multi_line_string.geodesic_length())
                 }
-                Geometry::MultiPolygon(mutli_polygon) => Ok(mutli_polygon
-                    .iter()
-                    .map(|poly| poly.exterior().geodesic_length())
-                    .sum()),
-                Geometry::GeometryCollection(_) => {
+                (GeodesicLengthMethod::Vincenty, Geometry::MultiLineString(multi_line_string)) => {
+                    multi_line_string
+                        .vincenty_length()
+                        .map_err(map_vincenty_error)
+                }
+                (GeodesicLengthMethod::Haversine, Geometry::MultiPolygon(mutli_polygon)) => {
+                    Ok(mutli_polygon
+                        .iter()
+                        .map(|poly| poly.exterior().haversine_length())
+                        .sum())
+                }
+                (GeodesicLengthMethod::Geodesic, Geometry::MultiPolygon(mutli_polygon)) => {
+                    Ok(mutli_polygon
+                        .iter()
+                        .map(|poly| poly.exterior().geodesic_length())
+                        .sum())
+                }
+
+                (GeodesicLengthMethod::Vincenty, Geometry::MultiPolygon(mutli_polygon)) => {
+                    let result: std::result::Result<Vec<f64>, _> = mutli_polygon
+                        .iter()
+                        .map(|poly| poly.exterior().vincenty_length())
+                        .collect();
+                    result.map(|v| v.iter().sum()).map_err(map_vincenty_error)
+                }
+                (_, Geometry::GeometryCollection(_)) => {
                     Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
                         "Length methods are not implemented for geometry collection",
                     )))
                 }
-                Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().geodesic_length()),
-                Geometry::Triangle(triangle) => {
+                (GeodesicLengthMethod::Haversine, Geometry::Rect(rec)) => {
+                    Ok(rec.to_polygon().exterior().haversine_length())
+                }
+                (GeodesicLengthMethod::Geodesic, Geometry::Rect(rec)) => {
+                    Ok(rec.to_polygon().exterior().geodesic_length())
+                }
+                (GeodesicLengthMethod::Vincenty, Geometry::Rect(rec)) => rec
+                    .to_polygon()
+                    .exterior()
+                    .vincenty_length()
+                    .map_err(map_vincenty_error),
+                (GeodesicLengthMethod::Haversine, Geometry::Triangle(triangle)) => {
+                    Ok(triangle.to_polygon().exterior().haversine_length())
+                }
+                (GeodesicLengthMethod::Geodesic, Geometry::Triangle(triangle)) => {
                     Ok(triangle.to_polygon().exterior().geodesic_length())
                 }
+                (GeodesicLengthMethod::Vincenty, Geometry::Triangle(triangle)) => triangle
+                    .to_polygon()
+                    .exterior()
+                    .vincenty_length()
+                    .map_err(map_vincenty_error),
             }?;
             result.push(Some(length));
         }
@@ -284,42 +364,6 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<i8> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
-    }
-
-    fn haversine_length(&self) -> Result<Series> {
-        use geo::algorithm::haversine_length::HaversineLength;
-        let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
-
-        for geom in iter_geom(self) {
-            let length: f64 = match geom {
-                Geometry::Point(_) => Ok(0.0),
-                Geometry::Line(line) => Ok(line.haversine_length()),
-                Geometry::LineString(line_string) => Ok(line_string.haversine_length()),
-                Geometry::Polygon(polygon) => Ok(polygon.exterior().haversine_length()),
-                Geometry::MultiPoint(_) => Ok(0.0),
-                Geometry::MultiLineString(multi_line_string) => {
-                    Ok(multi_line_string.haversine_length())
-                }
-                Geometry::MultiPolygon(mutli_polygon) => Ok(mutli_polygon
-                    .iter()
-                    .map(|poly| poly.exterior().haversine_length())
-                    .sum()),
-                Geometry::GeometryCollection(_) => {
-                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Length methods are not implemented for geometry collection",
-                    )))
-                }
-                // Should these still call themselves polygon?
-                Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().haversine_length()),
-                Geometry::Triangle(triangle) => {
-                    Ok(triangle.to_polygon().exterior().haversine_length())
-                }
-            }?;
-            result.push(Some(length));
-        }
-
-        let result: PrimitiveArray<f64> = result.into();
         Series::try_from(("result", Arc::new(result) as ArrayRef))
     }
 
@@ -421,7 +465,10 @@ impl GeoSeries for Series {
 
 #[cfg(test)]
 mod tests {
-    use crate::{geoseries::GeoSeries, util::iter_geom};
+    use crate::{
+        geoseries::{GeoSeries, GeodesicLengthMethod},
+        util::iter_geom,
+    };
     use polars::prelude::Series;
     use std::sync::Arc;
 
@@ -528,11 +575,42 @@ mod tests {
         let test_array: BinaryArray<i32> = test_data.into();
 
         let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
-        let lengths = series.haversine_length().unwrap();
+        let lengths = series
+            .geodesic_length(GeodesicLengthMethod::Haversine)
+            .unwrap();
         let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
 
         assert_eq!(
             5_570_230., // meters
+            as_vec[0].round()
+        );
+    }
+    #[test]
+    fn vincenty_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string = LineString::<f64>::from(vec![
+            // New York City
+            (-74.006, 40.7128),
+            // London
+            (-0.1278, 51.5074),
+        ]);
+
+        let line_string: Geometry<_> = line_string.into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let lengths = series
+            .geodesic_length(GeodesicLengthMethod::Vincenty)
+            .unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(
+            5585234., // meters
             as_vec[0].round()
         );
     }
@@ -558,7 +636,9 @@ mod tests {
         let test_array: BinaryArray<i32> = test_data.into();
 
         let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
-        let lengths = series.geodesic_length().unwrap();
+        let lengths = series
+            .geodesic_length(GeodesicLengthMethod::Geodesic)
+            .unwrap();
         let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
 
         assert_eq!(
