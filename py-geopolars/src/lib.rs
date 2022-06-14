@@ -31,11 +31,19 @@ fn euclidean_length(series: &PyAny) -> PyResult<PyObject> {
     ffi::rust_series_to_py_series(&out)
 }
 
-#[pyfunction]
-fn geodesic_length(series: &PyAny) -> PyResult<PyObject> {
+#[pyfunction(args="(method=\"geodesic\")")]
+fn geodesic_length(series: &PyAny, method: &str) -> PyResult<PyObject> {
     let series = ffi::py_series_to_rust_series(series)?;
+
+    let rust_method : GeodesicLengthMethod  = match method{
+        "geodesic" => Ok(GeodesicLengthMethod::Geodesic),
+        "haversine" => Ok(GeodesicLengthMethod::Haversine),
+        "vincenty" => Ok(GeodesicLengthMethod::Vincenty),
+        _ => Err(PyValueError::new_err("Geodesic calculation method not valid. Use one of geodesic, haversine or vincenty"))
+    }?;
+
     let out = series
-        .geodesic_length(GeodesicLengthMethod::Geodesic)
+        .geodesic_length(rust_method)
         .map_err(|e| PyValueError::new_err(format!("Something went wrong: {:?}", e)))?;
     ffi::rust_series_to_py_series(&out)
 }
