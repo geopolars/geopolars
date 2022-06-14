@@ -1,10 +1,19 @@
+use arrow2::array::{self, ListArray};
+use arrow2::datatypes::{DataType, Field};
 use geopolars::geodataframe::GeoDataFrame;
 use geopolars::geoseries::GeoSeries;
-use polars::prelude::{IpcReader, Result, SerReader};
+use polars::prelude::{IpcReader, Result, SerReader, Series};
 use std::fs::File;
 use std::time::Instant;
 
 fn main() -> Result<()> {
+    let inner = Box::new(Field::new("geoarrow.coord", DataType::UInt8, false));
+    let extension_type = DataType::Extension(
+        "geoarrow.wkb".to_string(),
+        Box::new(DataType::List(inner)),
+        Some("metadata".to_string()),
+    );
+
     let file = File::open("cities.arrow").expect("file not found");
 
     // let metadata = read_file_metadata(&mut reader)?;
@@ -24,6 +33,19 @@ fn main() -> Result<()> {
 
     let df = IpcReader::new(file).finish()?;
     println!("{}", df);
+
+    let geom_column = df.column("geometry")?;
+    let list_array = geom_column.rechunk().list()?;
+    let chunk = list_array.chunks().first().unwrap();
+    let out = chunk.as_any().downcast_ref::<ListArray<i32>>().unwrap();
+    out.t
+
+    // let x = chunk.as_any();
+    chunk.
+    let a = geom_column.list()?;
+    a.
+    // geom_column.list()
+    // df.co
 
     let x = df.column("geometry")?.exterior()?;
     println!("{}", x);
