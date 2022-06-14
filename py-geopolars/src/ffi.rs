@@ -1,5 +1,5 @@
 use arrow::{array::ArrayRef, ffi};
-use polars::prelude::*;
+use polars::prelude::{ArrowField, Series};
 use polars_arrow::export::arrow;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
