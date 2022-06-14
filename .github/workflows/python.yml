@@ -32,6 +32,7 @@ jobs:
 
       - name: Rust linting
         run: |
+          cd py-geopolars
           cargo fmt --all -- --check
           cargo clippy
 
