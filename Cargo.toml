@@ -1,3 +1,2 @@
 [workspace]
-members = ["geopolars"]
-exclude = ["py-geopolars"]
+members = ["geopolars", "py-geopolars"]
