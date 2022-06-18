@@ -54,7 +54,13 @@ jobs:
       - name: Build sdist
         run: |
           pip install maturin
-          maturin sdist --manifest-path py-geopolars/Cargo.toml
+          pwd
+          ls
+          maturin sdist --manifest-path py-geopolars/Cargo.toml || echo ""
+          cd py-geopolars
+          pwd
+          ls
+          maturin sdist
 
       - uses: actions/upload-artifact@v2
         with:
