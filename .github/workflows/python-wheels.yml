@@ -52,7 +52,7 @@ jobs:
       - name: Build sdist
         run: |
           pip install maturin
-          maturin sdist
+          cd py-geopolars && maturin sdist
 
       - uses: actions/upload-artifact@v2
         with:
