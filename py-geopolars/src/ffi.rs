@@ -73,6 +73,8 @@ pub fn py_series_to_rust_series(series: &PyAny) -> PyResult<Series> {
     Series::try_from((name.as_str(), array)).map_err(|e| PyValueError::new_err(format!("{}", e)))
 }
 
+// Allow dead code because this function will be used later
+#[allow(dead_code)]
 pub fn rust_series_to_py_series(series: &Series) -> PyResult<PyObject> {
     // ensure we have a single chunk
     let series = series.rechunk();
