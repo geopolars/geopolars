@@ -10,7 +10,7 @@ fn centroid(series: &PyAny) -> PyResult<PyObject> {
     let out = series
         .centroid()
         .map_err(|e| PyValueError::new_err(format!("Something went wrong: {:?}", e)))?;
-    ffi::rust_series_to_py_series(&out)
+    ffi::rust_series_to_py_geoseries(&out)
 }
 
 #[pyfunction]
@@ -19,7 +19,7 @@ fn convex_hull(series: &PyAny) -> PyResult<PyObject> {
     let out = series
         .convex_hull()
         .map_err(|e| PyValueError::new_err(format!("Something went wrong: {:?}", e)))?;
-    ffi::rust_series_to_py_series(&out)
+    ffi::rust_series_to_py_geoseries(&out)
 }
 
 #[pymodule]
