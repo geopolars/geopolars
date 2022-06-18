@@ -11,7 +11,7 @@ class GeoSeries(polars.Series):
         super().__init__(*args, **kwargs)
 
     def centroid(self) -> GeoSeries:
-        return GeoSeries(geopolars.centroid(self))
+        return geopolars.centroid(self)
 
     def convex_hull(self) -> GeoSeries:
-        return GeoSeries(geopolars.convex_hull(self))
+        return geopolars.convex_hull(self)
