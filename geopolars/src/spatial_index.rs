@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use geo::{
     prelude::BoundingRect, Geometry, Line, LineString, MultiLineString, MultiPoint, MultiPolygon,
     Point, Polygon,
@@ -10,10 +12,10 @@ use crate::util::{geom_at_index, iter_geom, Predicate};
 pub struct SpatialJoinArgs<'a> {
     pub join_type: JoinType,
     pub predicate: Predicate,
-    pub l_suffix: &'a str,
-    pub r_suffix: &'a str,
-    pub l_index: Option<&'a SpatialIndex>,
-    pub r_index: Option<&'a SpatialIndex>,
+    pub l_suffix: Option<&'a str>,
+    pub r_suffix: Option<&'a str>,
+    pub l_index: Option<Arc<SpatialIndex>>,
+    pub r_index: Option<Arc<SpatialIndex>>,
 }
 
 impl<'a> Default for SpatialJoinArgs<'a> {
@@ -21,8 +23,8 @@ impl<'a> Default for SpatialJoinArgs<'a> {
         Self {
             join_type: JoinType::Inner,
             predicate: Predicate::Intersects,
-            l_suffix: "_left",
-            r_suffix: "_right",
+            l_suffix: Some("_left"),
+            r_suffix: Some("_right"),
             l_index: None,
             r_index: None,
         }
@@ -39,18 +41,33 @@ pub fn spatial_join(
     let lhs_geometry = lhs.column("geometry")?;
     let rhs_geometry = rhs.column("geometry")?;
 
-    let spatial_index_left: SpatialIndex = lhs_geometry.try_into().map_err(|_| {
-        PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-            "Failed to generate the spatial index for the left dataframe",
-        ))
-    })?;
+    // If we where not given a left index, generate one on the fly
+    let spatial_index_left: Arc<SpatialIndex> = options.l_index.unwrap_or_else(|| {
+        let spatial_index_left: SpatialIndex = lhs_geometry
+            .try_into()
+            .map_err(|_| {
+                PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                    "Failed to generate the spatial index for the left dataframe",
+                ))
+            })
+            .unwrap();
+        Arc::new(spatial_index_left)
+    });
 
-    let spatial_index_right: SpatialIndex = rhs_geometry.try_into().map_err(|_| {
-        PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-            "Failed to generate the spatial index for the right dataframe",
-        ))
-    })?;
+    // If we where not given a right index, generate one on the fly
+    let spatial_index_right: Arc<SpatialIndex> = options.r_index.unwrap_or_else(|| {
+        let spatial_index_right: SpatialIndex = rhs_geometry
+            .try_into()
+            .map_err(|_| {
+                PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                    "Failed to generate the spatial index for the left dataframe",
+                ))
+            })
+            .unwrap();
+        Arc::new(spatial_index_right)
+    });
 
+    // Use the r-tree to generate potential overlaps between the two geometry sets
     let potential_overlaps = spatial_index_left
         .r_tree
         .intersection_candidates_with_other_tree(&spatial_index_right.r_tree);
@@ -58,6 +75,8 @@ pub fn spatial_join(
     let mut left_series: Vec<usize> = vec![];
     let mut right_series: Vec<usize> = vec![];
 
+    // Explicitly check which of the potential overlaps actually hit using the
+    // provided geometry check
     for intersection in potential_overlaps {
         let (lhs_node, rhs_node) = intersection;
 
@@ -99,6 +118,7 @@ pub fn spatial_join(
                 Geometry::MultiPolygon(poly_rhs),
                 Predicate::Intersects,
             ) => poly_lhs.intersects(poly_rhs),
+
             // Line and Point
             (Geometry::Line(line), Geometry::Point(point), _) => line.contains(point),
             (Geometry::Point(point), Geometry::Line(line), _) => line.contains(point),
@@ -119,6 +139,8 @@ pub fn spatial_join(
         }
     }
 
+    // Now we have two vecs with the alligned left right node indexes we perform a
+    // join using polars existing code.
     let lhs_index: Vec<u64> = (0..lhs.shape().0).map(|i| i as u64).collect();
     let rhs_index: Vec<u64> = (0..rhs.shape().0).map(|i| i as u64).collect();
 
@@ -133,9 +155,28 @@ pub fn spatial_join(
 
     let join_df: DataFrame = DataFrame::new(vec![lhs_join_series, rhs_join_series])?;
 
-    let lhs_with_index = lhs.hstack(&[lhs_index])?;
-    let rhs_with_index = rhs.hstack(&[rhs_index])?;
+    let mut lhs_with_index = lhs.hstack(&[lhs_index])?;
+    let mut rhs_with_index = rhs.hstack(&[rhs_index])?;
 
+    // Apply the suffixes if specified
+    if let Some(suffix) = options.l_suffix {
+        lhs_with_index.get_columns_mut().iter_mut().for_each(|c| {
+            if c.name() != "lhs_index" {
+                c.rename(&format!("{}{}", c.name(), suffix));
+            }
+        });
+    };
+
+    // Apply the suffixes if specified
+    if let Some(suffix) = options.r_suffix {
+        rhs_with_index.get_columns_mut().iter_mut().for_each(|c| {
+            if c.name() != "rhs_index" {
+                c.rename(&format!("{}{}", c.name(), suffix));
+            }
+        });
+    };
+
+    // Finish up the join
     match options.join_type {
         JoinType::Inner => {
             let join_one = lhs_with_index.inner_join(&join_df, ["lhs_index"], ["lhs_join"])?;
@@ -149,8 +190,9 @@ pub fn spatial_join(
             let result = join_two.drop("lhs_index")?.drop("rhs_join")?;
             Ok(result)
         }
-        JoinType::Outer => unimplemented!(),
-        JoinType::Cross => unimplemented!(),
+        _ => Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+            "Failed to generate the spatial index for the left dataframe",
+        ))),
     }
 }
 
@@ -302,6 +344,8 @@ impl TryFrom<Series> for SpatialIndex {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use crate::{
         geoseries::GeoSeries,
         spatial_index::{spatial_join, SpatialIndex, SpatialJoinArgs},
@@ -416,6 +460,146 @@ mod tests {
 
         let inner_options = SpatialJoinArgs {
             join_type: JoinType::Inner,
+            ..Default::default()
+        };
+
+        let inner_result: DataFrame = spatial_join(&point_df, &polygon_df, inner_options).unwrap();
+
+        let left_options = SpatialJoinArgs {
+            join_type: JoinType::Left,
+            ..Default::default()
+        };
+
+        let left_result: DataFrame = spatial_join(&point_df, &polygon_df, left_options).unwrap();
+
+        assert_eq!(inner_result.shape(), (2, 4));
+        assert_eq!(left_result.shape(), (9, 4));
+
+        println!("inner {}", inner_result);
+        println!("left {}", left_result);
+    }
+
+    #[test]
+    fn spatial_join_test_with_suffixes() {
+        let points: Vec<Point<f64>> = vec![
+            Point::new(0.0, 10.0),
+            Point::new(1.0, 1.0),
+            Point::new(10.0, 1.0),
+            Point::new(1.0, -1.0),
+            Point::new(0.0, -10.0),
+            Point::new(-1.0, -1.0),
+            Point::new(-10.0, 0.0),
+            Point::new(-1.0, 1.0),
+            Point::new(0.0, 10.0),
+        ];
+
+        let geoms: Vec<Geometry<f64>> = points.into_iter().map(|p| p.into()).collect();
+
+        let point_series = Series::from_geom_vec(&geoms).unwrap();
+        let point_value_series = Series::new("point_values", [1., 2., 3., 4., 5., 6., 7., 8., 9.]);
+        let point_df: DataFrame = DataFrame::new(vec![point_series, point_value_series]).unwrap();
+
+        let polygons: Vec<Geometry<f64>> = vec![Geometry::Polygon(polygon![
+            (x:0., y:0.),
+            (x:20., y:0.),
+            (x:20., y:20.),
+            (x:0., y: 20.)
+        ])];
+
+        let polygon_series = Series::from_geom_vec(&polygons).unwrap();
+        let polygon_label_series = Series::new("string_col", ["test"]);
+
+        let polygon_df: DataFrame =
+            DataFrame::new(vec![polygon_series, polygon_label_series]).unwrap();
+
+        let inner_options = SpatialJoinArgs {
+            join_type: JoinType::Inner,
+            l_suffix: Some("_left!"),
+            r_suffix: Some("_right!"),
+            ..Default::default()
+        };
+
+        let inner_result: DataFrame = spatial_join(&point_df, &polygon_df, inner_options).unwrap();
+
+        let left_options = SpatialJoinArgs {
+            join_type: JoinType::Left,
+            ..Default::default()
+        };
+
+        let left_result: DataFrame = spatial_join(&point_df, &polygon_df, left_options).unwrap();
+
+        assert_eq!(inner_result.shape(), (2, 4));
+        assert_eq!(left_result.shape(), (9, 4));
+
+        let col_names: Vec<String> = inner_result
+            .get_columns()
+            .iter()
+            .map(|c| c.name().into())
+            .collect();
+
+        assert_eq!(
+            col_names,
+            vec![
+                "geometry_left!",
+                "point_values_left!",
+                "geometry_right!",
+                "string_col_right!"
+            ]
+        );
+
+        println!("inner {}", inner_result);
+        println!("left {}", left_result);
+    }
+
+    #[test]
+    fn spatial_join_test_with_precomputed_indexes() {
+        let points: Vec<Point<f64>> = vec![
+            Point::new(0.0, 10.0),
+            Point::new(1.0, 1.0),
+            Point::new(10.0, 1.0),
+            Point::new(1.0, -1.0),
+            Point::new(0.0, -10.0),
+            Point::new(-1.0, -1.0),
+            Point::new(-10.0, 0.0),
+            Point::new(-1.0, 1.0),
+            Point::new(0.0, 10.0),
+        ];
+
+        let geoms: Vec<Geometry<f64>> = points.into_iter().map(|p| p.into()).collect();
+
+        let point_series = Series::from_geom_vec(&geoms).unwrap();
+        let point_value_series = Series::new("point_values", [1., 2., 3., 4., 5., 6., 7., 8., 9.]);
+        let point_df: DataFrame = DataFrame::new(vec![point_series, point_value_series]).unwrap();
+
+        let point_index: SpatialIndex = point_df
+            .column("geometry")
+            .expect("The dataframe to have a geometry column")
+            .try_into()
+            .expect("To be able to generate the point index");
+
+        let polygons: Vec<Geometry<f64>> = vec![Geometry::Polygon(polygon![
+            (x:0., y:0.),
+            (x:20., y:0.),
+            (x:20., y:20.),
+            (x:0., y: 20.)
+        ])];
+
+        let polygon_series = Series::from_geom_vec(&polygons).unwrap();
+        let polygon_label_series = Series::new("string_col", ["test"]);
+
+        let polygon_df: DataFrame =
+            DataFrame::new(vec![polygon_series, polygon_label_series]).unwrap();
+
+        let polygon_index: SpatialIndex = polygon_df
+            .column("geometry")
+            .expect("The dataframe to have a geometry column")
+            .try_into()
+            .expect("To be able to generate the point index");
+
+        let inner_options = SpatialJoinArgs {
+            join_type: JoinType::Inner,
+            l_index: Some(Arc::new(point_index)),
+            r_index: Some(Arc::new(polygon_index)),
             ..Default::default()
         };
 
