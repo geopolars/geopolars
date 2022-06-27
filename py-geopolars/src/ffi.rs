@@ -1,5 +1,5 @@
 use arrow::{array::ArrayRef, ffi};
-use polars::prelude::*;
+use polars::prelude::{ArrowField, Series};
 use polars_arrow::export::arrow;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -73,6 +73,8 @@ pub fn py_series_to_rust_series(series: &PyAny) -> PyResult<Series> {
     Series::try_from((name.as_str(), array)).map_err(|e| PyValueError::new_err(format!("{}", e)))
 }
 
+// Allow dead code because this function will be used later
+#[allow(dead_code)]
 pub fn rust_series_to_py_series(series: &Series) -> PyResult<PyObject> {
     // ensure we have a single chunk
     let series = series.rechunk();
@@ -90,5 +92,25 @@ pub fn rust_series_to_py_series(series: &Series) -> PyResult<PyObject> {
     // import polars
     let polars = py.import("polars")?;
     let out = polars.call_method1("from_arrow", (pyarrow_array,))?;
+    Ok(out.to_object(py))
+}
+
+pub fn rust_series_to_py_geoseries(series: &Series) -> PyResult<PyObject> {
+    // ensure we have a single chunk
+    let series = series.rechunk();
+    let array = series.to_arrow(0);
+
+    // acquire the gil
+    let gil = Python::acquire_gil();
+    let py = gil.python();
+    // import pyarrow
+    let pyarrow = py.import("pyarrow")?;
+
+    // pyarrow array
+    let pyarrow_array = to_py_array(py, pyarrow, array)?;
+
+    // import geopolars
+    let geopolars = py.import("geopolars")?;
+    let out = geopolars.call_method1("from_arrow", (pyarrow_array,))?;
     Ok(out.to_object(py))
 }
