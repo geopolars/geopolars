@@ -228,7 +228,7 @@ impl GeoSeries for Series {
 
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
-  
+
     fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Self> {
         let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
 
@@ -244,6 +244,7 @@ impl GeoSeries for Series {
 
         let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef)).unwrap();
         Ok(series)
+    }
 
     fn geodesic_length(&self, method: GeodesicLengthMethod) -> Result<Series> {
         use geo::algorithm::{
