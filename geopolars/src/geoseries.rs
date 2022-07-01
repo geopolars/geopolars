@@ -51,6 +51,9 @@ pub trait GeoSeries {
     /// Applies to GeoSeries containing only Polygons. Returns `None` for other geometry types.
     fn exterior(&self) -> Result<Series>;
 
+    /// Create a Series from a vector of geometries
+    fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series>;
+
     /// Returns a Series with the value of the geodesic length of each geometry
     ///
     /// Calculates the geodesic length of each geometry in the series and returns it as a series.
@@ -224,6 +227,23 @@ impl GeoSeries for Series {
         let result: BinaryArray<i32> = output_array.into();
 
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+    }
+
+    fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Self> {
+        let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
+
+        for geom in geoms {
+            let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
+                PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                    "Failed to convert geom vec to GeoSeries",
+                ))
+            })?;
+            wkb_array.push(Some(wkb));
+        }
+        let array: BinaryArray<i32> = wkb_array.into();
+
+        let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef)).unwrap();
+        Ok(series)
     }
 
     fn geodesic_length(&self, method: GeodesicLengthMethod) -> Result<Series> {

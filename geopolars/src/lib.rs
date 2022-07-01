@@ -1,5 +1,6 @@
 pub mod geodataframe;
 pub mod geoseries;
+pub mod spatial_index;
 mod util;
 
 #[cfg(test)]
