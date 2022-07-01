@@ -709,7 +709,7 @@ mod tests {
 
     #[test]
     fn skew() {
-        let geo_series = Series::from_geom_vec(&vec![Geometry::Polygon(polygon!(
+        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),
@@ -743,7 +743,7 @@ mod tests {
 
     #[test]
     fn rotate() {
-        let geo_series = Series::from_geom_vec(&vec![Geometry::Polygon(polygon!(
+        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),
@@ -776,7 +776,7 @@ mod tests {
 
     #[test]
     fn translate() {
-        let geo_series = Series::from_geom_vec(&vec![Geometry::Polygon(polygon!(
+        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),
@@ -800,7 +800,7 @@ mod tests {
 
     #[test]
     fn scale() {
-        let geo_series = Series::from_geom_vec(&vec![Geometry::Polygon(polygon!(
+        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),
