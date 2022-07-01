@@ -181,6 +181,27 @@ pub trait GeoSeries {
     fn y(&self) -> Result<Series>;
 }
 
+// struct Geom(geo::Geometry);
+
+// impl FromIterator<Geom> for Series{
+//     fn from_iter<T: IntoIterator<Item = Geom>>(iter: T) -> Self {
+//         let mut wkb_array = MutableBinaryArray::<i32>::new();
+
+//         for geom in iter{
+//             let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
+//                 PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+//                     "Failed to convert geom vec to GeoSeries",
+//                 ))
+//             }).unwrap();
+//             wkb_array.push(Some(wkb));
+//         }
+//         let array: BinaryArray<i32> = wkb_array.into();
+
+//         let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef)).unwrap();
+//         series
+//     }
+// }
+
 impl GeoSeries for Series {
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series> {
         let transform: AffineTransform<f64> = matrix.into();
