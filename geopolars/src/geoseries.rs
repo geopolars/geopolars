@@ -137,7 +137,7 @@ pub trait GeoSeries {
     /// https://docs.rs/geo/latest/geo/algorithm/simplify/trait.Simplify.html for details
     fn simplify(&self, tolerance: f64) -> Result<Series>;
 
-    /// Returns a GeoSeries with each of the geometries skewd by a fixed x and y amount around a
+    /// Returns a GeoSeries with each of the geometries skewed by a fixed x and y amount around a
     /// given origin
     ///
     /// # Arguments
