@@ -19,13 +19,14 @@ pub enum GeodesicLengthMethod {
 
 /// Used to express the origin for a given transform. Can be specified either be with reference to
 /// the geometry being transformed (Centroid, Center) or some arbitrary point.
+///
+/// - Centroid: Use the centriod of each geometry in the series as the transform origin.
+/// - Center: Use the center of each geometry in the series as the transform origin. The center is
+///   defined as the center of the bounding box of the geometry
+/// - Point: Define a single point to transform each geometry in the series about.
 pub enum TransformOrigin {
-    /// Use the centriod of each geometry in the series as the transform origin.
     Centroid,
-    /// Use the center of each geometry in the series as the transform origin. The center is
-    /// defined as the center of the bounding box of the geometry
     Center,
-    /// Define a single point to transform each geometry in the series about.
     Point(Point),
 }
 
