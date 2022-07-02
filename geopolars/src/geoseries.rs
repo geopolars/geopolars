@@ -17,14 +17,20 @@ pub enum GeodesicLengthMethod {
     Vincenty,
 }
 
+/// Used to express the origin for a given transform. Can be specified either be with reference to
+/// the geometry being transformed (Centroid, Center) or some arbitrary point.
 pub enum TransformOrigin {
+    /// Use the centriod of each geometry in the series as the transform origin.
     Centroid,
+    /// Use the center of each geometry in the series as the transform origin. The center is
+    /// defined as the center of the bounding box of the geometry
     Center,
+    /// Define a single point to transform each geometry in the series about.
     Point(Point),
 }
 
 pub trait GeoSeries {
-    /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>  ) -> Result<Series>;
+    /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series>;
 
     /// Returns a Series containing the area of each geometry in the GeoSeries expressed in the
@@ -98,13 +104,28 @@ pub trait GeoSeries {
     /// implicitly closed by copying the first tuple to the last index.
     fn is_ring(&self) -> Result<Series>;
 
-    /// Returns a GeoSeries with each of teh geometries roatered by a fixed x and y ammount arround
+    /// Returns a GeoSeries with each of the geometries rotated by a fixed x and y ammount around
     /// some origin.
-
+    ///
+    /// # Arguments
+    ///
+    /// * `angle` - The angle to rotate specified in degrees
+    ///
+    /// * `origin` - The origin around which to rotate the geometry
     fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries skewd by a fixed x and y amount around a
     /// given origin
+    ///
+    /// # Arguments
+    ///
+    /// * `xfact` The amount to scale the geometry in the x direction. Units are the units of the
+    /// geometry crs.
+    ///
+    /// * `yfact` The amount to scale the geometry in the y direction. Units are the units of the
+    /// geometry crs.
+    ///
+    /// * `origin` - The origin around which to scale the geometry
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series>;
 
     /// Returns a GeoSeries containing a simplified representation of each geometry.
@@ -118,9 +139,38 @@ pub trait GeoSeries {
 
     /// Returns a GeoSeries with each of the geometries skewd by a fixed x and y amount around a
     /// given origin
+    ///
+    /// # Arguments
+    ///
+    /// * `xs` The angle to skew the geometry in the x direction in units of degrees
+    ///
+    /// * `ys` The angle to skey the geometry in the y direction in units of degrees
+    ///
+    /// * `origin` - The origin around which to scale the geometry
+    ///
+    /// The transform that is applied is
+    ///
+    /// ```ignore
+    /// [[1, tan(x), xoff],
+    /// [tan(y), 1, yoff],
+    /// [0, 0, 1]]
+    ///
+    /// xoff = -origin.y * tan(xs)
+    /// yoff = -origin.x * tan(ys)
+    /// ```
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries translated by a fixed x and y amount
+    ///
+    /// # Arguments
+    ///
+    /// * `x` The amount to translate the geometry in the x direction. Units are the units of the
+    /// geometry crs.
+    ///
+    /// * `y` The amount to translate the geometry in the y direction. Units are the units of the
+    /// geometry crs.
+    ///
+    /// * `origin` - The origin around which to scale the geometry
     fn translate(&self, x: f64, y: f64) -> Result<Series>;
 
     /// Return the x location of point geometries in a GeoSeries
@@ -133,7 +183,7 @@ pub trait GeoSeries {
 impl GeoSeries for Series {
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series> {
         let transform: AffineTransform<f64> = matrix.into();
-        let output_vec: Vec<geo::Geometry> = iter_geom(self)
+        let output_vec: Vec<Geometry> = iter_geom(self)
             .map(|geom| geom.map_coords(|c| transform.apply(c)))
             .collect();
 
@@ -627,7 +677,7 @@ mod tests {
     use std::sync::Arc;
 
     use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
-    use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point, Polygon};
+    use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point};
     use geozero::{CoordDimensions, ToWkb};
 
     use super::TransformOrigin;
@@ -650,15 +700,14 @@ mod tests {
         ];
         let mp = MultiPoint(v);
 
-        let correct_poly: Polygon<f64> = polygon![
+        let correct_poly: Geometry<f64> = polygon![
             (x:0.0, y: -10.0),
             (x:10.0, y: 0.0),
             (x:0.0, y:10.0),
             (x:-10.0, y:0.0),
             (x:0.0, y:-10.0),
-        ];
-
-        let correct: Geometry<f64> = correct_poly.into();
+        ]
+        .into();
 
         let test_geom: Geometry<f64> = mp.into();
         let test_wkb = test_geom.to_wkb(CoordDimensions::xy()).unwrap();
@@ -683,7 +732,7 @@ mod tests {
         let mut geom_iter = iter_geom(&convex_res);
         let result = geom_iter.next().unwrap();
 
-        assert_eq!(result, correct, "Should get the correct convex hull");
+        assert_eq!(result, correct_poly, "Should get the correct convex hull");
     }
 
     #[test]
@@ -696,18 +745,21 @@ mod tests {
         ))])
         .unwrap();
 
-        let result: Geometry<f64> = Geometry::Polygon(polygon!(
-        (x:-0.008727532464108793,y:-0.017460384745873865),
-        (x:0.008727532464108793,y:0.9825396152541261),
-        (x:1.008727532464109, y:1.0174603847458739),
-        (x:0.9912724675358912, y:0.017460384745873865)
-        ));
+        let result: Geometry<f64> = polygon!(
+            (x:-0.008727532464108793,y:-0.017460384745873865),
+            (x:0.008727532464108793,y:0.9825396152541261),
+            (x:1.008727532464109, y:1.0174603847458739),
+            (x:0.9912724675358912, y:0.017460384745873865)
+        )
+        .into();
 
         let skewed_series = geo_series.skew(1.0, 2.0, TransformOrigin::Center);
         assert!(skewed_series.is_ok(), "To get a series back");
 
         let geom = iter_geom(&skewed_series.unwrap()).next().unwrap();
-        assert_eq!(geom, result, "the swkfddfg");
+
+        assert_eq!(geom, result, "the polygon should be transformed correctly");
+
         for (p1, p2) in geom.coords_iter().zip(result.coords_iter()) {
             assert!(
                 (p1.x - p2.x).abs() < 0.00000001,
@@ -730,12 +782,13 @@ mod tests {
         ))])
         .unwrap();
 
-        let result: Geometry<f64> = Geometry::Polygon(polygon!(
+        let result: Geometry<f64> = polygon!(
         (x:0.0,y:0.0),
         (x:-1.0,y:0.0),
         (x:-1.0, y:1.0),
         (x:0.0, y:1.0)
-        ));
+        )
+        .into();
 
         let rotated_series = geo_series.rotate(90.0, TransformOrigin::Point(Point::new(0.0, 0.0)));
         assert!(rotated_series.is_ok(), "To get a series back");
@@ -763,12 +816,13 @@ mod tests {
         ))])
         .unwrap();
 
-        let result: Geometry<f64> = Geometry::Polygon(polygon!(
+        let result: Geometry<f64> = polygon!(
         (x:1.0,y:1.0),
         (x:1.0,y:2.0),
         (x:2.0, y:2.0),
         (x:2.0, y:1.0)
-        ));
+        )
+        .into();
 
         let translated_series = geo_series.translate(1.0, 1.0);
         assert!(translated_series.is_ok(), "To get a series back");
@@ -787,19 +841,21 @@ mod tests {
         ))])
         .unwrap();
 
-        let result_center: Geometry<f64> = Geometry::Polygon(polygon!(
+        let result_center: Geometry<f64> = polygon!(
         (x:-0.5,y:-0.5),
         (x:-0.5,y:1.5),
         (x:1.5, y:1.5),
         (x:1.5, y:-0.5)
-        ));
+        )
+        .into();
 
-        let result_point: Geometry<f64> = Geometry::Polygon(polygon!(
+        let result_point: Geometry<f64> = polygon!(
         (x:0.0,y:0.0),
         (x:0.0,y:2.0),
         (x:2.0, y:2.0),
         (x:2.0, y:0.0)
-        ));
+        )
+        .into();
 
         let scaled_series = geo_series.scale(2.0, 2.0, TransformOrigin::Center);
         assert!(scaled_series.is_ok(), "To get a series back");
@@ -823,16 +879,15 @@ mod tests {
     fn euclidean_length() {
         let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
 
-        let line_string: LineString<f64> = line_string![
+        let line_string: Geometry<f64> = line_string![
             (x: 1., y: 1.),
             (x: 7., y: 1.),
             (x: 8., y: 1.),
             (x: 9., y: 1.),
             (x: 10., y: 1.),
             (x: 11., y: 1.)
-        ];
-
-        let line_string: Geometry<_> = line_string.into();
+        ]
+        .into();
 
         let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
         test_data.push(Some(test_wkb));
@@ -849,14 +904,13 @@ mod tests {
     fn haversine_length() {
         let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
 
-        let line_string = LineString::<f64>::from(vec![
+        let line_string: Geometry<f64> = LineString::<f64>::from(vec![
             // New York City
             (-74.006, 40.7128),
             // London
             (-0.1278, 51.5074),
-        ]);
-
-        let line_string: Geometry<_> = line_string.into();
+        ])
+        .into();
 
         let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
         test_data.push(Some(test_wkb));
@@ -878,14 +932,13 @@ mod tests {
     fn vincenty_length() {
         let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
 
-        let line_string = LineString::<f64>::from(vec![
+        let line_string: Geometry<f64> = LineString::<f64>::from(vec![
             // New York City
             (-74.006, 40.7128),
             // London
             (-0.1278, 51.5074),
-        ]);
-
-        let line_string: Geometry<_> = line_string.into();
+        ])
+        .into();
 
         let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
         test_data.push(Some(test_wkb));
@@ -908,16 +961,15 @@ mod tests {
     fn geodesic_length() {
         let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
 
-        let line_string = LineString::<f64>::from(vec![
+        let line_string: Geometry<f64> = LineString::<f64>::from(vec![
             // New York City
             (-74.006, 40.7128),
             // London
             (-0.1278, 51.5074),
             // Osaka
             (135.5244559, 34.687455),
-        ]);
-
-        let line_string: Geometry<_> = line_string.into();
+        ])
+        .into();
 
         let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
         test_data.push(Some(test_wkb));

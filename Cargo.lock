@@ -419,7 +419,6 @@ version = "0.1.0"
 dependencies = [
  "arrow2",
  "geo",
- "geo-types",
  "geozero",
  "polars",
  "rstar",
