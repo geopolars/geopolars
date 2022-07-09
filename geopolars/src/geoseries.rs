@@ -6,12 +6,10 @@ use arrow2::array::{
     MutablePrimitiveArray, PrimitiveArray,
 };
 use geo::algorithm::affine_ops::AffineTransform;
-use geo::geometry;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
-use polars::prelude::{PolarsError, Result, Series, NamedFrom, TakeRandom};
+use polars::prelude::{PolarsError, Result, Series, TakeRandom};
 use std::convert::Into;
-use num::FromPrimitive;
 
 pub enum GeodesicLengthMethod {
     Haversine,
@@ -32,54 +30,52 @@ pub enum TransformOrigin {
     Point(Point),
 }
 
-pub enum PolarsParameter<'a,T>{
-   Val(T),
-   Series(&'a Series)
+pub enum BroadcastableParameter<'a, T> {
+    Val(T),
+    Series(&'a Series),
 }
 
-impl <'a> From<f64> for PolarsParameter<'a,f64>
-    {
-    fn from(val:f64) -> PolarsParameter<'a,f64>{
-        return PolarsParameter::Val(val) 
+impl<'a> From<f64> for BroadcastableParameter<'a, f64> {
+    fn from(val: f64) -> BroadcastableParameter<'a, f64> {
+        BroadcastableParameter::Val(val)
     }
 }
 
-impl <'a> From<i64> for PolarsParameter<'a,i64>
-    {
-    fn from(val:i64) -> PolarsParameter<'a,i64>{
-        return PolarsParameter::Val(val) 
+impl<'a> From<i64> for BroadcastableParameter<'a, i64> {
+    fn from(val: i64) -> BroadcastableParameter<'a, i64> {
+        BroadcastableParameter::Val(val)
     }
 }
 
-impl <'a> From<u64> for PolarsParameter<'a,u64>
-    {
-    fn from(val:u64) -> PolarsParameter<'a,u64>{
-        return PolarsParameter::Val(val) 
+impl<'a> From<u64> for BroadcastableParameter<'a, u64> {
+    fn from(val: u64) -> BroadcastableParameter<'a, u64> {
+        BroadcastableParameter::Val(val)
     }
 }
 
-impl <'a, T> From<&'a Series> for PolarsParameter<'a, T>{
-    fn from(val:&'a Series) -> PolarsParameter<T>{
-        return PolarsParameter::Series(val) 
+impl<'a, T> From<&'a Series> for BroadcastableParameter<'a, T> {
+    fn from(val: &'a Series) -> BroadcastableParameter<T> {
+        BroadcastableParameter::Series(val)
     }
 }
 
-pub fn test_fn<'a>(x:impl Into<PolarsParameter<'a,i64>>, y:impl Into<PolarsParameter<'a,f32>>){
-
-    match x.into(){
-        PolarsParameter::Val(val)=> println!("X is a single value {}",val),
-        PolarsParameter::Series(_s) => println!("X is a series")
+pub fn test_fn<'a>(
+    x: impl Into<BroadcastableParameter<'a, i64>>,
+    y: impl Into<BroadcastableParameter<'a, f32>>,
+) {
+    match x.into() {
+        BroadcastableParameter::Val(val) => println!("X is a single value {}", val),
+        BroadcastableParameter::Series(_s) => println!("X is a series"),
     };
 
-    match y.into(){
-        PolarsParameter::Val(val)=> println!("Y is a single value {}",val),
-        PolarsParameter::Series(_s) => println!("Y is a series")
+    match y.into() {
+        BroadcastableParameter::Val(val) => println!("Y is a single value {}", val),
+        BroadcastableParameter::Series(_s) => println!("Y is a series"),
     };
 }
-
 
 pub trait GeoSeries {
-    /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
+    /// Apply an affine transform to the geoseries and return a geoseries of the transformed geometries;
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series>;
 
     /// Returns a Series containing the area of each geometry in the GeoSeries expressed in the
@@ -161,7 +157,11 @@ pub trait GeoSeries {
     /// * `angle` - The angle to rotate specified in degrees
     ///
     /// * `origin` - The origin around which to rotate the geometry
-    fn rotate<'a>(&self, angle: PolarsParameter<'a,f64>, origin: TransformOrigin) -> Result<Series>;
+    fn rotate<'a>(
+        &self,
+        angle: impl Into<BroadcastableParameter<'a, f64>>,
+        origin: TransformOrigin,
+    ) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries skewd by a fixed x and y amount around a
     /// given origin
@@ -551,42 +551,45 @@ impl GeoSeries for Series {
         Series::try_from(("result", Arc::new(result) as ArrayRef))
     }
 
-    fn rotate<'a>(&self, angle: PolarsParameter<'a,f64>, origin:  TransformOrigin) -> Result<Series> {
+    fn rotate<'a>(
+        &self,
+        angle: impl Into<BroadcastableParameter<'a, f64>>,
+        origin: TransformOrigin,
+    ) -> Result<Series> {
         use geo::algorithm::bounding_rect::BoundingRect;
         use geo::algorithm::centroid::Centroid;
 
-        let apply_rotation : Box<dyn Fn<'b>(&Geometry<f64>,f64) -> Geometry<f64>>  = match origin{
-            TransformOrigin::Centroid =>{
-                Box::new(|geom: &Geometry<f64>, angle: f64| {
-                    let centroid = geom.centroid().unwrap();
-                    let transform = AffineTransform::rotate(angle, centroid);
-                    geom.map_coords(|c| transform.apply(c)).into()
-                })
-            },
-            TransformOrigin::Center=>{
-                Box::new(|geom: &Geometry, angle: f64| {
-                    let center = geom.bounding_rect().unwrap().center();
-                    let transform = AffineTransform::rotate(angle, center.into());
-                    geom.map_coords(|c| transform.apply(c)).into()
-                })
-            },
-            TransformOrigin::Point(point)=>{
-                Box::new({
-                 |geom:&Geometry,angle: f64| {
+        let apply_rotation: Box<dyn Fn(&Geometry<f64>, f64) -> Geometry<f64>> = match origin {
+            TransformOrigin::Centroid => Box::new(|geom: &Geometry<f64>, angle: f64| {
+                let centroid = geom.centroid().unwrap();
+                let transform = AffineTransform::rotate(angle, centroid);
+                geom.map_coords(|c| transform.apply(c))
+            }),
+            TransformOrigin::Center => Box::new(|geom: &Geometry, angle: f64| {
+                let center = geom.bounding_rect().unwrap().center();
+                let transform = AffineTransform::rotate(angle, center.into());
+                geom.map_coords(|c| transform.apply(c))
+            }),
+            TransformOrigin::Point(point) => Box::new({
+                move |geom: &Geometry, angle: f64| {
                     let transform = AffineTransform::rotate(angle, point);
-                    geom.map_coords(|c| transform.apply(c)).into()
-                }})
-            }
+                    geom.map_coords(|c| transform.apply(c))
+                }
+            }),
         };
 
-        let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self).enumerate()
-            .map(|(index,geom)| {
-                match angle{
-                   PolarsParameter::Val(v)=>  apply_rotation(&geom,2.0),
-                   PolarsParameter::Series(s) => apply_rotation(&geom,s.f64().unwrap().get(index).unwrap())
+        let angle: BroadcastableParameter<'a, f64> = angle.into();
+
+        let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
+            .enumerate()
+            .map(|(index, geom)| match angle {
+                BroadcastableParameter::Val(v) => apply_rotation(&geom, v),
+                BroadcastableParameter::Series(s) => {
+                    apply_rotation(&geom, s.f64().unwrap().get(index).unwrap())
                 }
             })
             .collect();
+
         Series::from_geom_vec(&rotated_geoms)
     }
 
@@ -730,7 +733,7 @@ mod tests {
         geoseries::{GeoSeries, GeodesicLengthMethod},
         util::iter_geom,
     };
-    use polars::prelude::Series;
+    use polars::prelude::{NamedFromOwned, Series};
     use std::sync::Arc;
 
     use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
@@ -830,6 +833,63 @@ mod tests {
     }
 
     #[test]
+    fn rotate_with_series() {
+        let geo_series = Series::from_geom_vec(&[
+            Geometry::Polygon(polygon!(
+            (x: 0.0,y:0.0),
+            (x: 0.0,y:1.0),
+            (x: 1.0,y: 1.0),
+            (x: 1.0,y: 0.0)
+            )),
+            Geometry::Polygon(polygon!(
+            (x: 0.0,y:0.0),
+            (x: 0.0,y:1.0),
+            (x: 1.0,y: 1.0),
+            (x: 1.0,y: 0.0)
+            )),
+        ])
+        .unwrap();
+
+        let rotation_values = Series::from_vec("rotations", vec![90.0_f64, -90.0_f64]);
+        let result = geo_series.rotate(
+            &rotation_values,
+            TransformOrigin::Point(Point::new(0.0, 0.0)),
+        );
+        assert!(result.is_ok(), "Should be apply the rotation as expected");
+
+        let expected = &[
+            Geometry::Polygon(polygon!(
+                (x:0.0,y:0.0),
+                (x:-1.0,y:0.0),
+                (x:-1.0, y:1.0),
+                (x:0.0, y:1.0)
+            )),
+            Geometry::Polygon(polygon!(
+                (x:0.0,y:0.0),
+                (x:1.0,y:0.0),
+                (x:1.0, y:-1.0),
+                (x:0.0, y:-1.0)
+            )),
+        ];
+
+        for (geom_index, result_geom) in iter_geom(&result.unwrap()).enumerate() {
+            for (p1, p2) in result_geom
+                .coords_iter()
+                .zip(expected.get(geom_index).unwrap().coords_iter())
+            {
+                assert!(
+                    (p1.x - p2.x).abs() < 0.00000001,
+                    "The geometries x coords to be correct to within some tolerance"
+                );
+                assert!(
+                    (p1.y - p2.y).abs() < 0.00000001,
+                    "The geometries y coords to be correct to within some tolerance"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn rotate() {
         let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
@@ -851,14 +911,15 @@ mod tests {
         assert!(rotated_series.is_ok(), "To get a series back");
 
         let geom = iter_geom(&rotated_series.unwrap()).next().unwrap();
+
         for (p1, p2) in geom.coords_iter().zip(result.coords_iter()) {
             assert!(
                 (p1.x - p2.x).abs() < 0.00000001,
-                "The geometries x coords to be correct to within some tollerenace"
+                "The geometries x coords to be correct to within some tolerance"
             );
             assert!(
                 (p1.y - p2.y).abs() < 0.00000001,
-                "The geometries y coords to be correct to within some tollerenace"
+                "The geometries y coords to be correct to within some tolerance"
             );
         }
     }
