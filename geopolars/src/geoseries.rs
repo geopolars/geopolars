@@ -6,10 +6,12 @@ use arrow2::array::{
     MutablePrimitiveArray, PrimitiveArray,
 };
 use geo::algorithm::affine_ops::AffineTransform;
+use geo::geometry;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
-use polars::prelude::{PolarsError, Result, Series};
+use polars::prelude::{PolarsError, Result, Series, NamedFrom, TakeRandom};
 use std::convert::Into;
+use num::FromPrimitive;
 
 pub enum GeodesicLengthMethod {
     Haversine,
@@ -29,6 +31,52 @@ pub enum TransformOrigin {
     Center,
     Point(Point),
 }
+
+pub enum PolarsParameter<'a,T>{
+   Val(T),
+   Series(&'a Series)
+}
+
+impl <'a> From<f64> for PolarsParameter<'a,f64>
+    {
+    fn from(val:f64) -> PolarsParameter<'a,f64>{
+        return PolarsParameter::Val(val) 
+    }
+}
+
+impl <'a> From<i64> for PolarsParameter<'a,i64>
+    {
+    fn from(val:i64) -> PolarsParameter<'a,i64>{
+        return PolarsParameter::Val(val) 
+    }
+}
+
+impl <'a> From<u64> for PolarsParameter<'a,u64>
+    {
+    fn from(val:u64) -> PolarsParameter<'a,u64>{
+        return PolarsParameter::Val(val) 
+    }
+}
+
+impl <'a, T> From<&'a Series> for PolarsParameter<'a, T>{
+    fn from(val:&'a Series) -> PolarsParameter<T>{
+        return PolarsParameter::Series(val) 
+    }
+}
+
+pub fn test_fn<'a>(x:impl Into<PolarsParameter<'a,i64>>, y:impl Into<PolarsParameter<'a,f32>>){
+
+    match x.into(){
+        PolarsParameter::Val(val)=> println!("X is a single value {}",val),
+        PolarsParameter::Series(_s) => println!("X is a series")
+    };
+
+    match y.into(){
+        PolarsParameter::Val(val)=> println!("Y is a single value {}",val),
+        PolarsParameter::Series(_s) => println!("Y is a series")
+    };
+}
+
 
 pub trait GeoSeries {
     /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
@@ -113,7 +161,7 @@ pub trait GeoSeries {
     /// * `angle` - The angle to rotate specified in degrees
     ///
     /// * `origin` - The origin around which to rotate the geometry
-    fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series>;
+    fn rotate<'a>(&self, angle: PolarsParameter<'a,f64>, origin: TransformOrigin) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries skewd by a fixed x and y amount around a
     /// given origin
@@ -503,35 +551,43 @@ impl GeoSeries for Series {
         Series::try_from(("result", Arc::new(result) as ArrayRef))
     }
 
-    fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series> {
+    fn rotate<'a>(&self, angle: PolarsParameter<'a,f64>, origin:  TransformOrigin) -> Result<Series> {
         use geo::algorithm::bounding_rect::BoundingRect;
         use geo::algorithm::centroid::Centroid;
-        match origin {
-            TransformOrigin::Centroid => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let centroid = geom.centroid().unwrap();
-                        let transform = AffineTransform::rotate(angle, centroid);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
+
+        let apply_rotation : Box<dyn Fn<'b>(&Geometry<f64>,f64) -> Geometry<f64>>  = match origin{
+            TransformOrigin::Centroid =>{
+                Box::new(|geom: &Geometry<f64>, angle: f64| {
+                    let centroid = geom.centroid().unwrap();
+                    let transform = AffineTransform::rotate(angle, centroid);
+                    geom.map_coords(|c| transform.apply(c)).into()
+                })
+            },
+            TransformOrigin::Center=>{
+                Box::new(|geom: &Geometry, angle: f64| {
+                    let center = geom.bounding_rect().unwrap().center();
+                    let transform = AffineTransform::rotate(angle, center.into());
+                    geom.map_coords(|c| transform.apply(c)).into()
+                })
+            },
+            TransformOrigin::Point(point)=>{
+                Box::new({
+                 |geom:&Geometry,angle: f64| {
+                    let transform = AffineTransform::rotate(angle, point);
+                    geom.map_coords(|c| transform.apply(c)).into()
+                }})
             }
-            TransformOrigin::Center => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let center = geom.bounding_rect().unwrap().center();
-                        let transform = AffineTransform::rotate(angle, center.into());
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Point(point) => {
-                let transform = AffineTransform::rotate(angle, point);
-                self.affine_transform(transform)
-            }
-        }
+        };
+
+        let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self).enumerate()
+            .map(|(index,geom)| {
+                match angle{
+                   PolarsParameter::Val(v)=>  apply_rotation(&geom,2.0),
+                   PolarsParameter::Series(s) => apply_rotation(&geom,s.f64().unwrap().get(index).unwrap())
+                }
+            })
+            .collect();
+        Series::from_geom_vec(&rotated_geoms)
     }
 
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series> {
