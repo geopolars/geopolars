@@ -420,7 +420,6 @@ dependencies = [
  "arrow2",
  "geo",
  "geozero",
- "num",
  "polars",
  "rstar",
 ]

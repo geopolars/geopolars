@@ -11,4 +11,3 @@ geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
 geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
 polars = { version = "0.21.1", features = ["ipc", "dtype-u8", "dtype-i8"] }
-num = "0.4"
