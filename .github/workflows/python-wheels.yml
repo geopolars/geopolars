@@ -64,8 +64,8 @@ jobs:
 
       - name: Build sdist
         run: |
-          python -m pip install -U build
-          cd py-geopolars && python -m build --sdist
+          python -m pip install -U build maturin
+          cd py-geopolars && maturin sdist
 
       - name: Install cibuildwheel
         run: |
