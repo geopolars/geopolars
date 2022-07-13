@@ -12,6 +12,7 @@ jobs:
     name: Build wheel on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
@@ -61,13 +62,18 @@ jobs:
         with:
           python-version: '3.7'
 
+      - name: Build sdist
+        run: |
+          python -m pip install -U build
+          cd py-geopolars && python -m build --sdist
+
       - name: Install cibuildwheel
         run: |
           python -m pip install cibuildwheel~=2.8.0
 
       - name: Build wheels
         run: |
-          python -m cibuildwheel geopolars/py-geopolars --output-dir wheelhouse
+          cd py-geopolars && python -m cibuildwheel dist/*.tar.gz --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v2
         with:
