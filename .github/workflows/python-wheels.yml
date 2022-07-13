@@ -16,73 +16,93 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
-    env:
-      CIBW_SKIP: "cp2* cp35* cp36* pp* *-win32 *i686 *-musllinux*"
-      # Only x86 macs for now
-      CIBW_ARCHS_MACOS: x86_64
-      CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
-      CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
-      CIBW_BEFORE_BUILD: python -m pip install oldest-supported-numpy maturin
+    # env:
+    #   CIBW_SKIP: "cp2* cp35* cp36* pp* *-win32 *i686 *-musllinux*"
+    #   # Only x86 macs for now
+    #   CIBW_ARCHS_MACOS: x86_64
+    #   CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
+    #   CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
+    #   CIBW_BEFORE_BUILD: python -m pip install oldest-supported-numpy maturin
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - if: runner.os == 'Windows'
-        run: |
-            echo 'PATH=/c/Python38:/c/Python38/Scripts:/c/Strawberry/perl/site/bin:/c/Strawberry/perl/bin:/c/Strawberry/c/bin:$PATH' >> $GITHUB_ENV
-            echo 'RUSTFLAGS=-Ctarget-feature=+crt-static' >> $GITHUB_ENV
-            echo 'RUSTFLAGS=-Ctarget-feature=+crt-static' >> $GITHUB_ENV
-            echo 'CIBW_BEFORE_BUILD=python -m pip install --upgrade pip' >> $GITHUB_ENV
-
-      # - if: runner.os != 'Linux'
-      #   run: |
-      #       echo "CIBW_SKIP=$CIBW_SKIP cp37-*" >> $GITHUB_ENV # Also skip Python 3.7 as build is too slow
-
-      - name: Setup env when not using docker
-        # if: runner.os != 'Linux'
-        run: |
-          python -m pip install --upgrade wheel setuptools setuptools-rust
-
-      - if: runner.os == 'Linux'
-        name: Set up QEMU
-        id: qemu
-        uses: docker/setup-qemu-action@v1
-        with:
-          image: tonistiigi/binfmt:latest
-          platforms: arm64
-
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.7'
-
-      - name: Install cibuildwheel
-        run: |
-          python -m pip install cibuildwheel~=2.8.0
-
       - name: Build wheels
-        run: |
-          python -m cibuildwheel py-geopolars --output-dir wheelhouse
+        uses: pypa/cibuildwheel@v2.3.0
+        env:
+          CIBW_SKIP: "cp2* cp35* cp36* pp* *-win32 *i686 *-musllinux*"
+          # Only x86 macs for now
+          CIBW_ARCHS_MACOS: x86_64
+          CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
+          CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
+          CIBW_BEFORE_BUILD: python -m pip install oldest-supported-numpy maturin
+        with:
+          package-dir: py-geopolars
 
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
 
-      # - name: Build wheels
-      #   uses: pypa/cibuildwheel@v2.3.0
-      #   env:
-      #   with:
-      #     package-dir: py-geopolars
 
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./wheelhouse/*.whl
+    # steps:
+    #   - uses: actions/checkout@v2
+
+    #   - uses: actions-rs/toolchain@v1
+    #     with:
+    #       profile: minimal
+    #       toolchain: stable
+    #       override: true
+
+    #   - if: runner.os == 'Windows'
+    #     run: |
+    #         echo 'PATH=/c/Python38:/c/Python38/Scripts:/c/Strawberry/perl/site/bin:/c/Strawberry/perl/bin:/c/Strawberry/c/bin:$PATH' >> $GITHUB_ENV
+    #         echo 'RUSTFLAGS=-Ctarget-feature=+crt-static' >> $GITHUB_ENV
+    #         echo 'RUSTFLAGS=-Ctarget-feature=+crt-static' >> $GITHUB_ENV
+    #         echo 'CIBW_BEFORE_BUILD=python -m pip install --upgrade pip' >> $GITHUB_ENV
+
+    #   # - if: runner.os != 'Linux'
+    #   #   run: |
+    #   #       echo "CIBW_SKIP=$CIBW_SKIP cp37-*" >> $GITHUB_ENV # Also skip Python 3.7 as build is too slow
+
+    #   - name: Setup env when not using docker
+    #     # if: runner.os != 'Linux'
+    #     run: |
+    #       python -m pip install --upgrade wheel setuptools setuptools-rust
+
+    #   - if: runner.os == 'Linux'
+    #     name: Set up QEMU
+    #     id: qemu
+    #     uses: docker/setup-qemu-action@v1
+    #     with:
+    #       image: tonistiigi/binfmt:latest
+    #       platforms: arm64
+
+    #   - uses: actions/setup-python@v2
+    #     name: Install Python
+    #     with:
+    #       python-version: '3.7'
+
+    #   - name: Install cibuildwheel
+    #     run: |
+    #       python -m pip install cibuildwheel~=2.8.0
+
+    #   - name: Build wheels
+    #     run: |
+    #       python -m cibuildwheel py-geopolars --output-dir wheelhouse
+
+    #   - uses: actions/upload-artifact@v2
+    #     with:
+    #       path: ./wheelhouse/*.whl
+
+    #   # - name: Build wheels
+    #   #   uses: pypa/cibuildwheel@v2.3.0
+    #   #   env:
+    #   #   with:
+    #   #     package-dir: py-geopolars
+
+    #   # - uses: actions/upload-artifact@v2
+    #   #   with:
+    #   #     path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
