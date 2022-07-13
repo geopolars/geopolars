@@ -12,17 +12,8 @@ jobs:
     name: Build wheel on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      # fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-
-    # env:
-    #   CIBW_SKIP: "cp2* cp35* cp36* pp* *-win32 *i686 *-musllinux*"
-    #   # Only x86 macs for now
-    #   CIBW_ARCHS_MACOS: x86_64
-    #   CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
-    #   CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
-    #   CIBW_BEFORE_BUILD: python -m pip install oldest-supported-numpy maturin
 
     steps:
       - uses: actions/checkout@v2
@@ -43,32 +34,7 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
-
-    # steps:
-    #   - uses: actions/checkout@v2
-
-    #   - uses: actions-rs/toolchain@v1
-    #     with:
-    #       profile: minimal
-    #       toolchain: stable
-    #       override: true
-
-    #   - if: runner.os == 'Windows'
-    #     run: |
-    #         echo 'PATH=/c/Python38:/c/Python38/Scripts:/c/Strawberry/perl/site/bin:/c/Strawberry/perl/bin:/c/Strawberry/c/bin:$PATH' >> $GITHUB_ENV
-    #         echo 'RUSTFLAGS=-Ctarget-feature=+crt-static' >> $GITHUB_ENV
-    #         echo 'RUSTFLAGS=-Ctarget-feature=+crt-static' >> $GITHUB_ENV
-    #         echo 'CIBW_BEFORE_BUILD=python -m pip install --upgrade pip' >> $GITHUB_ENV
-
-    #   # - if: runner.os != 'Linux'
-    #   #   run: |
-    #   #       echo "CIBW_SKIP=$CIBW_SKIP cp37-*" >> $GITHUB_ENV # Also skip Python 3.7 as build is too slow
-
-    #   - name: Setup env when not using docker
-    #     # if: runner.os != 'Linux'
-    #     run: |
-    #       python -m pip install --upgrade wheel setuptools setuptools-rust
-
+    # Revisit if we want to have aarch linux wheels
     #   - if: runner.os == 'Linux'
     #     name: Set up QEMU
     #     id: qemu
@@ -76,33 +42,6 @@ jobs:
     #     with:
     #       image: tonistiigi/binfmt:latest
     #       platforms: arm64
-
-    #   - uses: actions/setup-python@v2
-    #     name: Install Python
-    #     with:
-    #       python-version: '3.7'
-
-    #   - name: Install cibuildwheel
-    #     run: |
-    #       python -m pip install cibuildwheel~=2.8.0
-
-    #   - name: Build wheels
-    #     run: |
-    #       python -m cibuildwheel py-geopolars --output-dir wheelhouse
-
-    #   - uses: actions/upload-artifact@v2
-    #     with:
-    #       path: ./wheelhouse/*.whl
-
-    #   # - name: Build wheels
-    #   #   uses: pypa/cibuildwheel@v2.3.0
-    #   #   env:
-    #   #   with:
-    #   #     package-dir: py-geopolars
-
-    #   # - uses: actions/upload-artifact@v2
-    #   #   with:
-    #   #     path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
@@ -131,15 +70,16 @@ jobs:
         with:
           path: py-geopolars/dist/*.tar.gz
 
-  # upload_pypi:
-  #   needs: [build_wheels, build_sdist]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: artifact
-  #         path: dist
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
 
+      # TODO: uncomment to publish to pypi
       # - uses: pypa/gh-action-pypi-publish@master
       #   with:
       #     user: __token__

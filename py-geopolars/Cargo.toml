@@ -1,5 +1,5 @@
 [package]
-name = "geopolars"
+name = "py-geopolars"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,5 +12,4 @@ crate-type = ["cdylib"]
 polars = "0.21.1"
 polars-arrow = "0.21.1"
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
-geopolars = "0.1.0-alpha.1"
-# geopolars = { path = "../geopolars" }
+geopolars = { path = "../geopolars" }
