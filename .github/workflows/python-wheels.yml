@@ -54,7 +54,7 @@ jobs:
       - name: Build sdist
         run: |
           pip install -U build
-          python -m build py-geopolars --sdist
+          cd py-geopolars && python -m build --sdist
           # pwd
           # ls
           # maturin sdist --manifest-path py-geopolars/Cargo.toml || echo ""
