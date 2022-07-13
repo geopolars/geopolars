@@ -76,7 +76,7 @@ jobs:
 
       - name: Build wheels
         run: |
-          cd py-geopolars && python -m cibuildwheel dist/*.tar.gz --output-dir wheelhouse
+          python -m cibuildwheel py-geopolars --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v2
         with:
