@@ -1,7 +1,14 @@
 [package]
 name = "geopolars"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 edition = "2021"
+authors = ["Kyle Barron <kylebarron2@gmail.com>", "Stuart Lynn"]
+description = "Geospatial extensions for Polars"
+documentation = "https://docs.rs/geopolars"
+readme = "../README.md"
+repository = "https://github.com/kylebarron/geopolars"
+license = "MIT"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,5 +16,5 @@ edition = "2021"
 arrow2 = { version = "0.11.2", features = ["io_ipc"] }
 geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
-geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
+geo = "0.22.1"
 polars = { version = "0.21.1", features = ["ipc", "dtype-u8", "dtype-i8"] }
