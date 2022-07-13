@@ -6,7 +6,6 @@ use arrow2::array::{
     MutablePrimitiveArray, PrimitiveArray,
 };
 
-#[cfg(feature = "affine-transform")]
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
@@ -34,7 +33,6 @@ pub enum TransformOrigin {
 
 pub trait GeoSeries {
     /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
-    #[cfg(feature = "affine-transform")]
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series>;
 
     /// Returns a Series containing the area of each geometry in the GeoSeries expressed in the
@@ -116,7 +114,6 @@ pub trait GeoSeries {
     /// * `angle` - The angle to rotate specified in degrees
     ///
     /// * `origin` - The origin around which to rotate the geometry
-    #[cfg(feature = "affine-transform")]
     fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries skewd by a fixed x and y amount around a
@@ -131,7 +128,6 @@ pub trait GeoSeries {
     /// geometry crs.
     ///
     /// * `origin` - The origin around which to scale the geometry
-    #[cfg(feature = "affine-transform")]
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series>;
 
     /// Returns a GeoSeries containing a simplified representation of each geometry.
@@ -164,7 +160,6 @@ pub trait GeoSeries {
     /// xoff = -origin.y * tan(xs)
     /// yoff = -origin.x * tan(ys)
     /// ```
-    #[cfg(feature = "affine-transform")]
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries translated by a fixed x and y amount
@@ -178,7 +173,6 @@ pub trait GeoSeries {
     /// geometry crs.
     ///
     /// * `origin` - The origin around which to scale the geometry
-    #[cfg(feature = "affine-transform")]
     fn translate(&self, x: f64, y: f64) -> Result<Series>;
 
     /// Return the x location of point geometries in a GeoSeries
@@ -189,7 +183,6 @@ pub trait GeoSeries {
 }
 
 impl GeoSeries for Series {
-    #[cfg(feature = "affine-transform")]
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series> {
         let transform: AffineTransform<f64> = matrix.into();
         let output_vec: Vec<Geometry> = iter_geom(self)
@@ -511,7 +504,6 @@ impl GeoSeries for Series {
         Series::try_from(("result", Arc::new(result) as ArrayRef))
     }
 
-    #[cfg(feature = "affine-transform")]
     fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series> {
         use geo::algorithm::bounding_rect::BoundingRect;
         use geo::algorithm::centroid::Centroid;
@@ -543,7 +535,6 @@ impl GeoSeries for Series {
         }
     }
 
-    #[cfg(feature = "affine-transform")]
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series> {
         use geo::algorithm::bounding_rect::BoundingRect;
         use geo::algorithm::centroid::Centroid;
@@ -603,7 +594,6 @@ impl GeoSeries for Series {
         Series::try_from(("geometry", Arc::new(result) as ArrayRef))
     }
 
-    #[cfg(feature = "affine-transform")]
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series> {
         use geo::algorithm::bounding_rect::BoundingRect;
         use geo::algorithm::centroid::Centroid;
@@ -635,7 +625,6 @@ impl GeoSeries for Series {
         }
     }
 
-    #[cfg(feature = "affine-transform")]
     fn translate(&self, x: f64, y: f64) -> Result<Series> {
         let transform = AffineTransform::translate(x, y);
         self.affine_transform(transform)
@@ -748,7 +737,6 @@ mod tests {
         assert_eq!(result, correct_poly, "Should get the correct convex hull");
     }
 
-    #[cfg(feature = "affine-transform")]
     #[test]
     fn skew() {
         let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
@@ -786,7 +774,6 @@ mod tests {
         }
     }
 
-    #[cfg(feature = "affine-transform")]
     #[test]
     fn rotate() {
         let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
@@ -821,7 +808,6 @@ mod tests {
         }
     }
 
-    #[cfg(feature = "affine-transform")]
     #[test]
     fn translate() {
         let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
@@ -847,7 +833,6 @@ mod tests {
         assert_eq!(geom, result, "The geom to be approprietly translated");
     }
 
-    #[cfg(feature = "affine-transform")]
     #[test]
     fn scale() {
         let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
