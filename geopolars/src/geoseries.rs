@@ -85,7 +85,7 @@ pub trait GeoSeries {
 
     /// Returns the type ids of each geometry
     /// This mimics the pygeos implementation
-    /// https://pygeos.readthedocs.io/en/latest/geometry.html?highlight=id#pygeos.geometry.get_type_id
+    /// <https://pygeos.readthedocs.io/en/latest/geometry.html?highlight=id#pygeos.geometry.get_type_id>
     ///
     /// None (missing) is -1
     /// POINT is 0
@@ -140,7 +140,7 @@ pub trait GeoSeries {
     /// connects these parts’ endpoints by a straight line. Then, it removes all points whose
     /// distance to the straight line is smaller than tolerance. It does not move any points and it
     /// always preserves endpoints of the original line or polygon. See
-    /// https://docs.rs/geo/latest/geo/algorithm/simplify/trait.Simplify.html for details
+    /// <https://docs.rs/geo/latest/geo/algorithm/simplify/trait.Simplify.html> for details
     fn simplify(&self, tolerance: f64) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries skewed by a fixed x and y amount around a
