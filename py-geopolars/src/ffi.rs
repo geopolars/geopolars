@@ -1,5 +1,7 @@
-use arrow::{array::ArrayRef, ffi};
-use polars::prelude::{ArrowField, Series};
+// Note: this arrow import is the same arrow2 as we use elsewhere, but we import it "from
+// polars-arrow" so that we get the same version as them
+use arrow::{array::ArrayRef, ffi, datatypes::Field as ArrowField};
+use polars_core::series::Series;
 use polars_arrow::export::arrow;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
