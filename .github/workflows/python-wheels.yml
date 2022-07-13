@@ -6,7 +6,6 @@ on:
     # tags:
     #   - "v*"
 
-# Inspiration from https://github.com/etesync/etebase-py/blob/ac3e5138a2e18dc11f77d9a75f07d4b8dd8c4445/.github/workflows/manual.yml
 jobs:
   build_wheels:
     name: Build wheel on ${{ matrix.os }}

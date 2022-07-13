@@ -7,7 +7,7 @@ name = "geopolars"
 version = "0.1.0"
 dependencies = [
   "polars",
-  "oldest-supported-numpy",
+  "numpy >= 1.16.0",
 ]
 requires-python = ">=3.7"
 
