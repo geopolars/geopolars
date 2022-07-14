@@ -1,6 +1,5 @@
-use arrow::{array::ArrayRef, ffi};
+use polars::export::arrow::{array::ArrayRef, ffi};
 use polars::prelude::{ArrowField, Series};
-use polars_arrow::export::arrow;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::{ffi::Py_uintptr_t, PyAny, PyObject, PyResult};
