@@ -3,8 +3,8 @@ name: Build Python Wheels
 # Only run on new tags starting with `v`
 on:
   push:
-    tags:
-      - "v*"
+    # tags:
+    #   - "v*"
 
 jobs:
   build_wheels:
@@ -22,7 +22,7 @@ jobs:
         env:
           CIBW_SKIP: "cp2* cp35* cp36* pp* *-win32 *i686 *-musllinux*"
           # Only x86 macs for now
-          CIBW_ARCHS_MACOS: x86_64
+          CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
           CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
           CIBW_BEFORE_BUILD: python -m pip install oldest-supported-numpy maturin
