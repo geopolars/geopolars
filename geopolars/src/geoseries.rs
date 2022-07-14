@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
 use crate::util::iter_geom;
-use arrow2::array::{
-    ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
-    MutablePrimitiveArray, PrimitiveArray,
-};
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
+use polars::export::arrow::array::{
+    ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
+    MutablePrimitiveArray, PrimitiveArray,
+};
 use polars::prelude::{PolarsError, Result, Series};
 use std::convert::Into;
 
@@ -677,9 +677,9 @@ mod tests {
     use polars::prelude::Series;
     use std::sync::Arc;
 
-    use arrow2::array::{ArrayRef, BinaryArray, MutableBinaryArray};
     use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point};
     use geozero::{CoordDimensions, ToWkb};
+    use polars::export::arrow::array::{ArrayRef, BinaryArray, MutableBinaryArray};
 
     use super::TransformOrigin;
 
