@@ -5,10 +5,6 @@ on:
     branches:
       - master
   pull_request:
-    paths:
-      - "py-geopolars/**"
-      - "geopolars/**"
-      - ".github/**"
 
 jobs:
   lint-rust:
@@ -30,11 +26,20 @@ jobs:
         run: |
           sudo apt-get install libprotobuf-dev protobuf-compiler
 
-      - name: Rust linting
+      - name: rustfmt
         run: |
           cd py-geopolars
-          cargo fmt --all -- --check
-          cargo clippy
+          cargo fmt --all --all-features -- --check
+
+      - name: clippy
+        run: |
+          cd py-geopolars
+          cargo clippy --all --all-features
+
+      - name: check
+        run: |
+          cd py-geopolars
+          cargo check --all --all-features
 
   test-python:
     name: Build and test Python
