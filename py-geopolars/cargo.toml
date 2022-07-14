@@ -9,7 +9,6 @@ name = "geopolars"
 crate-type = ["cdylib"]
 
 [dependencies]
-polars = "0.21.1"
-polars-arrow = "0.21.1"
+polars = "0.22.8"
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
 geopolars = { path = "../geopolars" }
