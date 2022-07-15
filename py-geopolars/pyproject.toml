@@ -4,18 +4,13 @@ build-backend = "maturin"
 
 [project]
 name = "geopolars"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
   "polars",
+  "pyarrow>=4.0.*",
   "numpy >= 1.16.0",
 ]
 requires-python = ">=3.7"
-
-[project.optional-dependencies]
-# the Arrow memory format is stable between 4.0 and 5.0-SNAPSHOTS
-# (which the Rust libraries use to take advantage of Rust API changes).
-pyarrow = ["pyarrow>=4.0.*"]
-pandas = ["pyarrow>=4.0.*", "pandas"]
 
 [tool.isort]
 profile = "black"
