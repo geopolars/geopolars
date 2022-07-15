@@ -8,9 +8,26 @@ version = "0.1.0-alpha.1"
 dependencies = [
   "polars",
   "pyarrow>=4.0.*",
-  "numpy >= 1.16.0",
+  "numpy >= 1.16.0"
 ]
 requires-python = ">=3.7"
+description = "Geospatial extensions for Polars"
+readme = "README.md"
+license = "MIT"
+authors = [
+  { name = "Kyle Barron" },
+  { name = "Stuart Lynn" }
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Topic :: Scientific/Engineering :: GIS",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Rust",
+  "Programming Language :: Python",
+]
+
+[project.urls]
+repository = "https://github.com/kylebarron/geopolars"
 
 [tool.isort]
 profile = "black"
