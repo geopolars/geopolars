@@ -13,8 +13,7 @@ exclude = ["cities.arrow"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-arrow2 = { version = "0.11.2", features = ["io_ipc"] }
 geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
 geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
-polars = { version = "0.21.1", features = ["ipc", "dtype-u8", "dtype-i8"] }
+polars = { version = "0.22.8", features = ["ipc", "dtype-u8", "dtype-i8"] }
