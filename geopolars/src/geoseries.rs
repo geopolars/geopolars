@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
-use geo::{map_coords::MapCoords, Coordinate, Geometry, Point};
+use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
 use polars::export::arrow::array::{
     ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
@@ -631,17 +631,18 @@ impl GeoSeries for Series {
 
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
-        use proj::{Proj, ProjError};
+        use proj::{Proj, Transform};
 
-        let proj_transformer = Proj::new_known_crs(from, to, None).unwrap();
-        let transform = |c: Coordinate<f64>| -> std::result::Result<_, ProjError> {
-            // proj can accept Point, Coordinate, Tuple, and array values, returning a Result
-            let shifted = proj_transformer.convert(c)?;
-            Ok(shifted)
-        };
-
+        let proj = Proj::new_known_crs(from, to, None).unwrap();
         let output_vec: Vec<Geometry> = iter_geom(self)
-            .map(|geom| geom.map_coords(|coord| transform(coord).unwrap()))
+            .map(|mut geom| {
+                // geom.tranform modifies `geom` in place.
+                // Note that this doesn't modify the _original series_ because iter_geom makes a
+                // copy
+                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
+                geom.transform(&proj).unwrap();
+                geom
+            })
             .collect();
 
         Series::from_geom_vec(&output_vec)
