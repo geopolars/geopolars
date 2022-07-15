@@ -12,3 +12,6 @@ crate-type = ["cdylib"]
 polars = "0.22.8"
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
 geopolars = { path = "../geopolars" }
+
+[package.metadata.maturin]
+python-source = "python"
