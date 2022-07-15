@@ -20,11 +20,14 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.3.0
         env:
-          CIBW_SKIP: "cp2* cp35* cp36* pp* *-win32 *i686 *-musllinux*"
-          # Only x86 macs for now
-          CIBW_ARCHS_MACOS: x86_64
+          # Python wheel support for mac M1 started as of 3.8. So if we _only_ build universal2
+          # wheels, we don't build a wheel for 3.7. Therefore, we set CIBW_ARCHS_MACOS to both, but
+          # explicitly skip x86-64-only wheels for 3.8 and higher.
+          CIBW_SKIP: "cp2* cp35* cp36* cp38*macosx*x86_64 cp39*macosx*x86_64 cp310*macosx*x86_64 pp* *win32 *i686 *musllinux*"
+          CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
           CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
+          CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin"
           CIBW_BEFORE_BUILD: python -m pip install oldest-supported-numpy maturin
         with:
           package-dir: py-geopolars
