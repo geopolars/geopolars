@@ -6,20 +6,24 @@ use pyo3::prelude::*;
 
 #[pyfunction]
 fn centroid(series: &PyAny) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
+
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series
         .centroid()
         .map_err(|e| PyValueError::new_err(format!("Something went wrong: {:?}", e)))?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
 fn convex_hull(series: &PyAny) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
+
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series
         .convex_hull()
         .map_err(|e| PyValueError::new_err(format!("Something went wrong: {:?}", e)))?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]

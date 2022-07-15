@@ -1,11 +1,13 @@
+import geopolars as gpl
 import polars as pl
 import pyarrow as pa
-from geopolars import centroid
 
-reader = pa.ipc.open_file("../cities.arrow")
+reader = pa.ipc.open_file("../geopolars/cities.arrow")
 table = reader.read_all()
 
 df = pl.from_arrow(table)
 geom = df.get_column("geometry")
-out = centroid(geom)
-print(out)
+s = gpl.GeoSeries(geom, crs="epsg:4326")
+
+s_centroid = s.centroid()
+print(s_centroid.crs)

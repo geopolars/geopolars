@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Union
 
 import polars
@@ -9,7 +11,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 def from_arrow(
-    a: Union["pa.Table", "pa.Array", "pa.ChunkedArray"], rechunk: bool = True
+    a: Union[pa.Table, pa.Array, pa.ChunkedArray]
 ) -> Union[GeoDataFrame, GeoSeries]:
     """Convert from Arrow data to GeoSeries or GeoDataFrame"""
     # TODO: this should probably have a check that the data is indeed geographic? And return a bare

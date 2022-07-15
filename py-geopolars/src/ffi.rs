@@ -94,7 +94,7 @@ pub fn rust_series_to_py_series(series: &Series) -> PyResult<PyObject> {
     Ok(out.to_object(py))
 }
 
-pub fn rust_series_to_py_geoseries(series: &Series) -> PyResult<PyObject> {
+pub fn rust_series_to_py_geoseries(series: &Series, crs: Option<&str>) -> PyResult<PyObject> {
     // ensure we have a single chunk
     let series = series.rechunk();
     let array = series.to_arrow(0);
@@ -111,5 +111,6 @@ pub fn rust_series_to_py_geoseries(series: &Series) -> PyResult<PyObject> {
     // import geopolars
     let geopolars = py.import("geopolars")?;
     let out = geopolars.call_method1("from_arrow", (pyarrow_array,))?;
+    out.setattr("crs", crs)?;
     Ok(out.to_object(py))
 }
