@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=0.12,<0.13"]
+requires = ["maturin>=0.13,<0.14"]
 build-backend = "maturin"
 
 [project]
@@ -13,7 +13,9 @@ dependencies = [
 requires-python = ">=3.7"
 description = "Geospatial extensions for Polars"
 readme = "README.md"
-license = "MIT"
+# Specify SPDX expression in pyproject.toml instead of here
+# https://maturin.rs/metadata.html#add-spdx-license-expressions
+# license = "MIT"
 authors = [
   { name = "Kyle Barron" },
   { name = "Stuart Lynn" }
