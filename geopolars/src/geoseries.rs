@@ -1,5 +1,4 @@
-use std::sync::Arc;
-
+use crate::error::{inner_type_name, GeopolarsError, Result};
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
@@ -8,8 +7,9 @@ use polars::export::arrow::array::{
     ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
     MutablePrimitiveArray, PrimitiveArray,
 };
-use polars::prelude::{PolarsError, Result, Series};
+use polars::prelude::{PolarsError, Series};
 use std::convert::Into;
+use std::sync::Arc;
 
 pub enum GeodesicLengthMethod {
     Haversine,
@@ -220,7 +220,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn convex_hull(&self) -> Result<Series> {
@@ -245,7 +246,8 @@ impl GeoSeries for Series {
         }
 
         let result: BinaryArray<i32> = output_array.into();
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn envelope(&self) -> Result<Series> {
@@ -264,7 +266,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn euclidean_length(&self) -> Result<Series> {
@@ -299,7 +302,8 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn exterior(&self) -> Result<Series> {
@@ -318,7 +322,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Self> {
@@ -334,7 +339,7 @@ impl GeoSeries for Series {
         }
         let array: BinaryArray<i32> = wkb_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef))?;
         Ok(series)
     }
 
@@ -452,7 +457,8 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn geom_type(&self) -> Result<Series> {
@@ -476,7 +482,8 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<i8> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn is_empty(&self) -> Result<Series> {
@@ -489,7 +496,8 @@ impl GeoSeries for Series {
         }
 
         let result: BooleanArray = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn is_ring(&self) -> Result<Series> {
@@ -505,7 +513,8 @@ impl GeoSeries for Series {
         }
 
         let result: BooleanArray = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series> {
@@ -595,7 +604,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series> {
@@ -633,19 +643,21 @@ impl GeoSeries for Series {
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
         use proj::{Proj, Transform};
 
-        let proj = Proj::new_known_crs(from, to, None).unwrap();
-        let output_vec: Vec<Geometry> = iter_geom(self)
+        let proj = Proj::new_known_crs(from, to, None)?;
+        // Specify literal Result<> to propagate error from within closure
+        // https://stackoverflow.com/a/26370894
+        let output_vec: Result<Vec<Geometry>> = iter_geom(self)
             .map(|mut geom| {
                 // geom.tranform modifies `geom` in place.
                 // Note that this doesn't modify the _original series_ because iter_geom makes a
                 // copy
                 // https://docs.rs/proj/latest/proj/#integration-with-geo-types
-                geom.transform(&proj).unwrap();
-                geom
+                geom.transform(&proj)?;
+                Ok(geom)
             })
             .collect();
 
-        Series::from_geom_vec(&output_vec)
+        Series::from_geom_vec(&output_vec?)
     }
 
     fn translate(&self, x: f64, y: f64) -> Result<Series> {
@@ -657,38 +669,42 @@ impl GeoSeries for Series {
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
         for geom in iter_geom(self) {
-            let point: Point<f64> = match geom.try_into() {
-                Ok(point) => point,
-                Err(_) => {
-                    return Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Not a point geometry",
-                    )))
+            let point: Point<f64> = match geom {
+                Geometry::Point(point) => point,
+                geom => {
+                    return Err(GeopolarsError::MismatchedGeometry {
+                        expected: "Point",
+                        found: inner_type_name(&geom),
+                    })
                 }
             };
             result.push(Some(point.x()));
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn y(&self) -> Result<Series> {
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
         for geom in iter_geom(self) {
-            let point: Point<f64> = match geom.try_into() {
-                Ok(point) => point,
-                Err(_) => {
-                    return Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Not a point geometry",
-                    )))
+            let point: Point<f64> = match geom {
+                Geometry::Point(point) => point,
+                geom => {
+                    return Err(GeopolarsError::MismatchedGeometry {
+                        expected: "Point",
+                        found: inner_type_name(&geom),
+                    })
                 }
             };
             result.push(Some(point.y()));
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        Ok(series)
     }
 }
 

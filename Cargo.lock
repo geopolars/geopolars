@@ -622,6 +622,7 @@ dependencies = [
  "polars",
  "proj",
  "rstar",
+ "thiserror",
 ]
 
 [[package]]
