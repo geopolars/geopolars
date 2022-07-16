@@ -161,6 +161,11 @@ pub trait GeoSeries {
     /// ```
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series>;
 
+    // Note: Ideally we wouldn't have both `from` and `to` here, where the series would include the
+    // current CRS, but that would require polars to support extension types.
+    #[cfg(feature = "proj")]
+    fn to_crs(&self, from: &str, to: &str) -> Result<Series>;
+
     /// Returns a GeoSeries with each of the geometries translated by a fixed x and y amount
     ///
     /// # Arguments
@@ -622,6 +627,25 @@ impl GeoSeries for Series {
                 self.affine_transform(transform)
             }
         }
+    }
+
+    #[cfg(feature = "proj")]
+    fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
+        use proj::{Proj, Transform};
+
+        let proj = Proj::new_known_crs(from, to, None).unwrap();
+        let output_vec: Vec<Geometry> = iter_geom(self)
+            .map(|mut geom| {
+                // geom.tranform modifies `geom` in place.
+                // Note that this doesn't modify the _original series_ because iter_geom makes a
+                // copy
+                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
+                geom.transform(&proj).unwrap();
+                geom
+            })
+            .collect();
+
+        Series::from_geom_vec(&output_vec)
     }
 
     fn translate(&self, x: f64, y: f64) -> Result<Series> {

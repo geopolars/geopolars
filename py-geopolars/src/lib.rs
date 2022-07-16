@@ -50,11 +50,21 @@ fn geodesic_length(series: &PyAny, method: &str) -> PyResult<PyObject> {
     ffi::rust_series_to_py_series(&out)
 }
 
+#[pyfunction]
+fn to_crs(series: &PyAny, from: &str, to: &str) -> PyResult<PyObject> {
+    let series = ffi::py_series_to_rust_series(series)?;
+    let out = series
+        .to_crs(from, to)
+        .map_err(|e| PyValueError::new_err(format!("Something went wrong: {:?}", e)))?;
+    ffi::rust_series_to_py_series(&out)
+}
+
 #[pymodule]
 fn geopolars(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(centroid)).unwrap();
     m.add_wrapped(wrap_pyfunction!(convex_hull)).unwrap();
     m.add_wrapped(wrap_pyfunction!(euclidean_length)).unwrap();
     m.add_wrapped(wrap_pyfunction!(geodesic_length)).unwrap();
+    m.add_wrapped(wrap_pyfunction!(to_crs)).unwrap();
     Ok(())
 }
