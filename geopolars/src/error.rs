@@ -2,6 +2,9 @@ use core::any::type_name;
 use polars::error::PolarsError;
 use thiserror::Error;
 
+#[cfg(feature = "proj")]
+use proj::{ProjCreateError, ProjError};
+
 #[derive(Error, Debug)]
 pub enum GeopolarsError {
     // Copied from geo-types:
@@ -12,6 +15,14 @@ pub enum GeopolarsError {
         found: &'static str,
     },
 
+    #[cfg(feature = "proj")]
+    #[error(transparent)]
+    ProjCreateError(Box<ProjCreateError>),
+
+    #[cfg(feature = "proj")]
+    #[error(transparent)]
+    ProjError(Box<ProjError>),
+
     #[error(transparent)]
     PolarsError(Box<PolarsError>),
 }
@@ -21,6 +32,20 @@ pub type Result<T> = std::result::Result<T, GeopolarsError>;
 impl From<PolarsError> for GeopolarsError {
     fn from(err: PolarsError) -> Self {
         Self::PolarsError(Box::new(err))
+    }
+}
+
+#[cfg(feature = "proj")]
+impl From<ProjCreateError> for GeopolarsError {
+    fn from(err: ProjCreateError) -> Self {
+        Self::ProjCreateError(Box::new(err))
+    }
+}
+
+#[cfg(feature = "proj")]
+impl From<ProjError> for GeopolarsError {
+    fn from(err: ProjError) -> Self {
+        Self::ProjError(Box::new(err))
     }
 }
 

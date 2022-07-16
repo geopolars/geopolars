@@ -339,7 +339,7 @@ impl GeoSeries for Series {
         }
         let array: BinaryArray<i32> = wkb_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef))?;
         Ok(series)
     }
 
@@ -643,7 +643,7 @@ impl GeoSeries for Series {
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
         use proj::{Proj, Transform};
 
-        let proj = Proj::new_known_crs(from, to, None).unwrap();
+        let proj = Proj::new_known_crs(from, to, None)?;
         let output_vec: Vec<Geometry> = iter_geom(self)
             .map(|mut geom| {
                 // geom.tranform modifies `geom` in place.
