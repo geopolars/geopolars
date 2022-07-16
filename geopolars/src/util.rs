@@ -22,7 +22,7 @@ pub fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
 pub fn geom_at_index(series: &Series, index: usize) -> Result<Geometry<f64>> {
     let item_at_index = match series.get(index) {
         AnyValue::List(buf) => buf,
-        _ => return Err(PolarsError::SchemaMisMatch("".into()))
+        _ => return Err(PolarsError::SchemaMisMatch("".into())),
     };
 
     let buffer = item_at_index.u8()?;
