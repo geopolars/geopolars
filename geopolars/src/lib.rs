@@ -1,3 +1,4 @@
+pub mod error;
 pub mod geodataframe;
 pub mod geoseries;
 pub mod spatial_index;

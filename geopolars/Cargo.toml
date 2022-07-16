@@ -21,5 +21,6 @@ geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
 geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
 polars = { version = "0.22.8", features = ["ipc", "dtype-u8", "dtype-i8"] }
+thiserror = "1.0"
 
 proj = { version = "0.27.0", optional = true, features = ["geo-types", "bundled_proj"]}

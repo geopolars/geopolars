@@ -1,5 +1,6 @@
 use crate::geoseries::GeoSeries;
-use polars::prelude::{DataFrame, Result, Series};
+use crate::error::Result;
+use polars::prelude::{DataFrame, Series};
 
 pub trait GeoDataFrame {
     fn centroid(&self) -> Result<Series>;
