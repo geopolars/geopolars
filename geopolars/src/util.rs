@@ -7,7 +7,7 @@ use polars::{
 
 
 /// Helper function to iterate over geometries from polars Series
-pub fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
+pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
     let chunks = series.list().expect("series was not a list type");
     let iter = chunks.into_iter();
     iter.map(|row| {
@@ -19,7 +19,7 @@ pub fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
 }
 
 /// Access to a geometry at a specified index
-pub fn geom_at_index(series: &Series, index: usize) -> Result<Geometry<f64>> {
+pub(crate) fn geom_at_index(series: &Series, index: usize) -> Result<Geometry<f64>> {
     let item_at_index = match series.get(index) {
         AnyValue::List(buf) => buf,
         _ => return Err(PolarsError::SchemaMisMatch("".into())),
