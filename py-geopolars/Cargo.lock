@@ -1321,6 +1321,7 @@ dependencies = [
 name = "py-geopolars"
 version = "0.1.0-alpha.1"
 dependencies = [
+ "geo",
  "geopolars",
  "polars",
  "pyo3",
