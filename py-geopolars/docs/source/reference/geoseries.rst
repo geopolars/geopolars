@@ -75,30 +75,30 @@ General methods and attributes
 ..    GeoSeries.symmetric_difference
 ..    GeoSeries.union
 
-.. Constructive Methods and Attributes
-.. -----------------------------------
+Constructive Methods and Attributes
+-----------------------------------
 
-.. .. autosummary::
-..    :toctree: api/
+.. autosummary::
+   :toctree: api/
 
-..    GeoSeries.buffer
-..    GeoSeries.boundary
-..    GeoSeries.centroid
-..    GeoSeries.convex_hull
-..    GeoSeries.envelope
-..    GeoSeries.simplify
+  ..  GeoSeries.buffer
+  ..  GeoSeries.boundary
+   GeoSeries.centroid
+   GeoSeries.convex_hull
+   GeoSeries.envelope
+  ..  GeoSeries.simplify
 
-.. Affine transformations
-.. ----------------------
+Affine transformations
+----------------------
 
-.. .. autosummary::
-..    :toctree: api/
+.. autosummary::
+   :toctree: api/
 
-..    GeoSeries.affine_transform
-..    GeoSeries.rotate
-..    GeoSeries.scale
-..    GeoSeries.skew
-..    GeoSeries.translate
+   GeoSeries.affine_transform
+  ..  GeoSeries.rotate
+  ..  GeoSeries.scale
+  ..  GeoSeries.skew
+   GeoSeries.translate
 
 .. Aggregating and exploding
 .. -------------------------
@@ -124,16 +124,16 @@ General methods and attributes
 ..    GeoSeries.to_wkb
 ..    GeoSeries.to_wkt
 
-.. Projection handling
-.. -------------------
+Projection handling
+-------------------
 
-.. .. autosummary::
-..    :toctree: api/
+.. autosummary::
+   :toctree: api/
 
-..    GeoSeries.crs
-..    GeoSeries.set_crs
-..    GeoSeries.to_crs
-..    GeoSeries.estimate_utm_crs
+  ..  GeoSeries.crs
+  ..  GeoSeries.set_crs
+   GeoSeries.to_crs
+  ..  GeoSeries.estimate_utm_crs
 
 .. Missing values
 .. --------------
