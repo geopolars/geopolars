@@ -10,327 +10,188 @@ Constructor
 
    GeoSeries
 
-.. Attributes
-.. ----------
+General methods and attributes
+------------------------------
+
+.. autosummary::
+   :toctree: api/
+
+   GeoSeries.area
+  ..  GeoSeries.boundary
+  ..  GeoSeries.bounds
+  ..  GeoSeries.total_bounds
+  ..  GeoSeries.length
+   GeoSeries.geom_type
+  ..  GeoSeries.distance
+  ..  GeoSeries.representative_point
+   GeoSeries.exterior
+  ..  GeoSeries.interiors
+   GeoSeries.x
+   GeoSeries.y
+  ..  GeoSeries.z
+
+.. Unary predicates
+.. ----------------
 
 .. .. autosummary::
 ..    :toctree: api/
 
-..    Series.dtype
-..    Series.inner_dtype
-..    Series.name
-..    Series.shape
-..    Series.arr
-..    Series.dt
-..    Series.str
-..    Series.cat
-..    Series.time_unit
-
-.. Conversion
-.. ----------
-.. .. autosummary::
-..    :toctree: api/
-
-..    Series.to_frame
-..    Series.to_list
-..    Series.to_numpy
-..    Series.to_arrow
-..    Series.to_pandas
+..    GeoSeries.is_empty
+..    GeoSeries.is_ring
+..    GeoSeries.is_simple
+..    GeoSeries.is_valid
+..    GeoSeries.has_z
 
 
-.. Aggregation
-.. -----------
-.. .. autosummary::
-..    :toctree: api/
-
-..     Series.sum
-..     Series.mean
-..     Series.min
-..     Series.max
-..     Series.std
-..     Series.var
-..     Series.median
-..     Series.quantile
-..     Series.product
-..     Series.mode
-..     Series.arg_min
-..     Series.arg_max
-
-.. Descriptive stats
+.. Binary Predicates
 .. -----------------
+
 .. .. autosummary::
 ..    :toctree: api/
 
-..     Series.describe
-..     Series.estimated_size
-..     Series.unique_counts
-..     Series.value_counts
-..     Series.chunk_lengths
-..     Series.n_chunks
-..     Series.null_count
-..     Series.is_null
-..     Series.is_not_null
-..     Series.is_finite
-..     Series.is_infinite
-..     Series.is_nan
-..     Series.is_not_nan
-..     Series.is_in
-..     Series.is_unique
-..     Series.is_first
-..     Series.is_duplicated
-..     Series.is_numeric
-..     Series.is_float
-..     Series.is_boolean
-..     Series.is_utf8
-..     Series.is_datelike
-..     Series.len
-..     Series.n_unique
-..     Series.has_validity
+..    GeoSeries.contains
+..    GeoSeries.crosses
+..    GeoSeries.disjoint
+..    GeoSeries.geom_equals
+..    GeoSeries.geom_almost_equals
+..    GeoSeries.geom_equals_exact
+..    GeoSeries.intersects
+..    GeoSeries.overlaps
+..    GeoSeries.touches
+..    GeoSeries.within
+..    GeoSeries.covers
+..    GeoSeries.covered_by
 
-.. Boolean
-.. -------
+
+.. Set-theoretic Methods
+.. ---------------------
+
 .. .. autosummary::
 ..    :toctree: api/
 
-..     Series.any
-..     Series.all
+..    GeoSeries.clip_by_rect
+..    GeoSeries.difference
+..    GeoSeries.intersection
+..    GeoSeries.symmetric_difference
+..    GeoSeries.union
 
-.. Computations
-.. ------------
+.. Constructive Methods and Attributes
+.. -----------------------------------
+
 .. .. autosummary::
 ..    :toctree: api/
 
-..     Series.cumsum
-..     Series.cummin
-..     Series.cummax
-..     Series.cumprod
-..     Series.cumulative_eval
-..     Series.arg_true
-..     Series.arg_unique
-..     Series.unique
-..     Series.rolling_min
-..     Series.rolling_max
-..     Series.rolling_mean
-..     Series.rolling_sum
-..     Series.rolling_apply
-..     Series.rolling_std
-..     Series.rolling_var
-..     Series.rolling_median
-..     Series.rolling_quantile
-..     Series.rolling_skew
-..     Series.ewm_mean
-..     Series.ewm_std
-..     Series.ewm_var
-..     Series.hash
-..     Series.peak_max
-..     Series.peak_min
-..     Series.dot
-..     Series.abs
-..     Series.rank
-..     Series.diff
-..     Series.pct_change
-..     Series.skew
-..     Series.kurtosis
-..     Series.entropy
-..     Series.sqrt
-..     Series.sin
-..     Series.cos
-..     Series.tan
-..     Series.arcsin
-..     Series.arccos
-..     Series.arctan
-..     Series.log
-..     Series.log10
-..     Series.exp
-..     Series.sign
+..    GeoSeries.buffer
+..    GeoSeries.boundary
+..    GeoSeries.centroid
+..    GeoSeries.convex_hull
+..    GeoSeries.envelope
+..    GeoSeries.simplify
 
-.. Manipulation/ selection
-.. -----------------------
+.. Affine transformations
+.. ----------------------
+
 .. .. autosummary::
 ..    :toctree: api/
 
-..     Series.alias
-..     Series.rename
-..     Series.limit
-..     Series.slice
-..     Series.append
-..     Series.filter
-..     Series.head
-..     Series.tail
-..     Series.take_every
-..     Series.sort
-..     Series.argsort
-..     Series.take
-..     Series.shrink_to_fit
-..     Series.explode
-..     Series.sample
-..     Series.view
-..     Series.set
-..     Series.clone
-..     Series.shift
-..     Series.shift_and_fill
-..     Series.drop_nulls
-..     Series.drop_nans
-..     Series.rechunk
-..     Series.cast
-..     Series.round
-..     Series.floor
-..     Series.ceil
-..     Series.set_at_idx
-..     Series.fill_null
-..     Series.fill_nan
-..     Series.zip_with
-..     Series.interpolate
-..     Series.clip
-..     Series.reshape
-..     Series.to_dummies
-..     Series.shuffle
-..     Series.extend_constant
+..    GeoSeries.affine_transform
+..    GeoSeries.rotate
+..    GeoSeries.scale
+..    GeoSeries.skew
+..    GeoSeries.translate
 
-.. Various
+.. Aggregating and exploding
+.. -------------------------
+
+.. .. autosummary::
+..    :toctree: api/
+
+..    GeoSeries.unary_union
+..    GeoSeries.explode
+
+.. Serialization / IO / conversion
+.. -------------------------------
+
+.. .. autosummary::
+..    :toctree: api/
+
+..    GeoSeries.from_file
+..    GeoSeries.from_wkb
+..    GeoSeries.from_wkt
+..    GeoSeries.from_xy
+..    GeoSeries.to_file
+..    GeoSeries.to_json
+..    GeoSeries.to_wkb
+..    GeoSeries.to_wkt
+
+.. Projection handling
+.. -------------------
+
+.. .. autosummary::
+..    :toctree: api/
+
+..    GeoSeries.crs
+..    GeoSeries.set_crs
+..    GeoSeries.to_crs
+..    GeoSeries.estimate_utm_crs
+
+.. Missing values
+.. --------------
+
+.. .. autosummary::
+..    :toctree: api/
+
+..    GeoSeries.fillna
+..    GeoSeries.isna
+..    GeoSeries.notna
+
+.. Overlay operations
+.. ------------------
+
+.. .. autosummary::
+..    :toctree: api/
+
+..    GeoSeries.clip
+
+.. Plotting
 .. --------
-.. .. autosummary::
-..    :toctree: api/
-
-..     Series.series_equal
-..     Series.apply
-..     Series.dt
-..     Series.str
-..     Series.reinterpret
-..     Series.to_physical
-..     Series.set_sorted
-
-.. TimeSeries
-.. ----------
-.. The following methods are available under the `Series.dt` attribute.
-
-.. .. currentmodule:: polars.internals.series
 
 .. .. autosummary::
 ..    :toctree: api/
 
-..     DateTimeNameSpace.strftime
-..     DateTimeNameSpace.year
-..     DateTimeNameSpace.month
-..     DateTimeNameSpace.week
-..     DateTimeNameSpace.weekday
-..     DateTimeNameSpace.day
-..     DateTimeNameSpace.ordinal_day
-..     DateTimeNameSpace.hour
-..     DateTimeNameSpace.minute
-..     DateTimeNameSpace.second
-..     DateTimeNameSpace.nanosecond
-..     DateTimeNameSpace.timestamp
-..     DateTimeNameSpace.to_python_datetime
-..     DateTimeNameSpace.min
-..     DateTimeNameSpace.max
-..     DateTimeNameSpace.median
-..     DateTimeNameSpace.mean
-..     DateTimeNameSpace.truncate
-..     DateTimeNameSpace.epoch
-..     DateTimeNameSpace.epoch_days
-..     DateTimeNameSpace.epoch_milliseconds
-..     DateTimeNameSpace.epoch_seconds
-..     DateTimeNameSpace.and_time_unit
-..     DateTimeNameSpace.and_time_zone
-..     DateTimeNameSpace.with_time_unit
-..     DateTimeNameSpace.cast_time_unit
-..     DateTimeNameSpace.days
-..     DateTimeNameSpace.hours
-..     DateTimeNameSpace.minutes
-..     DateTimeNameSpace.seconds
-..     DateTimeNameSpace.milliseconds
-..     DateTimeNameSpace.nanoseconds
+..    GeoSeries.plot
+..    GeoSeries.explore
 
 
-.. Strings
-.. -------
-
-.. The following methods are available under the `Series.str` attribute.
-
-.. .. currentmodule:: polars.internals.series
+.. Spatial index
+.. -------------
 
 .. .. autosummary::
 ..    :toctree: api/
 
-..     StringNameSpace.strptime
-..     StringNameSpace.lengths
-..     StringNameSpace.concat
-..     StringNameSpace.contains
-..     StringNameSpace.json_path_match
-..     StringNameSpace.extract
-..     StringNameSpace.extract_all
-..     StringNameSpace.count_match
-..     StringNameSpace.split
-..     StringNameSpace.split_exact
-..     StringNameSpace.replace
-..     StringNameSpace.replace_all
-..     StringNameSpace.to_lowercase
-..     StringNameSpace.to_uppercase
-..     StringNameSpace.strip
-..     StringNameSpace.rstrip
-..     StringNameSpace.lstrip
-..     StringNameSpace.zfill
-..     StringNameSpace.ljust
-..     StringNameSpace.rjust
-..     StringNameSpace.slice
-..     StringNameSpace.encode
-..     StringNameSpace.decode
+..    GeoSeries.sindex
+..    GeoSeries.has_sindex
 
-.. Lists
-.. -----
-
-.. The following methods are available under the `Series.arr` attribute.
-
-.. .. currentmodule:: polars.internals.series
+.. Indexing
+.. --------
 
 .. .. autosummary::
 ..    :toctree: api/
 
-..     ListNameSpace.concat
-..     ListNameSpace.lengths
-..     ListNameSpace.sum
-..     ListNameSpace.min
-..     ListNameSpace.max
-..     ListNameSpace.mean
-..     ListNameSpace.sort
-..     ListNameSpace.reverse
-..     ListNameSpace.unique
-..     ListNameSpace.get
-..     ListNameSpace.first
-..     ListNameSpace.last
-..     ListNameSpace.contains
-..     ListNameSpace.join
-..     ListNameSpace.arg_min
-..     ListNameSpace.arg_max
-..     ListNameSpace.diff
-..     ListNameSpace.shift
-..     ListNameSpace.slice
-..     ListNameSpace.head
-..     ListNameSpace.tail
-..     ListNameSpace.eval
+..    GeoSeries.cx
 
-.. Categories
-.. ----------
-.. The following methods are available under the `Series.cat` attribute.
-
-.. .. currentmodule:: polars.internals.series
+.. Interface
+.. ---------
 
 .. .. autosummary::
 ..    :toctree: api/
 
-..     CatNameSpace.set_ordering
+..    GeoSeries.__geo_interface__
 
-.. Struct
-.. ------
-.. The following methods are available under the `Series.struct` attribute.
 
-.. .. currentmodule:: polars.internals.series
-
-.. .. autosummary::
-..    :toctree: api/
-
-..     StructNameSpace.to_frame
-..     StructNameSpace.field
-..     StructNameSpace.fields
-..     StructNameSpace.rename_fields
+.. Methods of pandas ``Series`` objects are also available, although not
+.. all are applicable to geometric objects and some may return a
+.. ``Series`` rather than a ``GeoSeries`` result when appropriate. The methods
+.. ``isna()`` and ``fillna()`` have been
+.. implemented specifically for ``GeoSeries`` and are expected to work
+.. correctly.
