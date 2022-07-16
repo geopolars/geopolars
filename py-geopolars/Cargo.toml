@@ -16,6 +16,7 @@ polars = "0.22.8"
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
 geopolars = { path = "../geopolars", features = ["proj"] }
 thiserror = "1.0"
+geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
 
 [package.metadata.maturin]
 python-source = "python"
