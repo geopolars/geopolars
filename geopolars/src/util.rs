@@ -5,7 +5,6 @@ use polars::{
     prelude::{PolarsError, Result, Series},
 };
 
-
 /// Helper function to iterate over geometries from polars Series
 pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
     let chunks = series.list().expect("series was not a list type");
