@@ -1,5 +1,5 @@
-use crate::geoseries::GeoSeries;
 use crate::error::Result;
+use crate::geoseries::GeoSeries;
 use polars::prelude::{DataFrame, Series};
 
 pub trait GeoDataFrame {
