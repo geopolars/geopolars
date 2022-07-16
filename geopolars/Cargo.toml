@@ -16,4 +16,18 @@ exclude = ["cities.arrow"]
 geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
 geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
-polars = { version = "0.22.8", features = ["ipc", "dtype-u8", "dtype-i8"] }
+polars = { version = "0.22.6", default-features = false }
+
+
+[features]
+default = [
+  "basic-polars",
+  "polars/fmt",
+  "polars/zip_with",
+  "polars/csv-file",
+  "polars/temporal",
+  "polars/fmt",
+  "polars/dtype-slim",
+]
+
+basic-polars = ["polars/ipc", "polars/dtype-u8", "polars/dtype-i8", "polars/private"]
