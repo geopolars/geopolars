@@ -1,5 +1,6 @@
 use crate::error::PyGeopolarsError;
 use crate::ffi;
+use crate::utils::PythonTransformOrigin;
 use geo::AffineTransform;
 use geopolars::geoseries::{GeoSeries, GeodesicLengthMethod};
 use pyo3::exceptions::PyValueError;
@@ -99,26 +100,46 @@ pub(crate) fn is_ring(series: &PyAny) -> PyResult<PyObject> {
 }
 
 // TODO: implement API for TransformOrigin
-// #[pyfunction]
-// pub(crate) fn rotate(series: &PyAny, angle: f64) -> PyResult<PyObject> {
-//     let series = ffi::py_series_to_rust_series(series)?;
-//     let out = series.rotate().map_err(PyGeopolarsError::from)?;
-//     ffi::rust_series_to_py_geoseries(&out)
-// }
+#[pyfunction]
+pub(crate) fn rotate(
+    series: &PyAny,
+    angle: f64,
+    origin: PythonTransformOrigin,
+) -> PyResult<PyObject> {
+    let series = ffi::py_series_to_rust_series(series)?;
+    let out = series
+        .rotate(angle, origin.try_into()?)
+        .map_err(PyGeopolarsError::from)?;
+    ffi::rust_series_to_py_geoseries(&out)
+}
 
-// #[pyfunction]
-// pub(crate) fn scale(series: &PyAny) -> PyResult<PyObject> {
-//     let series = ffi::py_series_to_rust_series(series)?;
-//     let out = series.scale().map_err(PyGeopolarsError::from)?;
-//     ffi::rust_series_to_py_geoseries(&out)
-// }
+#[pyfunction]
+pub(crate) fn scale(
+    series: &PyAny,
+    xfact: f64,
+    yfact: f64,
+    origin: PythonTransformOrigin,
+) -> PyResult<PyObject> {
+    let series = ffi::py_series_to_rust_series(series)?;
+    let out = series
+        .scale(xfact, yfact, origin.try_into()?)
+        .map_err(PyGeopolarsError::from)?;
+    ffi::rust_series_to_py_geoseries(&out)
+}
 
-// #[pyfunction]
-// pub(crate) fn skew(series: &PyAny) -> PyResult<PyObject> {
-//     let series = ffi::py_series_to_rust_series(series)?;
-//     let out = series.skew().map_err(PyGeopolarsError::from)?;
-//     ffi::rust_series_to_py_geoseries(&out)
-// }
+#[pyfunction]
+pub(crate) fn skew(
+    series: &PyAny,
+    xs: f64,
+    ys: f64,
+    origin: PythonTransformOrigin,
+) -> PyResult<PyObject> {
+    let series = ffi::py_series_to_rust_series(series)?;
+    let out = series
+        .skew(xs, ys, origin.try_into()?)
+        .map_err(PyGeopolarsError::from)?;
+    ffi::rust_series_to_py_geoseries(&out)
+}
 
 #[pyfunction]
 pub(crate) fn to_crs(series: &PyAny, from: &str, to: &str) -> PyResult<PyObject> {
