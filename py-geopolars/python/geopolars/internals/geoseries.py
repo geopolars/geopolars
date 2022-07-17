@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from geopolars import geopolars as core
-from geopolars.internals.types import TransformOrigin
+from geopolars.internals.types import GeodesicMethod, TransformOrigin
 from polars import Series
 
 
@@ -46,12 +46,6 @@ class GeoSeries(Series):
         return core.envelope(self)
 
     def euclidean_length(self) -> Series:
-        return core.euclidean_length(self)
-
-    def exterior(self) -> GeoSeries:
-        return core.exterior(self)
-
-    def geodesic_length(self, method: str) -> Series:
         """Returns a ``Series`` containing the length of each geometry
         expressed in the units of the CRS.
 
@@ -65,6 +59,12 @@ class GeoSeries(Series):
         use :meth:`GeoSeries.to_crs` to project geometries to a planar
         CRS before using this function.
         """
+        return core.euclidean_length(self)
+
+    def exterior(self) -> GeoSeries:
+        return core.exterior(self)
+
+    def geodesic_length(self, method: GeodesicMethod = "geodesic") -> Series:
         return core.geodesic_length(self, method)
 
     @property

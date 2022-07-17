@@ -20,7 +20,8 @@ General methods and attributes
    .. GeoSeries.boundary
    .. GeoSeries.bounds
    .. GeoSeries.total_bounds
-   .. GeoSeries.length
+   GeoSeries.euclidean_length
+   GeoSeries.geodesic_length
    GeoSeries.geom_type
    .. GeoSeries.distance
    .. GeoSeries.representative_point

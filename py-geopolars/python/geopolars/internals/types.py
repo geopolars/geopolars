@@ -6,4 +6,5 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
+GeodesicMethod = Literal["geodesic", "haversine", "vincenty"]
 TransformOrigin = Union[Literal["centroid"], Literal["center"], Tuple[float, float]]

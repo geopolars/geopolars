@@ -50,6 +50,11 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# Config to point to Polars docs
+# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
+intersphinx_mapping = {
+    "polars": ("https://pola-rs.github.io/polars/py-polars/html/", None)
+}
 
 # -- Options for HTML output -------------------------------------------------
 
