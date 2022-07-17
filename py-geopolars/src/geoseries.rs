@@ -58,7 +58,7 @@ pub(crate) fn exterior(series: &PyAny) -> PyResult<PyObject> {
     ffi::rust_series_to_py_geoseries(&out)
 }
 
-#[pyfunction(args = "(method=\"geodesic\")")]
+#[pyfunction]
 pub(crate) fn geodesic_length(series: &PyAny, method: &str) -> PyResult<PyObject> {
     let series = ffi::py_series_to_rust_series(series)?;
 
