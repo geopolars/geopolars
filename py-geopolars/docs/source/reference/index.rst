@@ -9,14 +9,14 @@ methods. All classes and functions exposed in ``geopolars.*`` namespace are publ
 .. toctree::
    :maxdepth: 2
 
-  ..  io
-  ..  functions
-  ..  series
-  ..  dataframe
-  ..  expression
-  ..  lazyframe
-  ..  testing
-  ..  config
-  ..  datatypes
-  ..  exceptions
-  geoseries
+   geoseries
+   .. io
+   .. functions
+   .. series
+   .. dataframe
+   .. expression
+   .. lazyframe
+   .. testing
+   .. config
+   .. datatypes
+   .. exceptions

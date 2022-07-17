@@ -3,7 +3,6 @@ use crate::ffi;
 use crate::utils::PythonTransformOrigin;
 use geo::AffineTransform;
 use geopolars::geoseries::{GeoSeries, GeodesicLengthMethod};
-use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
@@ -63,12 +62,13 @@ pub(crate) fn exterior(series: &PyAny) -> PyResult<PyObject> {
 pub(crate) fn geodesic_length(series: &PyAny, method: &str) -> PyResult<PyObject> {
     let series = ffi::py_series_to_rust_series(series)?;
 
-    let rust_method: GeodesicLengthMethod = match method {
+    let rust_method: GeodesicLengthMethod = match method.to_lowercase().as_str() {
         "geodesic" => Ok(GeodesicLengthMethod::Geodesic),
         "haversine" => Ok(GeodesicLengthMethod::Haversine),
         "vincenty" => Ok(GeodesicLengthMethod::Vincenty),
-        _ => Err(PyValueError::new_err(
-            "Geodesic calculation method not valid. Use one of geodesic, haversine or vincenty",
+        _ => Err(PyGeopolarsError::Other(
+            "Geodesic calculation method not valid. Use one of geodesic, haversine or vincenty"
+                .to_string(),
         )),
     }?;
 

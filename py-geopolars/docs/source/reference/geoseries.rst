@@ -17,18 +17,18 @@ General methods and attributes
    :toctree: api/
 
    GeoSeries.area
-  ..  GeoSeries.boundary
-  ..  GeoSeries.bounds
-  ..  GeoSeries.total_bounds
-  ..  GeoSeries.length
+   .. GeoSeries.boundary
+   .. GeoSeries.bounds
+   .. GeoSeries.total_bounds
+   .. GeoSeries.length
    GeoSeries.geom_type
-  ..  GeoSeries.distance
-  ..  GeoSeries.representative_point
+   .. GeoSeries.distance
+   .. GeoSeries.representative_point
    GeoSeries.exterior
-  ..  GeoSeries.interiors
+   .. GeoSeries.interiors
    GeoSeries.x
    GeoSeries.y
-  ..  GeoSeries.z
+   .. GeoSeries.z
 
 .. Unary predicates
 .. ----------------
@@ -81,12 +81,12 @@ Constructive Methods and Attributes
 .. autosummary::
    :toctree: api/
 
-  ..  GeoSeries.buffer
-  ..  GeoSeries.boundary
+   .. GeoSeries.buffer
+   .. GeoSeries.boundary
    GeoSeries.centroid
    GeoSeries.convex_hull
    GeoSeries.envelope
-  ..  GeoSeries.simplify
+   .. GeoSeries.simplify
 
 Affine transformations
 ----------------------
@@ -95,9 +95,9 @@ Affine transformations
    :toctree: api/
 
    GeoSeries.affine_transform
-  ..  GeoSeries.rotate
-  ..  GeoSeries.scale
-  ..  GeoSeries.skew
+   GeoSeries.rotate
+   GeoSeries.scale
+   GeoSeries.skew
    GeoSeries.translate
 
 .. Aggregating and exploding
@@ -130,10 +130,10 @@ Projection handling
 .. autosummary::
    :toctree: api/
 
-  ..  GeoSeries.crs
-  ..  GeoSeries.set_crs
+   .. GeoSeries.crs
+   .. GeoSeries.set_crs
    GeoSeries.to_crs
-  ..  GeoSeries.estimate_utm_crs
+   .. GeoSeries.estimate_utm_crs
 
 .. Missing values
 .. --------------
