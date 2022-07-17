@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from geopolars import geopolars as core
+from geopolars.internals.types import TransformOrigin
 from polars import Series
 
 
@@ -53,14 +54,14 @@ class GeoSeries(Series):
     def is_ring(self) -> Series:
         return core.is_ring(self)
 
-    # def rotate(self):
-    #     return core.rotate(self)
+    def rotate(self, angle: float, origin: TransformOrigin) -> GeoSeries:
+        return core.rotate(self, angle, origin)
 
-    # def scale(self):
-    #     return core.scale(self)
+    def scale(self, xfact: float, yfact: float, origin: TransformOrigin) -> GeoSeries:
+        return core.scale(self, xfact, yfact, origin)
 
-    # def skew(self):
-    #     return core.skew(self)
+    def skew(self, xs: float, ys: float, origin: TransformOrigin) -> GeoSeries:
+        return core.skew(self, xs, ys, origin)
 
     def to_crs(self, from_crs: str, to_crs: str) -> GeoSeries:
         return core.to_crs(self, from_crs, to_crs)
