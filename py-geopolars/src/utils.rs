@@ -4,8 +4,8 @@ use pyo3::prelude::*;
 
 #[derive(FromPyObject, Debug)]
 pub(crate) enum PythonTransformOrigin {
-    String(String),  // input is a string
-    Tuple(f64, f64), // input is a 2-tuple of floats
+    String(String),                // input is a string
+    Tuple(f64, f64),               // input is a 2-tuple of floats
     Coordinate { x: f64, y: f64 }, // input is a dict of x and y
 }
 
