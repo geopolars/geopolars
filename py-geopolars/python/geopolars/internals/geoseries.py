@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from polars import Series
+
 from geopolars import geopolars as core
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
-from polars import Series
 
 
 class GeoSeries(Series):

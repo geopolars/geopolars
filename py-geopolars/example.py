@@ -1,5 +1,6 @@
 import polars as pl
 import pyarrow as pa
+
 from geopolars import centroid
 
 reader = pa.ipc.open_file("../cities.arrow")
