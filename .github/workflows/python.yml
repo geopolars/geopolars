@@ -81,7 +81,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r py-geopolars/requirements-dev.txt
+          cd py-geopolars
+          pip install . -r requirements-dev.txt
+          cd ..
 
       - name: Run type checking
         run: |
