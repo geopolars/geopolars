@@ -34,15 +34,15 @@ repository = "https://github.com/kylebarron/geopolars"
 [tool.isort]
 profile = "black"
 
-# [tool.mypy]
-# disallow_untyped_defs = true
-# warn_unused_ignores = true
-# show_error_codes = true
-# files = ["polars", "tests"]
+[tool.mypy]
+check_untyped_defs = true
+files = ["python/**/*.py"]
+warn_unused_ignores = true
+show_error_codes = true
 
-# [[tool.mypy.overrides]]
-# module = ["pyarrow.*", "polars.polars", "matplotlib.*", "fsspec.*", "connectorx", "IPython.*"]
-# ignore_missing_imports = true
+[[tool.mypy.overrides]]
+module = ["pyarrow.*"]
+ignore_missing_imports = true
 
 # [tool.coverage.report]
 # exclude_lines = ["pragma: no cover", "@overload"]

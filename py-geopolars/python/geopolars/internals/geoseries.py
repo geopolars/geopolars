@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from geopolars import geopolars as core
+from geopolars import geopolars as core  # type: ignore
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
 from polars import Series
 
