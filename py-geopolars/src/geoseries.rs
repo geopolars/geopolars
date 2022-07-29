@@ -141,12 +141,12 @@ pub(crate) fn skew(
     ffi::rust_series_to_py_geoseries(&out)
 }
 
-#[pyfunction]
-pub(crate) fn to_crs(series: &PyAny, from: &str, to: &str) -> PyResult<PyObject> {
-    let series = ffi::py_series_to_rust_series(series)?;
-    let out = series.to_crs(from, to).map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_series(&out)
-}
+// #[pyfunction]
+// pub(crate) fn to_crs(series: &PyAny, from: &str, to: &str) -> PyResult<PyObject> {
+//     let series = ffi::py_series_to_rust_series(series)?;
+//     let out = series.to_crs(from, to).map_err(PyGeopolarsError::from)?;
+//     ffi::rust_series_to_py_series(&out)
+// }
 
 #[pyfunction]
 pub(crate) fn translate(series: &PyAny, x: f64, y: f64) -> PyResult<PyObject> {

@@ -17,7 +17,7 @@ pub fn geopolars(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(geoseries::rotate))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::scale))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::skew))?;
-    m.add_wrapped(wrap_pyfunction!(geoseries::to_crs))?;
+    // m.add_wrapped(wrap_pyfunction!(geoseries::to_crs))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::translate))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::x))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::y))?;

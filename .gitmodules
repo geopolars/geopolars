@@ -1,0 +1,3 @@
+[submodule "vendor/chrono"]
+	path = vendor/chrono
+	url = https://github.com/chronotope/chrono

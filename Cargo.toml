@@ -1,3 +1,7 @@
 [workspace]
 members = ["geopolars"]
 exclude = ["py-geopolars"]
+
+[patch.crates-io]
+# NOTE: this can be removed whenever chrono publishes 0.4.20
+chrono = { path = 'vendor/chrono' }
