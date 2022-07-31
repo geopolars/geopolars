@@ -15,12 +15,11 @@ rust-version = "1.60"
 
 [features]
 default = [
-  "polars/fmt",
-  "polars/zip_with",
   "polars/csv-file",
-  "polars/temporal",
-  "polars/fmt",
   "polars/dtype-slim",
+  "polars/fmt",
+  "polars/temporal",
+  "polars/zip_with",
 ]
 
 proj = ["dep:proj"]
