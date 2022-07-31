@@ -1099,9 +1099,9 @@ dependencies = [
 
 [[package]]
 name = "polars"
-version = "0.22.6"
+version = "0.22.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71427d55858cdd973ad9011351455cb78851f16db5a097de6de16d34f3ac1bee"
+checksum = "3d175c67e80ceaef7219258cfc3a8686531d9510875b0cefa25404e5b80a7933"
 dependencies = [
  "polars-core",
  "polars-io",
