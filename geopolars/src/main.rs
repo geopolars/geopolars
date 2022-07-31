@@ -1,6 +1,7 @@
+use geopolars::error::Result;
 use geopolars::geodataframe::GeoDataFrame;
 use geopolars::geoseries::GeoSeries;
-use polars::prelude::{IpcReader, Result, SerReader};
+use polars::prelude::{IpcReader, SerReader};
 use std::fs::File;
 use std::time::Instant;
 
