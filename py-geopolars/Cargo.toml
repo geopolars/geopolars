@@ -12,7 +12,7 @@ name = "geopolars"
 crate-type = ["cdylib"]
 
 [dependencies]
-polars = "0.22.8"
+polars = "0.22.6"
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
 geopolars = { path = "../geopolars", features = ["proj"] }
 thiserror = "1.0"
