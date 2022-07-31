@@ -15,7 +15,6 @@ rust-version = "1.60"
 
 [features]
 default = [
-  "basic-polars",
   "polars/fmt",
   "polars/zip_with",
   "polars/csv-file",
@@ -24,7 +23,7 @@ default = [
   "polars/dtype-slim",
 ]
 
-basic-polars = ["polars/ipc", "polars/dtype-u8", "polars/dtype-i8", "polars/private"]
+# basic-polars = ["polars/ipc", "polars/dtype-u8", "polars/dtype-i8", "polars/private"]
 
 proj = ["dep:proj"]
 
@@ -32,7 +31,13 @@ proj = ["dep:proj"]
 geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
 geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
-polars = { version = "0.22.8", features = ["ipc", "dtype-u8", "dtype-i8"], default-features = false}
+# Only the _minimal_ features to get polars to compile should be declared here
+polars = { version = "=0.22.6", features = [
+  "dtype-u8",
+  "dtype-i8",
+  "ipc",
+  "private",
+], default-features = false }
 thiserror = "1.0"
 
 proj = { version = "0.27.0", optional = true, features = [
@@ -41,7 +46,7 @@ proj = { version = "0.27.0", optional = true, features = [
 ] }
 
 [dev-dependencies]
-criterion = {version = "0.3", features = ["html_reports"]}
+criterion = { version = "0.3", features = ["html_reports"] }
 
 # see: https://bheisler.github.io/criterion.rs/book/faq.html
 [lib]
