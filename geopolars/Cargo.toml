@@ -23,8 +23,6 @@ default = [
   "polars/dtype-slim",
 ]
 
-# basic-polars = ["polars/ipc", "polars/dtype-u8", "polars/dtype-i8", "polars/private"]
-
 proj = ["dep:proj"]
 
 [dependencies]
