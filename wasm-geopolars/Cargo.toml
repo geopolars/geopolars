@@ -26,7 +26,8 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 # Unfortunately, `wee_alloc` requires nightly Rust when targeting wasm for now.
 wee_alloc = { version = "0.4.5", optional = true }
 
-geopolars = { path = "../geopolars", default-features = false }
+geopolars = { path = "../geopolars", default-features = false, features = ["basic-polars"] }
+
 getrandom = { version = "0.2", features = ['js'] }
 
 [dev-dependencies]
@@ -37,8 +38,4 @@ wasm-bindgen-test = "0.3.13"
 opt-level = "s"
 
 [patch.crates-io]
-polars = { git = "https://github.com/stuartlynn/polars.git", version = "0.22.6", branch = 'wasm_rebase', default-features = false, features = [
-  "ipc",
-  "dtype-u8",
-  "dtype-i8",
-] }
+polars = { git = "https://github.com/stuartlynn/polars.git", version = "0.22.6", branch = 'wasm_rebase' }
