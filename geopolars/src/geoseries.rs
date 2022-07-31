@@ -4,12 +4,13 @@ use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
 use polars::export::arrow::array::{
-    ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
+    Array, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
     MutablePrimitiveArray, PrimitiveArray,
 };
 use polars::prelude::{PolarsError, Series};
 use std::convert::Into;
-use std::sync::Arc;
+
+pub type ArrayRef = Box<dyn Array>;
 
 pub enum GeodesicLengthMethod {
     Haversine,
@@ -220,7 +221,7 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -246,7 +247,7 @@ impl GeoSeries for Series {
         }
 
         let result: BinaryArray<i32> = output_array.into();
-        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -266,7 +267,7 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -302,7 +303,7 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -322,7 +323,7 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -339,7 +340,7 @@ impl GeoSeries for Series {
         }
         let array: BinaryArray<i32> = wkb_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef))?;
+        let series = Series::try_from(("geometry", Box::new(array) as ArrayRef))?;
         Ok(series)
     }
 
@@ -457,7 +458,7 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -482,7 +483,7 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<i8> = result.into();
-        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -496,7 +497,7 @@ impl GeoSeries for Series {
         }
 
         let result: BooleanArray = result.into();
-        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -513,7 +514,7 @@ impl GeoSeries for Series {
         }
 
         let result: BooleanArray = result.into();
-        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -604,7 +605,7 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -682,7 +683,7 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 
@@ -703,7 +704,7 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        let series = Series::try_from(("result", Arc::new(result) as ArrayRef))?;
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
     }
 }

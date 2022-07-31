@@ -56,7 +56,7 @@ dependencies = [
 [[package]]
 name = "arrow2"
 version = "0.12.0"
-source = "git+https://github.com/ritchie46/arrow2?branch=improve_filter#da64106279a494f717c5019a815487cba9bfab52"
+source = "git+https://github.com/jorgecarleitao/arrow2?rev=8604cb760b8ac475d7968b714d47e4ff714c61a1#8604cb760b8ac475d7968b714d47e4ff714c61a1"
 dependencies = [
  "ahash",
  "arrow-format",
@@ -867,7 +867,7 @@ dependencies = [
 [[package]]
 name = "polars"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "polars-core",
  "polars-io",
@@ -879,7 +879,7 @@ dependencies = [
 [[package]]
 name = "polars-arrow"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "arrow2",
  "hashbrown",
@@ -890,7 +890,7 @@ dependencies = [
 [[package]]
 name = "polars-core"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "ahash",
  "anyhow",
@@ -914,7 +914,7 @@ dependencies = [
 [[package]]
 name = "polars-io"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "ahash",
  "anyhow",
@@ -939,7 +939,7 @@ dependencies = [
 [[package]]
 name = "polars-lazy"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "ahash",
  "bitflags",
@@ -957,7 +957,7 @@ dependencies = [
 [[package]]
 name = "polars-ops"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "polars-arrow",
  "polars-core",
@@ -966,7 +966,7 @@ dependencies = [
 [[package]]
 name = "polars-time"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "chrono",
  "lexical",
@@ -978,7 +978,7 @@ dependencies = [
 [[package]]
 name = "polars-utils"
 version = "0.22.6"
-source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#479baa785cad969ffe46fa58c819d45c07897f29"
+source = "git+https://github.com/stuartlynn/polars.git?branch=wasm_rebase#6b0c26e5c6633b2c5bda13851395a744d15a5e6a"
 dependencies = [
  "parking_lot",
  "rayon",
