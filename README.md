@@ -3,7 +3,7 @@
 <!-- Layout copied from rio-tiler -->
 <!-- https://github.com/cogeotiff/rio-tiler/blob/c6b097aa5b6f1bae5231d17db7d595a0bb2a7b26/README.md -->
 <p align="center">
-  <img src="static/logo.svg" style="max-height: 300px;" alt="geopolars"></a>
+  <img src="static/logo.svg" height="300px" alt="geopolars"></a>
 </p>
 <p align="center">
   <em>Geospatial extensions for Polars.</em>
