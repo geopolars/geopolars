@@ -1,3 +1,4 @@
+mod broadcasting;
 pub mod geodataframe;
 pub mod geoseries;
 pub mod spatial_index;

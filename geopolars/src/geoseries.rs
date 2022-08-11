@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::broadcasting::BroadcastableParameter;
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
@@ -28,50 +29,6 @@ pub enum TransformOrigin {
     Centroid,
     Center,
     Point(Point),
-}
-
-pub enum BroadcastableParameter<'a, T> {
-    Val(T),
-    Series(&'a Series),
-}
-
-impl<'a> From<f64> for BroadcastableParameter<'a, f64> {
-    fn from(val: f64) -> BroadcastableParameter<'a, f64> {
-        BroadcastableParameter::Val(val)
-    }
-}
-
-impl<'a> From<i64> for BroadcastableParameter<'a, i64> {
-    fn from(val: i64) -> BroadcastableParameter<'a, i64> {
-        BroadcastableParameter::Val(val)
-    }
-}
-
-impl<'a> From<u64> for BroadcastableParameter<'a, u64> {
-    fn from(val: u64) -> BroadcastableParameter<'a, u64> {
-        BroadcastableParameter::Val(val)
-    }
-}
-
-impl<'a, T> From<&'a Series> for BroadcastableParameter<'a, T> {
-    fn from(val: &'a Series) -> BroadcastableParameter<T> {
-        BroadcastableParameter::Series(val)
-    }
-}
-
-pub fn test_fn<'a>(
-    x: impl Into<BroadcastableParameter<'a, i64>>,
-    y: impl Into<BroadcastableParameter<'a, f32>>,
-) {
-    match x.into() {
-        BroadcastableParameter::Val(val) => println!("X is a single value {}", val),
-        BroadcastableParameter::Series(_s) => println!("X is a series"),
-    };
-
-    match y.into() {
-        BroadcastableParameter::Val(val) => println!("Y is a single value {}", val),
-        BroadcastableParameter::Series(_s) => println!("Y is a series"),
-    };
 }
 
 pub trait GeoSeries {
@@ -581,13 +538,8 @@ impl GeoSeries for Series {
         let angle: BroadcastableParameter<'a, f64> = angle.into();
 
         let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-            .enumerate()
-            .map(|(index, geom)| match angle {
-                BroadcastableParameter::Val(v) => apply_rotation(&geom, v),
-                BroadcastableParameter::Series(s) => {
-                    apply_rotation(&geom, s.f64().unwrap().get(index).unwrap())
-                }
-            })
+            .zip(angle.into_iter())
+            .map(|(geom, angle)| apply_rotation(&geom, angle.extract::<f64>().unwrap()))
             .collect();
 
         Series::from_geom_vec(&rotated_geoms)
