@@ -83,7 +83,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/kylebarron/geopolars",
+            "url": "https://github.com/geopolars/geopolars",
             "icon": "fab fa-github-square",
         },
     ],
