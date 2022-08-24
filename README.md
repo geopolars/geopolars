@@ -34,14 +34,13 @@
   </a> -->
 </p>
 
-
 ## Summary
 
 GeoPolars extends the [Polars][polars] DataFrame library for use with geospatial data.
 
 - Uses [GeoArrow][geo-arrow-spec] as the internal memory model.
 - Written in Rust
-- Bindings to Python (and Wasm in the future)
+- Bindings to Python (and WebAssembly in the future)
 - Multithreading capable
 
 At this point, GeoPolars is a **prototype** and should not be considered production-ready.
