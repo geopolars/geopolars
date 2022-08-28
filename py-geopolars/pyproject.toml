@@ -29,7 +29,7 @@ classifiers = [
 ]
 
 [project.urls]
-repository = "https://github.com/kylebarron/geopolars"
+repository = "https://github.com/geopolars/geopolars"
 
 [tool.isort]
 profile = "black"
