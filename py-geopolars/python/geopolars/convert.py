@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING, Union
 import polars
 from polars import DataFrame, Series
 
-from geopolars.internals import GeoDataFrame, GeoSeries
+from geopolars.internals.geodataframe import GeoDataFrame
+from geopolars.internals.geoseries import GeoSeries
 
 if TYPE_CHECKING:  # pragma: no cover
     import pyarrow as pa

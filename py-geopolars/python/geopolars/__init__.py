@@ -1,5 +1,6 @@
 from geopolars.convert import from_arrow
-from geopolars.internals import GeoDataFrame, GeoSeries
+from geopolars.internals.geodataframe import GeoDataFrame
+from geopolars.internals.geoseries import GeoSeries
 
 __all__ = [
     # geopolars.convert
