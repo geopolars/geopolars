@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from polars import Series
 
-from geopolars import geopolars as core
+from geopolars import geopolars as core  # type: ignore
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
 
 
@@ -75,7 +75,8 @@ class GeoSeries(Series):
         """
         return core.geom_type(self)
 
-    def is_empty(self) -> Series:
+    # Note: Polars defines an is_empty method
+    def is_geom_empty(self) -> Series:
         """Returns a ``Series`` of ``dtype('bool')`` with value ``True`` for
         empty geometries.
         """
@@ -121,7 +122,8 @@ class GeoSeries(Series):
         """
         return core.scale(self, xfact, yfact, origin)
 
-    def skew(
+    # Note: polars defines a `skew` method
+    def geom_skew(
         self, xs: float = 0.0, ys: float = 0.0, origin: TransformOrigin = "center"
     ) -> GeoSeries:
         """Returns a ``GeoSeries`` with skewed geometries.
