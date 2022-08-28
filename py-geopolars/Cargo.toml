@@ -20,6 +20,3 @@ geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f89589
 
 [package.metadata.maturin]
 python-source = "python"
-
-[patch.crates-io]
-chrono = { path = '../vendor/chrono' }
