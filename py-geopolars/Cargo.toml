@@ -14,7 +14,7 @@ crate-type = ["cdylib"]
 [dependencies]
 polars = {version = "0.22.8", default-features = false}
 pyo3 = { version = "0.16.4", features = ["extension-module"] }
-geopolars = { path = "../geopolars" }
+geopolars = { path = "../geopolars", default-features = false}
 thiserror = "1.0"
 geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
 

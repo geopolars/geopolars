@@ -1,6 +1,6 @@
 [workspace]
 members = ["geopolars"]
-exclude = ["py-geopolars"]
+exclude = ["py-geopolars", "wasm-geopolars"]
 
 [patch.crates-io]
 # NOTE: this can be removed whenever chrono publishes 0.4.20
