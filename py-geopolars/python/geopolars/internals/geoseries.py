@@ -10,6 +10,10 @@ class GeoSeries(Series):
     """Extension of polars Series to handle geospatial vector data"""
 
     def __init__(self, *args, **kwargs):
+        if isinstance(args[0], Series):
+            self._s = args[0]._s
+            return
+
         super().__init__(*args, **kwargs)
 
     def affine_transform(self, matrix) -> GeoSeries:
