@@ -1,12 +1,9 @@
-import polars as pl
 import pyarrow as pa
+import geopolars as gpl
 
-from geopolars import centroid
-
-reader = pa.ipc.open_file("../cities.arrow")
+reader = pa.ipc.open_file("../data/cities.arrow")
 table = reader.read_all()
 
-df = pl.from_arrow(table)
-geom = df.get_column("geometry")
-out = centroid(geom)
+df = gpl.from_arrow(table)
+out = df.geometry.centroid()
 print(out)
