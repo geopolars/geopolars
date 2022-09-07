@@ -1,4 +1,4 @@
-use crate::geefoseries;
+use crate::geoseries;
 use pyo3::prelude::*;
 
 #[pymodule]
