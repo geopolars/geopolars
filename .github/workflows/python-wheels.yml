@@ -28,7 +28,6 @@ jobs:
           CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
           CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
           CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin"
-          CIBW_BEFORE_BUILD: python -m pip install oldest-supported-numpy maturin
         with:
           package-dir: py-geopolars
 

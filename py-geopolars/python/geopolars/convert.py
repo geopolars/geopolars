@@ -14,8 +14,8 @@ def from_arrow(
     a: Union["pa.Table", "pa.Array", "pa.ChunkedArray"], rechunk: bool = True
 ) -> Union[GeoDataFrame, GeoSeries]:
     """Convert from Arrow data to GeoSeries or GeoDataFrame"""
-    # TODO: this should probably have a check that the data is indeed geographic? And return a bare
-    # Series/DataFrame if it isn't?
+    # TODO: this should probably have a check that the data is indeed geographic?
+    # And return a bare Series/DataFrame if it isn't?
     output = polars.from_arrow(a)
     if isinstance(output, Series):
         return GeoSeries(output)
