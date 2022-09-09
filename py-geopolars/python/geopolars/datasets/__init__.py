@@ -1,16 +1,26 @@
+import sys
 from pathlib import Path
+from typing import Final
 
 from polars import read_ipc
 
 from geopolars import GeoDataFrame
 
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
+
 __all__ = ["available", "get_path"]
 
 HERE = Path(__file__).parent.resolve()
-available = ("naturalearth_cities", "nybb", "naturalearth_lowres")
+available: Final = ("naturalearth_cities", "nybb", "naturalearth_lowres")
+
+Available = Literal["naturalearth_cities", "nybb", "naturalearth_lowres"]
 
 
-def get_path(dataset: str) -> Path:
+def get_path(dataset: Available) -> Path:
     """
     Get the path to the data file.
 
@@ -33,7 +43,7 @@ def get_path(dataset: str) -> Path:
         raise ValueError(msg)
 
 
-def read_dataset(dataset: str):
+def read_dataset(dataset: Available):
     path = get_path(dataset)
     df = read_ipc(path, memory_map=False)
     return GeoDataFrame(df)

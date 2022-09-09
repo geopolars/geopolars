@@ -97,7 +97,9 @@ jobs:
           RUSTFLAGS: -C debuginfo=0  # Do not produce debug symbols to keep memory usage down
         run: |
           make venv
+          source ./venv/bin/activate
           make test
+          deactivate
 
       # - name: Check doc examples
       #   run: |
