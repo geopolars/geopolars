@@ -90,7 +90,7 @@ jobs:
 
       - name: Run type checking
         run: |
-          cd py-geopolars && mypy --config-file pyproject.toml && cd ..
+          mypy --config-file pyproject.toml
 
       - name: Run tests
         env:
