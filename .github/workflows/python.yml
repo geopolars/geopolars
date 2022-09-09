@@ -83,7 +83,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: 'py-polars/build.requirements.txt'
+          cache-dependency-path: 'py-geopolars/build.requirements.txt'
 
       - name: Install dependencies
         run: |
