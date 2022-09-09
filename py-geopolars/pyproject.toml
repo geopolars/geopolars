@@ -37,7 +37,7 @@ known_first_party = ["geopolars"]
 
 [tool.mypy]
 check_untyped_defs = true
-files = ["python/**/*.py"]
+files = ["python/**/*.py", "tests/**/*.py"]
 warn_unused_ignores = true
 show_error_codes = true
 
