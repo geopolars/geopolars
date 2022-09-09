@@ -59,7 +59,7 @@ class GeoDataFrame(pl.DataFrame):
         from geopandas.io.arrow import _geopandas_to_arrow
 
         arrow_table = _geopandas_to_arrow(geodataframe)
-        polars_df = polars.from_arrow(arrow_table)
+        polars_df = pl.from_arrow(arrow_table)
         return cls(polars_df)
 
     def to_geopandas(self):
