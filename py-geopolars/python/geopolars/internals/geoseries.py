@@ -24,8 +24,8 @@ class GeoSeries(Series):
         matrix: List or tuple
             The 6 parameter matrix is ``[a, b, d, e, xoff, yoff]``
         """
-        # TODO: check if transform is an instance of Affine? Or add a test? Since Affine is a
-        # namedtuple, will it *just work*?
+        # TODO: check if transform is an instance of Affine? Or add a test?
+        # Since Affine is a namedtuple, will it *just work*?
         return core.affine_transform(self, matrix)
 
     @property

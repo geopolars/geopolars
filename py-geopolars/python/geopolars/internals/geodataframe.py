@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import polars as pl
 
-from geopolars import geopolars as core  # type: ignore
 from geopolars.internals.geoseries import GeoSeries
 
 DEFAULT_GEO_COLUMN_NAME = "geometry"
@@ -23,7 +22,9 @@ class GeoDataFrame(pl.DataFrame):
 
     def get_column(self, name: str) -> pl.Series | GeoSeries:
         """
-        Get a single column as Series or GeoSeries by name. Return GeoSeries if requested column is geometry column.
+        Get a single column as Series or GeoSeries by name.
+
+        Return GeoSeries if requested column is geometry column.
 
         Parameters
         ----------
