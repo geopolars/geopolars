@@ -1,5 +1,3 @@
-import polars
-
 from geopolars.internals.geodataframe import GeoDataFrame
 
 try:
@@ -15,6 +13,4 @@ def read_file(*args, **kwargs):
         )
 
     geopandas_gdf = geopandas.read_file(*args, **kwargs)
-    arrow_table = geopandas.io.arrow._geopandas_to_arrow(geopandas_gdf)
-    df = polars.from_arrow(arrow_table)
-    return GeoDataFrame(df)
+    return GeoDataFrame.from_geopandas(geopandas_gdf)
