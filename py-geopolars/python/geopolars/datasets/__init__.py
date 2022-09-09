@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-from typing import Final
 
 from polars import read_ipc
 
@@ -15,7 +14,7 @@ else:
 __all__ = ["available", "get_path"]
 
 HERE = Path(__file__).parent.resolve()
-available: Final = ("naturalearth_cities", "nybb", "naturalearth_lowres")
+available = ("naturalearth_cities", "nybb", "naturalearth_lowres")
 
 Available = Literal["naturalearth_cities", "nybb", "naturalearth_lowres"]
 
