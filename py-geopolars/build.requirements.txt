@@ -1,3 +1,9 @@
+# Dependencies
+polars
+pyarrow>=4.0
+numpy>=1.16.0
+geopandas
+
 # Tooling
 maturin==0.13.2
 pytest==7.1.3
