@@ -27,7 +27,7 @@ class TestToGeoPandas:
         assert isinstance(geopandas_gdf, geopandas.GeoDataFrame)
 
     def test_geoseries_to_geopandas(self, ne_cities_gdf: gpl.GeoDataFrame):
-        geopandas_geoseries = ne_cities_gdf.get_column("geometry").to_geopandas()
+        geopandas_geoseries = ne_cities_gdf.geometry.to_geopandas()
         assert isinstance(geopandas_geoseries, geopandas.GeoSeries)
 
 
