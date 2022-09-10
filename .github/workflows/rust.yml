@@ -21,7 +21,7 @@ jobs:
           override: true
           components: rustfmt
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Run
         run: cd geopolars && cargo fmt --all -- --check
@@ -40,7 +40,7 @@ jobs:
           override: true
           components: clippy
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Install protobuf
         run: |
@@ -62,7 +62,7 @@ jobs:
           profile: minimal
           override: true
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: "cargo check"
         run: cd geopolars && cargo check --all --all-features
@@ -80,7 +80,7 @@ jobs:
           profile: minimal
           override: true
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: "cargo test"
         run: cd geopolars && cargo test --all --all-features
