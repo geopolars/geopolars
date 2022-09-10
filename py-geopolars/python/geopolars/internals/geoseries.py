@@ -1,20 +1,44 @@
 from __future__ import annotations
 
-from polars import Series
+import polars as pl
 
 from geopolars import geopolars as core  # type: ignore
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
 
+try:
+    import geopandas
+except ImportError:
+    geopandas = None
 
-class GeoSeries(Series):
+try:
+    import pyarrow
+except ImportError:
+    pyarrow = None
+
+
+class GeoSeries(pl.Series):
     """Extension of polars Series to handle geospatial vector data"""
 
     def __init__(self, *args, **kwargs):
-        if isinstance(args[0], Series):
+        if isinstance(args[0], pl.Series):
             self._s = args[0]._s
             return
 
         super().__init__(*args, **kwargs)
+
+    @classmethod
+    def _from_geopandas(cls, geoseries: geopandas.GeoSeries):
+        if geopandas is None:
+            raise ImportError("Geopandas is required when using from_geopandas().")
+
+        if pyarrow is None:
+            raise ImportError("Pyarrow is required when using from_geopandas().")
+
+        wkb_arrow_array = pyarrow.Array.from_pandas(geoseries.to_wkb())
+        polars_series = pl.Series._from_arrow(
+            geoseries.name or "geometry", wkb_arrow_array
+        )
+        return cls(polars_series)
 
     def affine_transform(self, matrix) -> GeoSeries:
         """Return a ``GeoSeries`` with translated geometries
@@ -29,7 +53,7 @@ class GeoSeries(Series):
         return core.affine_transform(self, matrix)
 
     @property
-    def area(self) -> Series:
+    def area(self) -> pl.Series:
         """Returns a ``Series`` containing the area of each geometry in the
         ``GeoSeries`` expressed in the units of the CRS.
 
@@ -50,7 +74,7 @@ class GeoSeries(Series):
     def envelope(self) -> GeoSeries:
         return core.envelope(self)
 
-    def euclidean_length(self) -> Series:
+    def euclidean_length(self) -> pl.Series:
         """Returns a ``Series`` containing the length of each geometry
         expressed in the units of the CRS.
 
@@ -69,24 +93,24 @@ class GeoSeries(Series):
     def exterior(self) -> GeoSeries:
         return core.exterior(self)
 
-    def geodesic_length(self, method: GeodesicMethod = "geodesic") -> Series:
+    def geodesic_length(self, method: GeodesicMethod = "geodesic") -> pl.Series:
         return core.geodesic_length(self, method)
 
     @property
-    def geom_type(self) -> Series:
+    def geom_type(self) -> pl.Series:
         """Returns a ``Series`` of strings specifying the `Geometry Type` of each
         object.
         """
         return core.geom_type(self)
 
     # Note: Polars defines an is_empty method
-    def is_geom_empty(self) -> Series:
+    def is_geom_empty(self) -> pl.Series:
         """Returns a ``Series`` of ``dtype('bool')`` with value ``True`` for
         empty geometries.
         """
         return core.is_empty(self)
 
-    def is_ring(self) -> Series:
+    def is_ring(self) -> pl.Series:
         """Returns a ``Series`` of ``dtype('bool')`` with value ``True`` for
         features that are closed.
         """
@@ -162,7 +186,7 @@ class GeoSeries(Series):
         return core.translate(self, xoff, yoff)
 
     @property
-    def x(self) -> Series:
+    def x(self) -> pl.Series:
         """Return the x location of point geometries in a GeoSeries
 
         Returns
@@ -176,7 +200,7 @@ class GeoSeries(Series):
         return core.x(self)
 
     @property
-    def y(self) -> Series:
+    def y(self) -> pl.Series:
         """Return the y location of point geometries in a GeoSeries
 
         Returns

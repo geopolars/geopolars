@@ -62,9 +62,7 @@ def from_geopandas(
     import pandas
 
     if isinstance(gdf, geopandas.GeoSeries):
-        # This should probably use a _from_pygeos method?
-        raise NotImplementedError("GeoSeries from geopandas is not yet implemented")
-        # return GeoSeries._from_geopandas(gdf)
+        return GeoSeries._from_geopandas(gdf)
     elif isinstance(gdf, geopandas.GeoDataFrame):
         return GeoDataFrame._from_geopandas(gdf)
     elif isinstance(gdf, (pandas.DataFrame, pandas.Series)):
