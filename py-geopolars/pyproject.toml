@@ -42,7 +42,7 @@ warn_unused_ignores = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ["pyarrow.*"]
+module = ["pyarrow.*", "geopandas.*"]
 ignore_missing_imports = true
 
 # [tool.coverage.report]

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import polars as pl
 
 from geopolars.internals.geoseries import GeoSeries
@@ -52,3 +54,31 @@ class GeoDataFrame(pl.DataFrame):
     @property
     def geometry(self):
         return GeoSeries(self.get_column(self._geometry_column_name))
+
+    @classmethod
+    def _from_geopandas(cls, geodataframe):
+        from geopandas.io.arrow import _geopandas_to_arrow
+
+        arrow_table = _geopandas_to_arrow(geodataframe)
+        polars_df = pl.from_arrow(arrow_table)
+        return cls(polars_df)
+
+    def to_geopandas(self):
+        from geopandas.io.arrow import _arrow_to_geopandas
+
+        geoarrow_metadata = {
+            "columns": {
+                self._geometry_column_name: {
+                    "encoding": "WKB",
+                    "geometry_type": "Unknown",
+                    "crs": None,
+                    "edges": "planar",
+                }
+            },
+            "primary_column": self._geometry_column_name,
+            "version": "0.4.0",
+        }
+        arrow_table = self.to_arrow()
+        return _arrow_to_geopandas(
+            arrow_table, metadata={b"geo": json.dumps(geoarrow_metadata).encode()}
+        )
