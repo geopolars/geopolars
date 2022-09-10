@@ -89,7 +89,9 @@ def read_file(
 
     import pandas
 
-    geopandas_gdf = geopandas.read_file(filename, bbox, mask, rows, engine, **kwargs)
+    geopandas_gdf = geopandas.read_file(
+        filename=filename, bbox=bbox, mask=mask, rows=rows, engine=engine, **kwargs
+    )
 
     if isinstance(geopandas_gdf, geopandas.GeoDataFrame):
         return GeoDataFrame._from_geopandas(geopandas_gdf)
