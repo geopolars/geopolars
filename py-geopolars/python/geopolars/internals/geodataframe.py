@@ -49,6 +49,7 @@ class GeoDataFrame(pl.DataFrame):
         series = super().get_column(name)
         if name == self._geometry_column_name:
             series = GeoSeries(series)
+
         return series
 
     @property
