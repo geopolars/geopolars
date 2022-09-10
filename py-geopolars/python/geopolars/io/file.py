@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import polars as pl
 
-from geopolars.convert import from_geopandas
+from geopolars.internals.geodataframe import GeoDataFrame
 
 try:
     import geopandas
 except ImportError:
     geopandas = None
-
-if TYPE_CHECKING:
-    from geopolars.internals.geodataframe import GeoDataFrame
 
 
 def read_file(
@@ -96,7 +91,13 @@ def read_file(
 
     geopandas_gdf = geopandas.read_file(filename, bbox, mask, rows, engine, **kwargs)
 
+    if isinstance(geopandas_gdf, geopandas.GeoDataFrame):
+        return GeoDataFrame._from_geopandas(geopandas_gdf)
+
     if isinstance(geopandas_gdf, pandas.DataFrame):
         return pl.from_pandas(geopandas_gdf)
 
-    return from_geopandas(geopandas_gdf)
+    raise ValueError(
+        "Expected geopandas.read_file to return a GeoDataFrame, "
+        f"got {type(geopandas_gdf)}"
+    )

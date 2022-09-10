@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING
 
 import polars as pl
 from polars import DataFrame, Series
@@ -30,20 +30,6 @@ def from_arrow(a: pa.Table | pa.Array | pa.ChunkedArray) -> GeoDataFrame | GeoSe
         output, DataFrame
     ), "Output of polars.from_arrow expected to be Series or DataFrame"
     return GeoDataFrame(output)
-
-
-@overload
-def from_geopandas(
-    gdf: geopandas.GeoDataFrame,
-) -> GeoDataFrame:
-    ...
-
-
-@overload
-def from_geopandas(
-    gdf: geopandas.GeoSeries,
-) -> GeoSeries:
-    ...
 
 
 def from_geopandas(
