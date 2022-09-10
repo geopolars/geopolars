@@ -10,9 +10,7 @@ except ImportError:
     geopandas = None
 
 
-def read_file(
-    filename, bbox=None, mask=None, rows=None, engine=None, **kwargs
-) -> pl.DataFrame | GeoDataFrame:
+def read_file(filename, *args, **kwargs) -> pl.DataFrame | GeoDataFrame:
     """Returns a GeoDataFrame from a file or URL.
 
     .. versionadded:: 0.7.0 mask, rows
@@ -89,9 +87,7 @@ def read_file(
 
     import pandas
 
-    geopandas_gdf = geopandas.read_file(
-        filename=filename, bbox=bbox, mask=mask, rows=rows, engine=engine, **kwargs
-    )
+    geopandas_gdf = geopandas.read_file(filename=filename, *args, **kwargs)
 
     if isinstance(geopandas_gdf, geopandas.GeoDataFrame):
         return GeoDataFrame._from_geopandas(geopandas_gdf)
