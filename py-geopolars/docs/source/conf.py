@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from datetime import date
 
 # add geopolars directory
 sys.path.insert(0, os.path.abspath("../.."))
@@ -19,9 +20,8 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "GeoPolars"
-copyright = "2022, Kyle Barron"
 author = "Kyle Barron"
-
+copyright = f"{date.today().year}, {author}"
 
 # -- General configuration ---------------------------------------------------
 
@@ -32,14 +32,14 @@ extensions = [
     "numpydoc",  # numpy docstrings
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.extlinks",
-    "sphinx.ext.todo",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.coverage",
-    "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
-    "sphinx_panels",
+    "sphinx.ext.intersphinx",
+    # "sphinx.ext.linkcode",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.todo",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -53,7 +53,11 @@ exclude_patterns = []
 # Config to point to Polars docs
 # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
 intersphinx_mapping = {
-    "polars": ("https://pola-rs.github.io/polars/py-polars/html/", None)
+    "polars": ("https://pola-rs.github.io/polars/py-polars/html/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "pyarrow": ("https://arrow.apache.org/docs/", None),
+    "python": ("https://docs.python.org/3", None),
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -70,7 +74,7 @@ html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]  # relative to html_static_path
 
-html_logo = "../img/polars_logo.png"
+html_logo = "../img/geopolars_logo.png"
 autosummary_generate = True
 
 html_theme_options = {
@@ -88,3 +92,7 @@ html_theme_options = {
         },
     ],
 }
+
+
+# TODO: add linkcode_resolve
+# https://github.com/pola-rs/polars/blob/527ae86f7996bea60b7ae1bb4be48229d515e115/py-polars/docs/source/conf.py#L104
