@@ -10,8 +10,8 @@ methods. All classes and functions exposed in ``geopolars.*`` namespace are publ
    :maxdepth: 2
 
    geoseries
+   functions
    .. io
-   .. functions
    .. series
    .. dataframe
    .. expression
