@@ -19,7 +19,20 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 def from_arrow(a: pa.Table | pa.Array | pa.ChunkedArray) -> GeoDataFrame | GeoSeries:
-    """Convert from Arrow data to GeoSeries or GeoDataFrame"""
+    """
+    Create a GeoDataFrame or GeoSeries from an Arrow Table or Array.
+
+    This operation will be zero copy for the most part. Types that are not
+    supported by Polars may be cast to the closest supported type.
+
+    Parameters
+    ----------
+    a : :class:`pyarrow.Table` or :class:`pyarrow.Array`
+        Data represented as Arrow Table or Array.
+
+    Returns
+    -------
+    """
     # TODO: this should probably have a check that the data is indeed geographic?
     # And return a bare Series/DataFrame if it isn't?
     output = pl.from_arrow(a)
@@ -39,16 +52,16 @@ def from_geopandas(
     | pandas.Series,
 ) -> GeoDataFrame | GeoSeries | pl.DataFrame | pl.Series:
     """
-    Construct a GeoPolars GeoDataFrame or GeoSeries from a geopandas
-    GeoDataFrame or GeoSeries.
+    Construct a GeoPolars GeoDataFrame or GeoSeries from a
+    :class:`geopandas.GeoDataFrame` or :class:`geopandas.GeoSeries`.
 
     This operation clones data.
 
-    This requires that geopandas and pyarrow are installed.
+    This requires that :mod:geopandas and :mod:pyarrow are installed.
 
     Parameters
     ----------
-    gdf : geopandas GeoDataFrame or GeoSeries
+    gdf : :class:`geopandas.GeoDataFrame` or :class:`geopandas.GeoSeries`
         Data represented as a geopandas GeoDataFrame or GeoSeries
 
     Returns
