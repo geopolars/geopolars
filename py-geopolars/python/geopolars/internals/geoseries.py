@@ -41,6 +41,16 @@ class GeoSeries(pl.Series):
         return cls(polars_series)
 
     def to_geopandas(self) -> geopandas.GeoSeries:
+        """Cast to a geopandas GeoSeries.
+
+        This requires that geopandas and pyarrow are installed.
+        This operation clones data.
+
+        Returns
+        -------
+
+        :class:`geopandas.GeoSeries`
+        """
         if geopandas is None:
             raise ImportError("Geopandas is required when using to_geopandas().")
 
@@ -62,6 +72,11 @@ class GeoSeries(pl.Series):
         ----------
         matrix: List or tuple
             The 6 parameter matrix is ``[a, b, d, e, xoff, yoff]``
+
+        Returns
+        -------
+
+        :class:`geopolars.GeoSeries`
         """
         # TODO: check if transform is an instance of Affine? Or add a test?
         # Since Affine is a namedtuple, will it *just work*?
@@ -69,7 +84,7 @@ class GeoSeries(pl.Series):
 
     @property
     def area(self) -> pl.Series:
-        """Returns a ``Series`` containing the area of each geometry in the
+        """Return a :class:`polars.Series` containing the area of each geometry in the
         ``GeoSeries`` expressed in the units of the CRS.
 
         Notes

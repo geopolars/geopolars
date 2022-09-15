@@ -10,10 +10,9 @@ methods. All classes and functions exposed in ``geopolars.*`` namespace are publ
    :maxdepth: 2
 
    geoseries
+   geodataframe
    functions
    .. io
-   .. series
-   .. dataframe
    .. expression
    .. lazyframe
    .. testing

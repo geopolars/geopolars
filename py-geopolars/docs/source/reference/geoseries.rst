@@ -110,11 +110,13 @@ Affine transformations
 ..    GeoSeries.unary_union
 ..    GeoSeries.explode
 
-.. Serialization / IO / conversion
-.. -------------------------------
+Serialization / IO / conversion
+-------------------------------
 
-.. .. autosummary::
-..    :toctree: api/
+.. autosummary::
+   :toctree: api/
+
+   GeoSeries.to_geopandas
 
 ..    GeoSeries.from_file
 ..    GeoSeries.from_wkb
