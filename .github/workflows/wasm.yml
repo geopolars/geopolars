@@ -1,0 +1,105 @@
+name: Wasm Build and Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            profile: minimal
+            override: true
+
+      - name: Install
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cd wasm-geopolars && wasm-pack build --dev --target nodejs && cd ..
+      - run: cd wasm-geopolars && wasm-pack test --node && cd ..
+
+      # - run: cargo check
+      - run: cd wasm-geopolars && cargo check --target wasm32-unknown-unknown && cd ..
+      # - run: cargo check --no-default-features
+      # - run: cargo check --target wasm32-unknown-unknown --no-default-features
+      # - run: cargo check --no-default-features --features console_error_panic_hook
+      # - run: cargo check --target wasm32-unknown-unknown --no-default-features --features console_error_panic_hook
+      # - run: cargo check                                 --no-default-features --features "console_error_panic_hook wee_alloc"
+      # - run: cargo check --target wasm32-unknown-unknown --no-default-features --features "console_error_panic_hook wee_alloc"
+
+  # node-test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #           toolchain: stable
+  #           profile: minimal
+  #           override: true
+
+  #     - name: Install
+  #       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+  #     - uses: Swatinem/rust-cache@v2
+
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: "16"
+
+  #     - name: Build bundle
+  #       run: yarn build:test
+
+  #     - name: Install dev dependencies
+  #       run: yarn
+
+  #     - name: Run Node tests
+  #       run: yarn test
+
+  # fmt:
+  #   name: fmt
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #           toolchain: stable
+  #           profile: minimal
+  #           override: true
+  #           components: rustfmt
+
+  #     - uses: Swatinem/rust-cache@v2
+
+  #     - name: Run
+  #       run: cargo fmt --all -- --check
+
+  # clippy:
+  #   name: Clippy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #           toolchain: stable
+  #           profile: minimal
+  #           override: true
+  #           components: clippy
+
+  #     - uses: Swatinem/rust-cache@v2
+
+  #     - name: "clippy --all"
+  #       run: cargo clippy --all --features=full --tests -- -D warnings

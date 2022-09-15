@@ -13,7 +13,7 @@ dependencies = [
 requires-python = ">=3.7"
 description = "Geospatial extensions for Polars"
 readme = "README.md"
-# Specify SPDX expression in pyproject.toml instead of here
+# Specify SPDX expression in Cargo.toml instead of here
 # https://maturin.rs/metadata.html#add-spdx-license-expressions
 # license = "MIT"
 authors = [
@@ -29,20 +29,21 @@ classifiers = [
 ]
 
 [project.urls]
-repository = "https://github.com/kylebarron/geopolars"
+repository = "https://github.com/geopolars/geopolars"
 
 [tool.isort]
 profile = "black"
+known_first_party = ["geopolars"]
 
-# [tool.mypy]
-# disallow_untyped_defs = true
-# warn_unused_ignores = true
-# show_error_codes = true
-# files = ["polars", "tests"]
+[tool.mypy]
+check_untyped_defs = true
+files = ["python/**/*.py", "tests/**/*.py"]
+warn_unused_ignores = true
+show_error_codes = true
 
-# [[tool.mypy.overrides]]
-# module = ["pyarrow.*", "polars.polars", "matplotlib.*", "fsspec.*", "connectorx", "IPython.*"]
-# ignore_missing_imports = true
+[[tool.mypy.overrides]]
+module = ["pyarrow.*", "geopandas.*"]
+ignore_missing_imports = true
 
 # [tool.coverage.report]
 # exclude_lines = ["pragma: no cover", "@overload"]

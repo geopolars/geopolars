@@ -10,6 +10,10 @@ jobs:
   lint-rust:
     name: Lint Rust code
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: py-geopolars
+
     steps:
       - uses: actions/checkout@v3
 
@@ -20,7 +24,7 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Install protobuf
         run: |
@@ -28,17 +32,14 @@ jobs:
 
       - name: rustfmt
         run: |
-          cd py-geopolars
           cargo fmt --all -- --check
 
       - name: clippy
         run: |
-          cd py-geopolars
           cargo clippy --all --all-features
 
       - name: check
         run: |
-          cd py-geopolars
           cargo check --all --all-features
 
   lint-python:
@@ -61,46 +62,48 @@ jobs:
     name: Build and test Python
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
         python-version: ["3.7", "3.10"]
+    defaults:
+      run:
+        working-directory: py-geopolars
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
           override: true
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: 'py-geopolars/build.requirements.txt'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # pip install -r py-polars/build.requirements.txt
+          pip install -r build.requirements.txt
 
-      # - name: Run formatting checks
-      #   run: |
-      #     cd py-polars
-      #     black --check . && blackdoc --check . && isort --check . && rustup override set nightly-2022-05-20
+      - name: Run type checking
+        run: |
+          mypy --config-file pyproject.toml
 
-      # - name: Run linting
-      #   run: |
-      #     cd py-polars && flake8 && cd ..
-
-      # - name: Run type checking
-      #   run: |
-      #     cd py-polars && mypy && cd ..
-
-      # - name: Run tests
-      #   run: |
-      #     export RUSTFLAGS="-C debuginfo=0"
-      #     cd py-polars && rustup override set nightly-2022-05-20 && make venv && make test-with-cov
-      #     cargo clippy
+      - name: Run tests
+        env:
+          RUSTFLAGS: -C debuginfo=0  # Do not produce debug symbols to keep memory usage down
+        run: |
+          make venv
+          source ./venv/bin/activate
+          make test
+          deactivate
 
       # - name: Check doc examples
       #   run: |

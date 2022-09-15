@@ -15,14 +15,35 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
 
+  - repo: https://github.com/psf/black
+    rev: 22.6.0
+    hooks:
+      - id: black
+        files: py-geopolars/
+
+  # This breaks with a UnicodeDecodeError for some reason
+  # - repo: https://github.com/keewis/blackdoc
+  #   rev: v0.3.6
+  #   hooks:
+  #     - id: blackdoc
+  #       files: py-geopolars/
+  #       args: [--check]
+
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
       - id: isort
         files: py-geopolars/
 
-  - repo: https://github.com/psf/black
-    rev: 22.6.0
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.37.3
     hooks:
-      - id: black
+      - id: pyupgrade
+        args: [--py37-plus]
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 5.0.4
+    hooks:
+      - id: flake8
         files: py-geopolars/
+        args: [--config=py-geopolars/.flake8]
