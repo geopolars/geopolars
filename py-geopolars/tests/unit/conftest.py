@@ -8,5 +8,5 @@ NE_CITIES_GDF = gpl.datasets.read_dataset("naturalearth_cities")
 
 
 @pytest.fixture
-def ne_cities_gdf() -> str:
+def ne_cities_gdf() -> gpl.GeoDataFrame:
     return NE_CITIES_GDF
