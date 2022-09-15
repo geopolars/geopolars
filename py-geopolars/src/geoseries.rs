@@ -8,12 +8,13 @@ use pyo3::prelude::*;
 /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
 #[pyfunction]
 pub(crate) fn affine_transform(series: &PyAny, transform: [f64; 6]) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let transform = AffineTransform::try_from(transform)?;
     let out = series
         .affine_transform(transform)
         .map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
@@ -25,23 +26,26 @@ pub(crate) fn area(series: &PyAny) -> PyResult<PyObject> {
 
 #[pyfunction]
 pub(crate) fn centroid(series: &PyAny) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series.centroid().map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
 pub(crate) fn convex_hull(series: &PyAny) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series.convex_hull().map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
 pub(crate) fn envelope(series: &PyAny) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series.envelope().map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
@@ -53,9 +57,10 @@ pub(crate) fn euclidean_length(series: &PyAny) -> PyResult<PyObject> {
 
 #[pyfunction]
 pub(crate) fn exterior(series: &PyAny) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series.exterior().map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
@@ -106,11 +111,12 @@ pub(crate) fn rotate(
     angle: f64,
     origin: PythonTransformOrigin,
 ) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series
         .rotate(angle, origin.try_into()?)
         .map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
@@ -120,11 +126,12 @@ pub(crate) fn scale(
     yfact: f64,
     origin: PythonTransformOrigin,
 ) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series
         .scale(xfact, yfact, origin.try_into()?)
         .map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
@@ -134,11 +141,12 @@ pub(crate) fn skew(
     ys: f64,
     origin: PythonTransformOrigin,
 ) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series
         .skew(xs, ys, origin.try_into()?)
         .map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]
@@ -150,9 +158,10 @@ pub(crate) fn to_crs(series: &PyAny, from: &str, to: &str) -> PyResult<PyObject>
 
 #[pyfunction]
 pub(crate) fn translate(series: &PyAny, x: f64, y: f64) -> PyResult<PyObject> {
+    let crs = series.getattr("crs")?.extract::<Option<&str>>()?;
     let series = ffi::py_series_to_rust_series(series)?;
     let out = series.translate(x, y).map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_geoseries(&out, crs)
 }
 
 #[pyfunction]

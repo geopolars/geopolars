@@ -16,10 +16,28 @@ except ImportError:
     pyarrow = None
 
 
+try:
+    import pyproj
+
+    _PYPROJ_AVAILABLE = True
+except ImportError:
+    _PYPROJ_AVAILABLE = False
+
+
 class GeoSeries(pl.Series):
     """Extension of polars Series to handle geospatial vector data"""
 
-    def __init__(self, *args, **kwargs):
+    crs: str | None = None
+
+    def __init__(self, *args, crs: str | pyproj.CRS | None = None, **kwargs):
+        if _PYPROJ_AVAILABLE:
+            if isinstance(crs, pyproj.CRS):
+                self.crs = crs.to_json()
+
+        if not self.crs and crs:
+            assert isinstance(crs, str), "CRS must be str or an instance of pyproj.CRS"
+            self.crs = crs
+
         if isinstance(args[0], pl.Series):
             self._s = args[0]._s
             return
@@ -38,7 +56,7 @@ class GeoSeries(pl.Series):
         polars_series = pl.Series._from_arrow(
             geoseries.name or "geometry", wkb_arrow_array
         )
-        return cls(polars_series)
+        return cls(polars_series, crs=geoseries.crs)
 
     def to_geopandas(self) -> geopandas.GeoSeries:
         if geopandas is None:
@@ -52,7 +70,8 @@ class GeoSeries(pl.Series):
         return geopandas.GeoSeries(
             geopandas.array.from_wkb(
                 [row.values.to_numpy().tobytes() for row in pyarrow_array]
-            )
+            ),
+            crs=self.crs,
         )
 
     def affine_transform(self, matrix) -> GeoSeries:
