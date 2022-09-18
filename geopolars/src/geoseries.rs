@@ -162,6 +162,13 @@ pub trait GeoSeries {
     /// ```
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series>;
 
+    /// Returns a Series containing the distance to aligned other. The operation works on a 1-to-1 row-wise manner.
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The Geoseries (elementwise) or geometric object to find the distance to.
+    fn distance(&self, other: &Series) -> Result<Series>;
+
     // Note: Ideally we wouldn't have both `from` and `to` here, where the series would include the
     // current CRS, but that would require polars to support extension types.
     #[cfg(feature = "proj")]
@@ -640,6 +647,35 @@ impl GeoSeries for Series {
         }
     }
 
+    fn distance(&self, other: &Series) -> Result<Series> {
+        use geo::algorithm::EuclideanDistance;
+
+        let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(self.len());
+
+        for (g1, g2) in iter_geom(self).zip(iter_geom(other)) {
+            let distance = match (g1, g2) {
+                (Geometry::Point(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::LineString(p2))=>Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::MultiLineString(p2))=>Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::MultiPoint(p2))=>Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::MultiPolygon(p2))=>Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::Polygon(p2))=>Some(p1.euclidean_distance(&p2)),
+
+                (Geometry::LineString(p1), Geometry::Point(p2))=>Some(p2.euclidean_distance(&p1)),
+                (Geometry::MultiLineString(p1), Geometry::Point(p2))=>Some(p2.euclidean_distance(&p1)),
+                (Geometry::MultiPoint(p1), Geometry::Point(p2))=>Some(p2.euclidean_distance(&p1)),
+                (Geometry::MultiPolygon(p1), Geometry::Point(p2))=>Some(p2.euclidean_distance(&p1)),
+                (Geometry::Polygon(p1), Geometry::Point(p2))=>Some(p2.euclidean_distance(&p1)),
+                _ => None,
+            };
+            output_array.push(distance);
+        }
+
+        let result: PrimitiveArray<f64> = output_array.into();
+        let series = Series::try_from(("distance", Box::new(result) as ArrayRef))?;
+        Ok(series)
+    }
+
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
         use proj::{Proj, Transform};
@@ -718,9 +754,11 @@ mod tests {
     use polars::prelude::Series;
     use std::sync::Arc;
 
-    use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point};
+    use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point, point, Line};
     use geozero::{CoordDimensions, ToWkb};
-    use polars::export::arrow::array::{ArrayRef, BinaryArray, MutableBinaryArray};
+    use polars::export::arrow::array::{
+        ArrayRef, BinaryArray, MutableBinaryArray, MutablePrimitiveArray, PrimitiveArray,
+    };
 
     use super::TransformOrigin;
 
@@ -811,6 +849,46 @@ mod tests {
                 (p1.y - p2.y).abs() < 0.00000001,
                 "The geometries y coords to be correct to within some tollerenace"
             );
+        }
+    }
+
+    #[test]
+    fn distance() {
+
+        let geo_series = Series::from_geom_vec(&[
+            Geometry::Point(Point::new(0.0, 0.0)),
+            Geometry::Point(Point::new(0.0, 0.0)),
+            Geometry::Point(Point::new(1.0, 1.0)),
+            Geometry::LineString(LineString::<f64>::from(vec![
+                (0.0, 0.0),
+                (0.0, 4.0),
+            ]))
+
+            ])
+        .unwrap();
+
+        let other_geo_series = Series::from_geom_vec(&[
+            Geometry::Point(Point::new(0.0, 1.0)),
+            Geometry::Point(Point::new(1.0, 1.0)),
+            Geometry::Point(Point::new(4.0, 5.0)),
+            Geometry::Point(Point::new(2.0, 2.0)),
+        ])
+        .unwrap();
+        let results = vec![
+            1.0_f64,
+            2.0_f64.sqrt(),
+            5.0_f64,
+            2.0_f64,
+        ];
+
+        let distance_series = geo_series.distance(&other_geo_series);
+        assert!(distance_series.is_ok(), "To get a series back");
+
+        let distance_series = distance_series.unwrap();
+        let distance_vec: Vec<f64> = distance_series.f64().unwrap().into_no_null_iter().collect();
+
+        for (d1, d2) in distance_vec.iter().zip(results.iter()){
+            assert_eq!(d1, d2, "Distances differ, should be the same");
         }
     }
 

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from typing import Any
+
+import numpy as np
 import polars as pl
 
 from geopolars import geopolars as core  # type: ignore
@@ -25,6 +28,19 @@ class GeoSeries(pl.Series):
             return
 
         super().__init__(*args, **kwargs)
+
+    def __getitem__(
+        self,
+        item: int
+        | pl.Series
+        | GeoSeries
+        | range
+        | slice
+        | np.ndarray[Any, Any]
+        | list[int]
+        | list[bool],
+    ) -> Any:
+        return GeoSeries(super().__getitem__(item))
 
     @classmethod
     def _from_geopandas(cls, geoseries: geopandas.GeoSeries):
@@ -184,6 +200,19 @@ class GeoSeries(pl.Series):
         """
 
         return core.skew(self, xs, ys, origin)
+
+    def distance(self, other: GeoSeries) -> GeoSeries:
+        """Returns a Series containing the distance to aligned other.
+
+        The operation works on a 1-to-1 row-wise manner.
+
+        Parameters
+        ----------
+        other : Geoseries
+            The series to which calculate distance in 1-to-1 row-wise manner.
+        """
+
+        return core.distance(self, other)
 
     def to_crs(self, from_crs: str, to_crs: str) -> GeoSeries:
         return core.to_crs(self, from_crs, to_crs)
