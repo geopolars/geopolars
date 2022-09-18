@@ -70,6 +70,9 @@ pub trait GeoSeries {
     /// Applies to GeoSeries containing only Polygons. Returns `None` for other geometry types.
     fn exterior(&self) -> Result<Series>;
 
+    /// Explodes multi-part geometries into multiple single geometries.
+    fn explode_geometries(&self) -> Result<Series>;
+
     /// Create a Series from a vector of geometries
     fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series>;
 
@@ -305,6 +308,60 @@ impl GeoSeries for Series {
         let result: PrimitiveArray<f64> = result.into();
         let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
         Ok(series)
+    }
+
+    fn explode_geometries(&self) -> Result<Series> {
+        let mut nested_vector = vec![];
+
+        for geometry in iter_geom(self) {
+            match geometry {
+                Geometry::Point(geometry) => {
+                    let point = vec![Geometry::Point(geometry)];
+                    nested_vector.push(point)
+                }
+                Geometry::MultiPoint(geometry) => {
+                    let points: Vec<Geometry> = geometry.into_iter().map(Geometry::Point).collect();
+                    nested_vector.push(points)
+                }
+                Geometry::Line(geometry) => {
+                    let line = vec![Geometry::Line(geometry)];
+                    nested_vector.push(line)
+                }
+                Geometry::LineString(geometry) => {
+                    let line_string = vec![Geometry::LineString(geometry)];
+                    nested_vector.push(line_string)
+                }
+                Geometry::MultiLineString(geometry) => {
+                    let line_strings: Vec<Geometry> =
+                        geometry.into_iter().map(Geometry::LineString).collect();
+                    nested_vector.push(line_strings)
+                }
+                Geometry::Polygon(geometry) => {
+                    let polygon = vec![Geometry::Polygon(geometry)];
+                    nested_vector.push(polygon)
+                }
+                Geometry::MultiPolygon(geometry) => {
+                    let polygons: Vec<Geometry> =
+                        geometry.into_iter().map(Geometry::Polygon).collect();
+                    nested_vector.push(polygons)
+                }
+                Geometry::Rect(geometry) => {
+                    let rectangle = vec![Geometry::Rect(geometry)];
+                    nested_vector.push(rectangle)
+                }
+                Geometry::Triangle(geometry) => {
+                    let triangle = vec![Geometry::Triangle(geometry)];
+                    nested_vector.push(triangle)
+                }
+                _ => unimplemented!(),
+            };
+        }
+
+        let flattened_vector: Vec<Geometry> = nested_vector.into_iter().flatten().collect();
+
+        let exploded_series = Series::from_geom_vec(&flattened_vector)?;
+
+        Ok(exploded_series)
     }
 
     fn exterior(&self) -> Result<Series> {
@@ -941,6 +998,36 @@ mod tests {
         let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
 
         assert_eq!(10.0_f64, as_vec[0]);
+    }
+    #[test]
+    fn explode_geometries() {
+        let point_0 = Point::new(0., 0.);
+        let point_1 = Point::new(1., 1.);
+        let point_2 = Point::new(2., 2.);
+        let point_3 = Point::new(3., 3.);
+        let point_4 = Point::new(4., 4.);
+
+        let expected_series = Series::from_geom_vec(&[
+            Geometry::Point(point_0),
+            Geometry::Point(point_1),
+            Geometry::Point(point_2),
+            Geometry::Point(point_3),
+            Geometry::Point(point_4),
+        ])
+        .unwrap();
+
+        let multipoint_0 = MultiPoint::new(vec![point_0, point_1]);
+        let multipoint_1 = MultiPoint::new(vec![point_2, point_3, point_4]);
+
+        let input_series = Series::from_geom_vec(&[
+            Geometry::MultiPoint(multipoint_0),
+            Geometry::MultiPoint(multipoint_1),
+        ])
+        .unwrap();
+
+        let output_series = input_series.explode_geometries().unwrap();
+
+        assert_eq!(output_series, expected_series);
     }
     #[test]
     fn haversine_length() {
