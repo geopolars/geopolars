@@ -653,9 +653,7 @@ impl GeoSeries for Series {
         let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
         for (g1, g2) in iter_geom(self).zip(iter_geom(other)) {
-            let d2=g1.euclidean_distance(g2);
             let distance = match (g1, g2) {
-                (Geometry::Point(p1), p2) => Some(p1.euclidean_distance(&p2)),
                 (Geometry::Point(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
                 (Geometry::Point(p1), Geometry::LineString(p2)) => Some(p1.euclidean_distance(&p2)),
                 (Geometry::Point(p1), Geometry::MultiLineString(p2)) => {

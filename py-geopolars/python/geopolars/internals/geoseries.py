@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
-import numpy as np
 import polars as pl
 
 from geopolars import geopolars as core  # type: ignore
@@ -28,22 +25,6 @@ class GeoSeries(pl.Series):
             return
 
         super().__init__(*args, **kwargs)
-
-    def __getitem__(
-        self,
-        item: int
-        | pl.Series
-        | GeoSeries
-        | range
-        | slice
-        | np.ndarray[Any, Any]
-        | list[int]
-        | list[bool],
-    ) -> Any:
-        result = super().__getitem__(item)
-        if isinstance(result, pl.Series):
-            result = GeoSeries(result)
-        return result
 
     @classmethod
     def _from_geopandas(cls, geoseries: geopandas.GeoSeries):
