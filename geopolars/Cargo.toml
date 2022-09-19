@@ -52,3 +52,7 @@ bench = false
 [[bench]]
 name = "affine"
 harness = false
+
+[[bench]]
+name = "explode"
+harness = false
