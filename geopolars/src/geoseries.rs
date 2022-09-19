@@ -655,25 +655,54 @@ impl GeoSeries for Series {
         for (g1, g2) in iter_geom(self).zip(iter_geom(other)) {
             let distance = match (g1, g2) {
                 (Geometry::Point(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::MultiPoint(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
                 (Geometry::Point(p1), Geometry::LineString(p2)) => Some(p1.euclidean_distance(&p2)),
                 (Geometry::Point(p1), Geometry::MultiLineString(p2)) => {
                     Some(p1.euclidean_distance(&p2))
                 }
-                (Geometry::Point(p1), Geometry::MultiPoint(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::Polygon(p2)) => Some(p1.euclidean_distance(&p2)),
                 (Geometry::Point(p1), Geometry::MultiPolygon(p2)) => {
                     Some(p1.euclidean_distance(&p2))
                 }
-                (Geometry::Point(p1), Geometry::Polygon(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::MultiPoint(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
 
-                (Geometry::LineString(p1), Geometry::Point(p2)) => Some(p2.euclidean_distance(&p1)),
+                (Geometry::Line(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::LineString(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::Polygon(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::MultiPolygon(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+
+                (Geometry::LineString(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::LineString(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::LineString(p1), Geometry::LineString(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+                (Geometry::LineString(p1), Geometry::Polygon(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+
                 (Geometry::MultiLineString(p1), Geometry::Point(p2)) => {
-                    Some(p2.euclidean_distance(&p1))
+                    Some(p1.euclidean_distance(&p2))
                 }
-                (Geometry::MultiPoint(p1), Geometry::Point(p2)) => Some(p2.euclidean_distance(&p1)),
+
+                (Geometry::Polygon(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Polygon(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Polygon(p1), Geometry::LineString(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+                (Geometry::Polygon(p1), Geometry::Polygon(p2)) => Some(p1.euclidean_distance(&p2)),
+
                 (Geometry::MultiPolygon(p1), Geometry::Point(p2)) => {
-                    Some(p2.euclidean_distance(&p1))
+                    Some(p1.euclidean_distance(&p2))
                 }
-                (Geometry::Polygon(p1), Geometry::Point(p2)) => Some(p2.euclidean_distance(&p1)),
+                (Geometry::MultiPolygon(p1), Geometry::Line(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+
+                (Geometry::Triangle(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
                 _ => None,
             };
             output_array.push(distance);
@@ -682,27 +711,6 @@ impl GeoSeries for Series {
         let result: PrimitiveArray<f64> = output_array.into();
         let series = Series::try_from(("distance", Box::new(result) as ArrayRef))?;
         Ok(series)
-    }
-
-    #[cfg(feature = "proj")]
-    fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
-        use proj::{Proj, Transform};
-
-        let proj = Proj::new_known_crs(from, to, None)?;
-        // Specify literal Result<> to propagate error from within closure
-        // https://stackoverflow.com/a/26370894
-        let output_vec: Result<Vec<Geometry>> = iter_geom(self)
-            .map(|mut geom| {
-                // geom.tranform modifies `geom` in place.
-                // Note that this doesn't modify the _original series_ because iter_geom makes a
-                // copy
-                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
-                geom.transform(&proj)?;
-                Ok(geom)
-            })
-            .collect();
-
-        Series::from_geom_vec(&output_vec?)
     }
 
     fn translate(&self, x: f64, y: f64) -> Result<Series> {
@@ -750,6 +758,27 @@ impl GeoSeries for Series {
         let result: PrimitiveArray<f64> = result.into();
         let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
+    }
+
+    #[cfg(feature = "proj")]
+    fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
+        use proj::{Proj, Transform};
+
+        let proj = Proj::new_known_crs(from, to, None)?;
+        // Specify literal Result<> to propagate error from within closure
+        // https://stackoverflow.com/a/26370894
+        let output_vec: Result<Vec<Geometry>> = iter_geom(self)
+            .map(|mut geom| {
+                // geom.tranform modifies `geom` in place.
+                // Note that this doesn't modify the _original series_ because iter_geom makes a
+                // copy
+                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
+                geom.transform(&proj)?;
+                Ok(geom)
+            })
+            .collect();
+
+        Series::from_geom_vec(&output_vec?)
     }
 }
 
