@@ -311,7 +311,7 @@ impl GeoSeries for Series {
     }
 
     fn explode_geometries(&self) -> Result<Series> {
-        let mut exploded_vector = vec![];
+        let mut exploded_vector = Vec::new();
 
         for geometry in iter_geom(self) {
             match geometry {
