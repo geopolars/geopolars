@@ -151,7 +151,7 @@ pub(crate) fn distance(
     let out = series
         .distance(&other)
         .map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_geoseries(&out)
+    ffi::rust_series_to_py_series(&out)
 }
 
 #[pyfunction]

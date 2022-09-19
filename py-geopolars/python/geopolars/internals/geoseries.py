@@ -40,7 +40,10 @@ class GeoSeries(pl.Series):
         | list[int]
         | list[bool],
     ) -> Any:
-        return GeoSeries(super().__getitem__(item))
+        result = super().__getitem__(item)
+        if isinstance(result, pl.Series):
+            result = GeoSeries(result)
+        return result
 
     @classmethod
     def _from_geopandas(cls, geoseries: geopandas.GeoSeries):
@@ -204,7 +207,9 @@ class GeoSeries(pl.Series):
     def distance(self, other: GeoSeries) -> GeoSeries:
         """Returns a Series containing the distance to aligned other.
 
-        The operation works on a 1-to-1 row-wise manner.
+        Distance is cartesian distance in 2D space, and the units of the output
+        are in terms of the CRS of the two input series. The operation works
+        on a 1-to-1 row-wise manner.
 
         Parameters
         ----------
