@@ -148,9 +148,7 @@ pub(crate) fn distance(
 ) -> PyResult<PyObject> {
     let series = ffi::py_series_to_rust_series(series)?;
     let other = ffi::py_series_to_rust_series(other)?;
-    let out = series
-        .distance(&other)
-        .map_err(PyGeopolarsError::from)?;
+    let out = series.distance(&other).map_err(PyGeopolarsError::from)?;
     ffi::rust_series_to_py_series(&out)
 }
 

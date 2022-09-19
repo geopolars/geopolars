@@ -762,13 +762,9 @@ mod tests {
     use polars::prelude::Series;
     use std::sync::Arc;
 
-    use geo::{
-        line_string, point, polygon, CoordsIter, Geometry, Line, LineString, MultiPoint, Point,
-    };
+    use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point};
     use geozero::{CoordDimensions, ToWkb};
-    use polars::export::arrow::array::{
-        ArrayRef, BinaryArray, MutableBinaryArray, MutablePrimitiveArray, PrimitiveArray,
-    };
+    use polars::export::arrow::array::{ArrayRef, BinaryArray, MutableBinaryArray};
 
     use super::TransformOrigin;
 

@@ -109,7 +109,7 @@ pub fn rust_series_to_py_geoseries(series: &Series) -> PyResult<PyObject> {
 
         // import geopolars
         let geopolars = py.import("geopolars")?;
-        let out = geopolars.call_method1("from_arrow", (pyarrow_array, ))?;
+        let out = geopolars.call_method1("from_arrow", (pyarrow_array,))?;
         Ok(out.to_object(py))
     })
 }
