@@ -71,7 +71,7 @@ pub trait GeoSeries {
     fn exterior(&self) -> Result<Series>;
 
     /// Explodes multi-part geometries into multiple single geometries.
-    fn explode_geometries(&self) -> Result<Series>;
+    fn explode(&self) -> Result<Series>;
 
     /// Create a Series from a vector of geometries
     fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series>;
@@ -310,7 +310,7 @@ impl GeoSeries for Series {
         Ok(series)
     }
 
-    fn explode_geometries(&self) -> Result<Series> {
+    fn explode(&self) -> Result<Series> {
         let mut exploded_vector = Vec::new();
 
         for geometry in iter_geom(self) {
@@ -1002,7 +1002,7 @@ mod tests {
         assert_eq!(10.0_f64, as_vec[0]);
     }
     #[test]
-    fn explode_geometries() {
+    fn explode() {
         let point_0 = Point::new(0., 0.);
         let point_1 = Point::new(1., 1.);
         let point_2 = Point::new(2., 2.);
@@ -1027,7 +1027,7 @@ mod tests {
         ])
         .unwrap();
 
-        let output_series = input_series.explode_geometries().unwrap();
+        let output_series = GeoSeries::explode(&input_series).unwrap();
 
         assert_eq!(output_series, expected_series);
     }
