@@ -311,55 +311,57 @@ impl GeoSeries for Series {
     }
 
     fn explode_geometries(&self) -> Result<Series> {
-        let mut nested_vector = vec![];
+        let mut exploded_vector = vec![];
 
         for geometry in iter_geom(self) {
             match geometry {
                 Geometry::Point(geometry) => {
-                    let point = vec![Geometry::Point(geometry)];
-                    nested_vector.push(point)
+                    let point = Geometry::Point(geometry);
+                    exploded_vector.push(point)
                 }
                 Geometry::MultiPoint(geometry) => {
-                    let points: Vec<Geometry> = geometry.into_iter().map(Geometry::Point).collect();
-                    nested_vector.push(points)
+                    for geom in geometry.into_iter() {
+                        let point = Geometry::Point(geom);
+                        exploded_vector.push(point)
+                    }
                 }
                 Geometry::Line(geometry) => {
-                    let line = vec![Geometry::Line(geometry)];
-                    nested_vector.push(line)
+                    let line = Geometry::Line(geometry);
+                    exploded_vector.push(line)
                 }
                 Geometry::LineString(geometry) => {
-                    let line_string = vec![Geometry::LineString(geometry)];
-                    nested_vector.push(line_string)
+                    let line_string = Geometry::LineString(geometry);
+                    exploded_vector.push(line_string)
                 }
                 Geometry::MultiLineString(geometry) => {
-                    let line_strings: Vec<Geometry> =
-                        geometry.into_iter().map(Geometry::LineString).collect();
-                    nested_vector.push(line_strings)
+                    for geom in geometry.into_iter() {
+                        let line_string = Geometry::LineString(geom);
+                        exploded_vector.push(line_string)
+                    }
                 }
                 Geometry::Polygon(geometry) => {
-                    let polygon = vec![Geometry::Polygon(geometry)];
-                    nested_vector.push(polygon)
+                    let polygon = Geometry::Polygon(geometry);
+                    exploded_vector.push(polygon)
                 }
                 Geometry::MultiPolygon(geometry) => {
-                    let polygons: Vec<Geometry> =
-                        geometry.into_iter().map(Geometry::Polygon).collect();
-                    nested_vector.push(polygons)
+                    for geom in geometry.into_iter() {
+                        let polygon = Geometry::Polygon(geom);
+                        exploded_vector.push(polygon)
+                    }
                 }
                 Geometry::Rect(geometry) => {
-                    let rectangle = vec![Geometry::Rect(geometry)];
-                    nested_vector.push(rectangle)
+                    let rectangle = Geometry::Rect(geometry);
+                    exploded_vector.push(rectangle)
                 }
                 Geometry::Triangle(geometry) => {
-                    let triangle = vec![Geometry::Triangle(geometry)];
-                    nested_vector.push(triangle)
+                    let triangle = Geometry::Triangle(geometry);
+                    exploded_vector.push(triangle)
                 }
                 _ => unimplemented!(),
             };
         }
 
-        let flattened_vector: Vec<Geometry> = nested_vector.into_iter().flatten().collect();
-
-        let exploded_series = Series::from_geom_vec(&flattened_vector)?;
+        let exploded_series = Series::from_geom_vec(&exploded_vector)?;
 
         Ok(exploded_series)
     }
