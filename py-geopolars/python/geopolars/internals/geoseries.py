@@ -185,6 +185,21 @@ class GeoSeries(pl.Series):
 
         return core.skew(self, xs, ys, origin)
 
+    def distance(self, other: GeoSeries) -> GeoSeries:
+        """Returns a Series containing the distance to aligned other.
+
+        Distance is cartesian distance in 2D space, and the units of the output
+        are in terms of the CRS of the two input series. The operation works
+        on a 1-to-1 row-wise manner.
+
+        Parameters
+        ----------
+        other : Geoseries
+            The series to which calculate distance in 1-to-1 row-wise manner.
+        """
+
+        return core.distance(self, other)
+
     def to_crs(self, from_crs: str, to_crs: str) -> GeoSeries:
         return core.to_crs(self, from_crs, to_crs)
 
