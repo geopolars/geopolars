@@ -713,6 +713,27 @@ impl GeoSeries for Series {
         Ok(series)
     }
 
+    #[cfg(feature = "proj")]
+    fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
+        use proj::{Proj, Transform};
+
+        let proj = Proj::new_known_crs(from, to, None)?;
+        // Specify literal Result<> to propagate error from within closure
+        // https://stackoverflow.com/a/26370894
+        let output_vec: Result<Vec<Geometry>> = iter_geom(self)
+            .map(|mut geom| {
+                // geom.tranform modifies `geom` in place.
+                // Note that this doesn't modify the _original series_ because iter_geom makes a
+                // copy
+                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
+                geom.transform(&proj)?;
+                Ok(geom)
+            })
+            .collect();
+
+        Series::from_geom_vec(&output_vec?)
+    }
+
     fn translate(&self, x: f64, y: f64) -> Result<Series> {
         let transform = AffineTransform::translate(x, y);
         self.affine_transform(transform)
@@ -758,27 +779,6 @@ impl GeoSeries for Series {
         let result: PrimitiveArray<f64> = result.into();
         let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
         Ok(series)
-    }
-
-    #[cfg(feature = "proj")]
-    fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
-        use proj::{Proj, Transform};
-
-        let proj = Proj::new_known_crs(from, to, None)?;
-        // Specify literal Result<> to propagate error from within closure
-        // https://stackoverflow.com/a/26370894
-        let output_vec: Result<Vec<Geometry>> = iter_geom(self)
-            .map(|mut geom| {
-                // geom.tranform modifies `geom` in place.
-                // Note that this doesn't modify the _original series_ because iter_geom makes a
-                // copy
-                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
-                geom.transform(&proj)?;
-                Ok(geom)
-            })
-            .collect();
-
-        Series::from_geom_vec(&output_vec?)
     }
 }
 
