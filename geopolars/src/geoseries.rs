@@ -3,11 +3,11 @@ use crate::util::{iter_geom, parse_u8_series_to_geom};
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
+use polars::export::arrow;
 use polars::export::arrow::array::{
     Array, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
     MutablePrimitiveArray, PrimitiveArray,
 };
-use polars::export::arrow;
 use polars::export::rayon::prelude::*;
 use polars::prelude::{PolarsError, Series, TakeRandom};
 use std::convert::Into;
@@ -214,11 +214,14 @@ impl GeoSeries for Series {
 
         // Future work: look at using ca.downcast_chunks here
         let ca = self.list()?;
-        let output: Vec<f64> = (0..self.len()).into_par_iter().map(|index| {
-            let row = ca.get(index).unwrap();
-            let geom = parse_u8_series_to_geom(&row).unwrap();
-            geom.unsigned_area()
-        }).collect();
+        let output: Vec<f64> = (0..self.len())
+            .into_par_iter()
+            .map(|index| {
+                let row = ca.get(index).unwrap();
+                let geom = parse_u8_series_to_geom(&row).unwrap();
+                geom.unsigned_area()
+            })
+            .collect();
 
         let result = arrow::array::Float64Array::from_values(output);
         let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
