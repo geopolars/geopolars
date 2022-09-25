@@ -11,6 +11,7 @@ use polars::export::arrow::array::{
 use polars::export::rayon::prelude::*;
 use polars::prelude::{PolarsError, Series, TakeRandom};
 use std::convert::Into;
+use std::sync::mpsc;
 
 pub type ArrayRef = Box<dyn Array>;
 
@@ -211,21 +212,40 @@ impl GeoSeries for Series {
 
     fn area(&self) -> Result<Series> {
         use geo::prelude::Area;
+        let (tx, rx) = mpsc::channel();
 
         // Future work: look at using ca.downcast_chunks here
         let ca = self.list()?;
-        let output: Vec<f64> = (0..self.len())
+        (0..self.len())
             .into_par_iter()
-            .map(|index| {
+            .for_each_with(tx, |s, index| {
                 let row = ca.get(index).unwrap();
                 let geom = parse_u8_series_to_geom(&row).unwrap();
-                geom.unsigned_area()
-            })
-            .collect();
 
-        let result = arrow::array::Float64Array::from_values(output);
-        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+                s.send((index, geom.unsigned_area())).unwrap()
+            });
 
+        // let mut output_array =
+        //     arrow::array::MutablePrimitiveArray::<f64>::with_capacity(self.len());
+
+        // let mut output_array = Vec::with_capacity(self.len());
+        let mut output_array = vec![0.0, self.len() as f64];
+
+        for _ in 0..self.len() {
+            let (idx, value) = rx.recv().unwrap();
+            // output_array.set
+            // println!("index {}", idx);
+
+            output_array[idx] = value;
+            // .set(idx, Some(value));
+            // unsafe {
+            //     output_array.set_unchecked(idx, Some(value));
+            // }
+        }
+
+        let non_mutable = arrow::array::Float64Array::from_values(output_array);
+        // let non_mutable: arrow::array::PrimitiveArray<f64> = output_array.into();
+        let series = Series::try_from(("geometry", Box::new(non_mutable) as ArrayRef))?;
         Ok(series)
     }
 
