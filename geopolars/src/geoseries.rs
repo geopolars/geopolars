@@ -7,8 +7,11 @@ use polars::export::arrow::array::{
     Array, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
     MutablePrimitiveArray, PrimitiveArray,
 };
-use polars::prelude::{PolarsError, Series};
+use polars::export::arrow;
+use polars::export::rayon::prelude::*;
+use polars::prelude::{PolarsError, Series, TakeRandom};
 use std::convert::Into;
+use geozero::{wkb::Wkb, ToGeo};
 
 pub type ArrayRef = Box<dyn Array>;
 
@@ -210,9 +213,23 @@ impl GeoSeries for Series {
     fn area(&self) -> Result<Series> {
         use geo::prelude::Area;
 
-        let output_series: Series = iter_geom(self).map(|geom| geom.unsigned_area()).collect();
+        let ca = self.list()?;
+        // let chunks = ca.chunks();
 
-        Ok(output_series)
+        let output: Vec<f64> = (0..self.len()).into_par_iter().map(|index| {
+            // let chunks_in_thread = chunks.clone();
+            // let ca_in_thread = ca;
+            let row = ca.get(index).unwrap();
+            let buffer = row.u8().unwrap();
+            let vec = buffer.cont_slice().unwrap().to_vec();
+            let geom = Wkb(vec).to_geo().expect("unable to convert geo");
+            geom.unsigned_area()
+        }).collect();
+
+        let result = arrow::array::Float64Array::from_values(output);
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+
+        Ok(series)
     }
 
     fn centroid(&self) -> Result<Series> {
