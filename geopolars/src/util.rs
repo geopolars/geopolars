@@ -17,6 +17,14 @@ pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> 
     })
 }
 
+// Parse a u8 series representing a single WKB geometry to a Geometry object
+pub(crate) fn parse_u8_series_to_geom(row: &Series) -> Result<Geometry> {
+    let buffer = row.u8()?;
+    let vec = buffer.cont_slice()?.to_vec();
+    let geom = Wkb(vec).to_geo().expect("unable to convert geo");
+    Ok(geom)
+}
+
 /// Access to a geometry at a specified index
 pub(crate) fn geom_at_index(series: &Series, index: usize) -> Result<Geometry<f64>> {
     let item_at_index = match series.get(index) {

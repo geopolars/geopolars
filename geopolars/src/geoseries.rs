@@ -1,5 +1,5 @@
 use crate::error::{inner_type_name, GeopolarsError, Result};
-use crate::util::iter_geom;
+use crate::util::{iter_geom, parse_u8_series_to_geom};
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
@@ -11,7 +11,6 @@ use polars::export::arrow;
 use polars::export::rayon::prelude::*;
 use polars::prelude::{PolarsError, Series, TakeRandom};
 use std::convert::Into;
-use geozero::{wkb::Wkb, ToGeo};
 
 pub type ArrayRef = Box<dyn Array>;
 
@@ -213,16 +212,11 @@ impl GeoSeries for Series {
     fn area(&self) -> Result<Series> {
         use geo::prelude::Area;
 
+        // Future work: look at using ca.downcast_chunks here
         let ca = self.list()?;
-        // let chunks = ca.chunks();
-
         let output: Vec<f64> = (0..self.len()).into_par_iter().map(|index| {
-            // let chunks_in_thread = chunks.clone();
-            // let ca_in_thread = ca;
             let row = ca.get(index).unwrap();
-            let buffer = row.u8().unwrap();
-            let vec = buffer.cont_slice().unwrap().to_vec();
-            let geom = Wkb(vec).to_geo().expect("unable to convert geo");
+            let geom = parse_u8_series_to_geom(&row).unwrap();
             geom.unsigned_area()
         }).collect();
 
