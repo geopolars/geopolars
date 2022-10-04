@@ -1,0 +1,3 @@
+[submodule "vendor/geo"]
+	path = vendor/geo
+	url = https://github.com/kylebarron/geo

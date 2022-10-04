@@ -208,11 +208,25 @@ impl GeoSeries for Series {
     }
 
     fn area(&self) -> Result<Series> {
+        use geo::area::area_polygon;
+        use geo::arrow::polygon::polygon_index;
         use geo::prelude::Area;
 
-        let output_series: Series = iter_geom(self).map(|geom| geom.unsigned_area()).collect();
+        let chunk = &self.0.chunks()[0];
+        let struct_arrow_array = chunk.as_any().downcast_ref::<ListArray<i64>>().unwrap();
+        let output_vec: Vec<f64> = (0..chunk.len())
+            .into_iter()
+            .map(|i| {
+                let scalar = polygon_index(struct_arrow_array, i).unwrap();
+                area_polygon(&scalar)
+            })
+            .collect();
 
-        Ok(output_series)
+        Ok(Series::from_vec("result", output_vec))
+
+        // let output_series: Series = iter_geom(self).map(|geom| geom.unsigned_area()).collect();
+
+        // Ok(output_series)
     }
 
     fn centroid(&self) -> Result<Series> {
