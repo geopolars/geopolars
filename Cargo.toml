@@ -1,3 +1,7 @@
 [workspace]
 members = ["geopolars"]
 exclude = ["py-geopolars", "wasm-geopolars"]
+
+[patch.crates-io]
+geo = { git = "https://github.com/kylebarron/geo.git", branch = "kyle/traits-geoarrow", features = ["use-arrow"]}
+geo-types = { git = "https://github.com/kylebarron/geo.git", branch = "kyle/traits-geoarrow", features = ["use-arrow"]}

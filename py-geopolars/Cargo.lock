@@ -499,7 +499,21 @@ version = "0.22.0"
 source = "git+https://github.com/georust/geo.git?rev=578e213875915e1f895892487b5a36ca0d91fac3#578e213875915e1f895892487b5a36ca0d91fac3"
 dependencies = [
  "float_next_after",
- "geo-types",
+ "geo-types 0.7.6",
+ "geographiclib-rs",
+ "log",
+ "num-traits",
+ "robust",
+ "rstar",
+]
+
+[[package]]
+name = "geo"
+version = "0.23.0"
+source = "git+https://github.com/kylebarron/geo.git?branch=kyle/traits-geoarrow#b534adb93a0366030313460779d945e34ccf32a2"
+dependencies = [
+ "float_next_after",
+ "geo-types 0.7.7",
  "geographiclib-rs",
  "log",
  "num-traits",
@@ -514,6 +528,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9805fbfcea97de816e6408e938603241879cc41eea3fba3f84f122f4f6f9c54"
 dependencies = [
  "approx",
+ "num-traits",
+ "rstar",
+]
+
+[[package]]
+name = "geo-types"
+version = "0.7.7"
+source = "git+https://github.com/kylebarron/geo.git?branch=kyle/traits-geoarrow#b534adb93a0366030313460779d945e34ccf32a2"
+dependencies = [
+ "approx",
+ "arrow2",
  "num-traits",
  "rstar",
 ]
@@ -543,7 +568,7 @@ dependencies = [
 name = "geopolars"
 version = "0.1.0-alpha.1"
 dependencies = [
- "geo",
+ "geo 0.23.0",
  "geozero",
  "polars",
  "proj",
@@ -557,7 +582,7 @@ version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4502606d426cedb0d421cc32f9277a0bef6924215280030a73b69f4431757fe"
 dependencies = [
- "geo-types",
+ "geo-types 0.7.6",
  "geojson",
  "prost-build",
  "scroll",
@@ -1242,7 +1267,7 @@ version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07f0b7c202d7fc3c2cc7da3667141a041e4a0700ed7f6948ca0ddbfb3f0c6ff4"
 dependencies = [
- "geo-types",
+ "geo-types 0.7.6",
  "libc",
  "num-traits",
  "proj-sys",
@@ -1321,7 +1346,7 @@ dependencies = [
 name = "py-geopolars"
 version = "0.1.0-alpha.1"
 dependencies = [
- "geo",
+ "geo 0.22.0",
  "geopolars",
  "polars",
  "pyo3",
@@ -1996,7 +2021,7 @@ version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3c2252781f8927974e8ba6a67c965a759a2b88ea2b1825f6862426bbb1c8f41"
 dependencies = [
- "geo-types",
+ "geo-types 0.7.6",
  "log",
  "num-traits",
  "thiserror",

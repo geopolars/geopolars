@@ -15,12 +15,12 @@ fn load_data() -> Result<Series> {
 
 fn bench_translate(b: &mut Bencher) {
     let series = load_data().expect("Unable to load series");
-    b.iter(|| series.translate(10.0, 10.0))
+    // b.iter(|| series.translate(10.0, 10.0))
 }
 
 fn bench_scale(b: &mut Bencher) {
     let series = load_data().expect("Unable to load series");
-    b.iter(|| series.scale(2.0, 2.0, TransformOrigin::Centroid));
+    // b.iter(|| series.scale(2.0, 2.0, TransformOrigin::Centroid));
 }
 
 fn affine_parsing_benchmark(c: &mut Criterion) {
