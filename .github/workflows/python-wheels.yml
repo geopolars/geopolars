@@ -3,8 +3,8 @@ name: Build Python Wheels
 # Only run on new tags starting with `v`
 on:
   push:
-    tags:
-      - "v*"
+    # tags:
+    #   - "v*"
 
 jobs:
   build_wheels:
@@ -74,6 +74,8 @@ jobs:
   upload_pypi:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    # Make sure we only run this on new tags/release
+    if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
     steps:
       - uses: actions/download-artifact@v2
         with:
