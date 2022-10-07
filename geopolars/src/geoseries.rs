@@ -3,6 +3,7 @@ use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
+use polars::error::ErrString;
 use polars::export::arrow::array::{
     Array, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
     MutablePrimitiveArray, PrimitiveArray,
@@ -246,7 +247,7 @@ impl GeoSeries for Series {
                 Geometry::MultiPoint(points) => Ok(points.convex_hull()),
                 Geometry::LineString(line_string) => Ok(line_string.convex_hull()),
                 Geometry::MultiLineString(multi_line_string) => Ok(multi_line_string.convex_hull()),
-                _ => Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                _ => Err(PolarsError::ComputeError(ErrString::from(
                     "ConvexHull not supported for this geometry type",
                 ))),
             }?;
@@ -299,11 +300,9 @@ impl GeoSeries for Series {
                     .iter()
                     .map(|poly| poly.exterior().euclidean_length())
                     .sum()),
-                Geometry::GeometryCollection(_) => {
-                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Length methods are not implemented for geometry collection",
-                    )))
-                }
+                Geometry::GeometryCollection(_) => Err(PolarsError::ComputeError(ErrString::from(
+                    "Length methods are not implemented for geometry collection",
+                ))),
                 Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().euclidean_length()),
                 Geometry::Triangle(triangle) => {
                     Ok(triangle.to_polygon().exterior().euclidean_length())
@@ -398,7 +397,7 @@ impl GeoSeries for Series {
 
         for geom in geoms {
             let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
-                PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                PolarsError::ComputeError(ErrString::from(
                     "Failed to convert geom vec to GeoSeries",
                 ))
             })?;
@@ -417,11 +416,8 @@ impl GeoSeries for Series {
         };
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
-        let map_vincenty_error = |_| {
-            PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                "Failed to calculate vincenty length",
-            ))
-        };
+        let map_vincenty_error =
+            |_| PolarsError::ComputeError(ErrString::from("Failed to calculate vincenty length"));
 
         for geom in iter_geom(self) {
             let length: f64 = match (&method, geom) {
@@ -492,11 +488,9 @@ impl GeoSeries for Series {
                         .collect();
                     result.map(|v| v.iter().sum()).map_err(map_vincenty_error)
                 }
-                (_, Geometry::GeometryCollection(_)) => {
-                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Length methods are not implemented for geometry collection",
-                    )))
-                }
+                (_, Geometry::GeometryCollection(_)) => Err(PolarsError::ComputeError(
+                    ErrString::from("Length methods are not implemented for geometry collection"),
+                )),
                 (GeodesicLengthMethod::Haversine, Geometry::Rect(rec)) => {
                     Ok(rec.to_polygon().exterior().haversine_length())
                 }
@@ -848,13 +842,12 @@ mod tests {
         util::iter_geom,
     };
     use polars::prelude::Series;
-    use std::sync::Arc;
 
     use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point};
     use geozero::{CoordDimensions, ToWkb};
-    use polars::export::arrow::array::{ArrayRef, BinaryArray, MutableBinaryArray};
+    use polars::export::arrow::array::{BinaryArray, MutableBinaryArray};
 
-    use super::TransformOrigin;
+    use super::{ArrayRef, TransformOrigin};
 
     #[test]
     fn convex_hull_for_multipoint() {
@@ -889,7 +882,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let convex_res = series.convex_hull();
 
         assert!(
@@ -1098,7 +1091,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series.euclidean_length().unwrap();
         let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
 
@@ -1151,7 +1144,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series
             .geodesic_length(GeodesicLengthMethod::Haversine)
             .unwrap();
@@ -1179,7 +1172,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series
             .geodesic_length(GeodesicLengthMethod::Vincenty)
             .unwrap();
@@ -1210,7 +1203,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series
             .geodesic_length(GeodesicLengthMethod::Geodesic)
             .unwrap();

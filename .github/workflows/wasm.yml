@@ -1,10 +1,13 @@
 name: Wasm Build and Test
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
+# For now we turn off the WASM testing on PRs so that we can upgrade the rest of the code to polars
+# 0.24 without needing to touch our polars fork with wasm changes.
+on: workflow_dispatch
+# on:
+#   push:
+#     branches:
+#       - master
+#   pull_request:
 
 jobs:
   test:
@@ -15,9 +18,9 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable
-            profile: minimal
-            override: true
+          toolchain: stable
+          profile: minimal
+          override: true
 
       - name: Install
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh

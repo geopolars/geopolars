@@ -1,5 +1,5 @@
 # Dependencies
-polars
+polars==0.14.18
 pyarrow>=4.0
 numpy>=1.16.0
 geopandas
@@ -12,7 +12,7 @@ hypothesis==6.54.5
 black==22.8.0
 blackdoc==0.3.6
 isort==5.10.1
-mypy==0.971
+mypy==0.981
 flake8==5.0.4
 flake8-bugbear==22.8.23
 flake8-comprehensions==3.10.0
