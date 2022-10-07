@@ -80,9 +80,8 @@ jobs:
           name: artifact
           path: dist
 
-      # TODO: uncomment to publish to pypi
-      # - uses: pypa/gh-action-pypi-publish@master
-      #   with:
-      #     user: __token__
-      #     password: ${{ secrets.PYPI_PASSWORD }}
-      #     # To test: repository_url: https://test.pypi.org/legacy/
+      - uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
+          # To test: repository_url: https://test.pypi.org/legacy/
