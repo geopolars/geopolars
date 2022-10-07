@@ -9,4 +9,4 @@ class TestReadFile:
         path = geopandas.datasets.get_path("naturalearth_cities")
         gdf = gpl.read_file(path)
         assert isinstance(gdf, gpl.GeoDataFrame)
-        assert gdf == ne_cities_gdf
+        assert gdf.frame_equal(ne_cities_gdf)

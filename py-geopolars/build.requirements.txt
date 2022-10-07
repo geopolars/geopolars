@@ -1,5 +1,5 @@
 # Dependencies
-polars
+polars==0.14.18
 pyarrow>=4.0
 numpy>=1.16.0
 geopandas

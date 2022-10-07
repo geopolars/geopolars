@@ -11,14 +11,14 @@ class TestFromGeoPandas:
         )
         gdf = gpl.from_geopandas(geopandas_gdf)
         assert isinstance(gdf, gpl.GeoDataFrame)
-        assert gdf == ne_cities_gdf
+        assert gdf.frame_equal(ne_cities_gdf)
 
     def test_geoseries_from_geopandas(self, ne_cities_gdf: gpl.GeoDataFrame):
         geopandas_gdf = geopandas.read_file(
             geopandas.datasets.get_path("naturalearth_cities")
         )
         geoseries = gpl.from_geopandas(geopandas_gdf.geometry)
-        assert geoseries == ne_cities_gdf.get_column("geometry")
+        assert geoseries.series_equal(ne_cities_gdf.get_column("geometry"))
 
 
 class TestToGeoPandas:
@@ -35,10 +35,10 @@ class TestRoundTripGeoPandas:
     def test_gdf_round_trip(self, ne_cities_gdf: gpl.GeoDataFrame):
         geopandas_gdf = ne_cities_gdf.to_geopandas()
         new_gdf = gpl.GeoDataFrame._from_geopandas(geopandas_gdf)
-        assert new_gdf == ne_cities_gdf
+        assert new_gdf.frame_equal(ne_cities_gdf)
 
     def test_geoseries_round_trip(self, ne_cities_gdf: gpl.GeoDataFrame):
         geoseries = ne_cities_gdf.geometry
         geopandas_geoseries = geoseries.to_geopandas()
         new_geoseries = gpl.GeoSeries._from_geopandas(geopandas_geoseries)
-        assert new_geoseries == geoseries
+        assert new_geoseries.series_equal(geoseries)
