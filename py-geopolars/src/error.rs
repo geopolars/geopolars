@@ -30,7 +30,7 @@ impl std::convert::From<PyGeopolarsError> for PyErr {
 
         match &err {
             PyGeopolarsError::Polars(err) => match err {
-                PolarsError::NotFound(name) => NotFoundError::new_err(name.clone()),
+                PolarsError::NotFound(name) => NotFoundError::new_err(name.to_string()),
                 PolarsError::ComputeError(err) => ComputeError::new_err(err.to_string()),
                 PolarsError::NoData(err) => NoDataError::new_err(err.to_string()),
                 PolarsError::ShapeMisMatch(err) => ShapeError::new_err(err.to_string()),

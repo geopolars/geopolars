@@ -2,10 +2,10 @@ use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use geopolars::geoseries::GeoSeries;
 use geopolars::geoseries::TransformOrigin;
 use polars::prelude::*;
-use polars::prelude::{IpcReader, Result, SerReader};
+use polars::prelude::{IpcReader, PolarsResult, SerReader};
 use std::fs::File;
 
-fn load_data() -> Result<Series> {
+fn load_data() -> PolarsResult<Series> {
     // Assuming current dir is /geopolars/
     let file = File::open("../data/cities.arrow").expect("file not found");
 
