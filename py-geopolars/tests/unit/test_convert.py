@@ -18,6 +18,7 @@ class TestFromGeoPandas:
             geopandas.datasets.get_path("naturalearth_cities")
         )
         geoseries = gpl.from_geopandas(geopandas_gdf.geometry)
+        assert isinstance(geoseries, gpl.GeoSeries)
         assert geoseries.series_equal(ne_cities_gdf.get_column("geometry"))
 
 
