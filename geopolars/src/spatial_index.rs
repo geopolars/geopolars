@@ -4,7 +4,8 @@ use geo::{
     prelude::BoundingRect, Geometry, Line, LineString, MultiLineString, MultiPoint, MultiPolygon,
     Point, Polygon,
 };
-use polars::prelude::{DataFrame, JoinType, NamedFrom, PolarsError, Result, Series};
+use polars::error::ErrString;
+use polars::prelude::{DataFrame, JoinType, NamedFrom, PolarsError, PolarsResult, Series};
 use rstar::{RTree, RTreeObject, AABB};
 
 use crate::util::{geom_at_index, iter_geom, Predicate};
@@ -35,7 +36,7 @@ pub fn spatial_join(
     lhs: &DataFrame,
     rhs: &DataFrame,
     options: SpatialJoinArgs,
-) -> Result<DataFrame> {
+) -> PolarsResult<DataFrame> {
     use geo::algorithm::{contains::Contains, intersects::Intersects};
 
     let lhs_geometry = lhs.column("geometry")?;
@@ -46,7 +47,7 @@ pub fn spatial_join(
         let spatial_index_left: SpatialIndex = lhs_geometry
             .try_into()
             .map_err(|_| {
-                PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                PolarsError::ComputeError(ErrString::from(
                     "Failed to generate the spatial index for the left dataframe",
                 ))
             })
@@ -59,7 +60,7 @@ pub fn spatial_join(
         let spatial_index_right: SpatialIndex = rhs_geometry
             .try_into()
             .map_err(|_| {
-                PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                PolarsError::ComputeError(ErrString::from(
                     "Failed to generate the spatial index for the left dataframe",
                 ))
             })
@@ -190,7 +191,7 @@ pub fn spatial_join(
             let result = join_two.drop("lhs_index")?.drop("rhs_join")?;
             Ok(result)
         }
-        _ => Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+        _ => Err(PolarsError::ComputeError(ErrString::from(
             "Failed to generate the spatial index for the left dataframe",
         ))),
     }
@@ -287,7 +288,7 @@ impl RTreeObject for TreeNode {
 
 impl TryFrom<Geometry<f64>> for NodeEnvelope {
     type Error = PolarsError;
-    fn try_from(geom: Geometry<f64>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(geom: Geometry<f64>) -> Result<Self, Self::Error> {
         match geom {
             Geometry::Polygon(poly) => Ok(poly.into()),
             Geometry::MultiPolygon(multi_poly) => Ok(multi_poly.into()),
@@ -297,7 +298,7 @@ impl TryFrom<Geometry<f64>> for NodeEnvelope {
             Geometry::LineString(line_string) => Ok(line_string.into()),
             Geometry::MultiLineString(multi_line_string) => Ok(multi_line_string.into()),
 
-            _ => Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+            _ => Err(PolarsError::ComputeError(ErrString::from(
                 "Geometry type not currently supported for indexing",
             ))),
         }
@@ -313,7 +314,7 @@ impl SpatialIndex {}
 impl<'a> TryFrom<&'a Series> for SpatialIndex {
     type Error = PolarsError;
 
-    fn try_from(series: &'a Series) -> std::result::Result<Self, Self::Error> {
+    fn try_from(series: &'a Series) -> Result<Self, Self::Error> {
         let mut r_tree: RTree<TreeNode> = RTree::new();
         for (index, geom) in iter_geom(series).enumerate() {
             let node = TreeNode {

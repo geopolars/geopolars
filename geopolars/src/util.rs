@@ -2,7 +2,7 @@ use geo::Geometry;
 use geozero::{wkb::Wkb, ToGeo};
 use polars::{
     datatypes::AnyValue,
-    prelude::{PolarsError, Result, Series},
+    prelude::{PolarsError, PolarsResult, Series},
 };
 
 /// Helper function to iterate over geometries from polars Series
@@ -18,7 +18,7 @@ pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> 
 }
 
 /// Access to a geometry at a specified index
-pub(crate) fn geom_at_index(series: &Series, index: usize) -> Result<Geometry<f64>> {
+pub(crate) fn geom_at_index(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
     let item_at_index = match series.get(index) {
         AnyValue::List(buf) => buf,
         _ => return Err(PolarsError::SchemaMisMatch("".into())),
