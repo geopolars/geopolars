@@ -1,6 +1,6 @@
 [package]
 name = "py-geopolars"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 edition = "2021"
 # Specify SPDX expression here instead of in pyproject.toml
 # https://maturin.rs/metadata.html#add-spdx-license-expressions
