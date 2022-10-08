@@ -74,15 +74,16 @@ jobs:
   upload_pypi:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    # Make sure we only run this on new tags/release
+    if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
     steps:
       - uses: actions/download-artifact@v2
         with:
           name: artifact
           path: dist
 
-      # TODO: uncomment to publish to pypi
-      # - uses: pypa/gh-action-pypi-publish@master
-      #   with:
-      #     user: __token__
-      #     password: ${{ secrets.PYPI_PASSWORD }}
-      #     # To test: repository_url: https://test.pypi.org/legacy/
+      - uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
+          # To test: repository_url: https://test.pypi.org/legacy/
