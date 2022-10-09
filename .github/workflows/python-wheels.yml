@@ -11,13 +11,14 @@ env:
 
 jobs:
   build_wheels:
-    name: Build wheel on ${{ matrix.os }}
+    name: Build ${{ matrix.arch }} wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        # os: [ubuntu-latest, windows-latest, macos-latest]
-        os: [ubuntu-latest]
+        include:
+        - os: ubuntu-20.04
+          arch: x86_64
 
     steps:
       - uses: actions/checkout@v2
@@ -28,7 +29,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.3.0
         env:
           CIBW_SKIP: "cp2* cp35* cp36* pp* *win32 *i686 *musllinux*"
-          CIBW_ARCHS_MACOS: x86_64 arm64
+          CIBW_ARCHS: ${{ matrix.arch }}
+          # CIBW_ARCHS_MACOS: x86_64 arm64
           # CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
           CIBW_ENVIRONMENT_LINUX:
             PATH="$PATH:$HOME/.cargo/bin"
