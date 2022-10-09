@@ -35,7 +35,7 @@ jobs:
             PROJ_WHEEL=true
             PROJ_NETWORK=ON
             PROJ_VERSION=${{ env.PROJ_VERSION }}
-            PROJ_DIR=/project/pyproj/proj_dir
+            # PROJ_DIR=/project/pyproj/proj_dir
           # CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
           CIBW_BEFORE_ALL_LINUX: curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y && bash ./ci/proj-compile-wheels.sh
           CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin"
