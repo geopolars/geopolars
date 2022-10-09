@@ -35,6 +35,13 @@ jobs:
             PROJ_WHEEL=true
             PROJ_NETWORK=ON
             PROJ_VERSION=${{ env.PROJ_VERSION }}
+            # Env vars should be set in proj CI script, but might not be getting propagated to
+            # cibuildwheel
+            CPPFLAGS="-I/usr/local/include $CPPFLAGS"
+            LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"
+            PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/:$PKG_CONFIG_PATH"
+            # Add binary path for configure utils etc
+            # export PATH="/usr/local/bin:$PATH"
             # PROJ_DIR=/project/pyproj/proj_dir
           # CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
           CIBW_BEFORE_ALL_LINUX: curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y && bash ./ci/proj-compile-wheels.sh
