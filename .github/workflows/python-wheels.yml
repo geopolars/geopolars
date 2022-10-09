@@ -36,8 +36,8 @@ jobs:
             PROJ_NETWORK=ON
             PROJ_VERSION=${{ env.PROJ_VERSION }}
             PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/:$PKG_CONFIG_PATH"
-            # CPPFLAGS="-I/usr/local/include $CPPFLAGS"
-            # LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"
+            CPPFLAGS="-I/usr/local/include $CPPFLAGS"
+            LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"
             # Add binary path for configure utils etc
             # export PATH="/usr/local/bin:$PATH"
             # PROJ_DIR=/project/pyproj/proj_dir
