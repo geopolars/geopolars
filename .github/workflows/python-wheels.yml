@@ -6,6 +6,9 @@ on:
     # tags:
     #   - "v*"
 
+env:
+  PROJ_VERSION: "9.1.0"
+
 jobs:
   build_wheels:
     name: Build wheel on ${{ matrix.os }}
@@ -13,10 +16,13 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.3.0
@@ -24,7 +30,13 @@ jobs:
           CIBW_SKIP: "cp2* cp35* cp36* pp* *win32 *i686 *musllinux*"
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
+          CIBW_ENVIRONMENT_LINUX:
+            PROJ_WHEEL=true
+            PROJ_NETWORK=ON
+            PROJ_VERSION=${{ env.PROJ_VERSION }}
+            PROJ_DIR=/project/pyproj/proj_dir
           CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
+          CIBW_BEFORE_ALL_LINUX: bash ./ci/proj-compile-wheels.sh
           CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin"
         with:
           package-dir: py-geopolars
