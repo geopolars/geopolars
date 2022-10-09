@@ -37,10 +37,10 @@ jobs:
             PROJ_WHEEL=true
             PROJ_NETWORK=ON
             PROJ_VERSION=${{ env.PROJ_VERSION }}
-            PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/:$PKG_CONFIG_PATH"
-            CPPFLAGS="-I/usr/local/include $CPPFLAGS"
-            LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"
+            PKG_CONFIG_PATH="/project/pyproj/proj_dir/lib/pkgconfig/:$PKG_CONFIG_PATH"
             PROJ_DIR=/project/pyproj/proj_dir
+            # CPPFLAGS="-I/usr/local/include $CPPFLAGS"
+            # LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"
             # Add binary path for configure utils etc
             # export PATH="/usr/local/bin:$PATH"
           # CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
