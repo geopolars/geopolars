@@ -402,10 +402,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "geo-types"
-version = "0.7.6"
+name = "geo"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9805fbfcea97de816e6408e938603241879cc41eea3fba3f84f122f4f6f9c54"
+checksum = "b684179d4c034f9e6718692601a7ec77e4a3b654dbc09b5e4fd342f0e48f2ba1"
+dependencies = [
+ "float_next_after",
+ "geo-types",
+ "geographiclib-rs",
+ "log",
+ "num-traits",
+ "robust",
+ "rstar",
+]
+
+[[package]]
+name = "geo-types"
+version = "0.7.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8d77ceb80f375dc4cda113a3ae1b06a36ef623f8f035c03752ca6698f4ddfee"
 dependencies = [
  "approx",
  "num-traits",
@@ -437,7 +452,7 @@ dependencies = [
 name = "geopolars"
 version = "0.1.0-alpha.2"
 dependencies = [
- "geo",
+ "geo 0.23.0",
  "geozero",
  "polars",
  "rstar",
@@ -1129,7 +1144,7 @@ dependencies = [
 name = "py-geopolars"
 version = "0.1.0-alpha.2"
 dependencies = [
- "geo",
+ "geo 0.22.0",
  "geopolars",
  "polars",
  "pyo3",
