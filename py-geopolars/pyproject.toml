@@ -1,35 +1,49 @@
 [build-system]
-requires = ["maturin>=0.12,<0.13"]
+requires = ["maturin>=0.13,<0.14"]
 build-backend = "maturin"
 
 [project]
 name = "geopolars"
-version = "0.1.0"
+version = "0.1.0-alpha.2"
 dependencies = [
   "polars",
-  "numpy >= 1.16.0",
-  "typing_extensions >= 4.0.0; python_version < '3.10'",
+  "pyarrow>=4.0.*",
+  "numpy >= 1.16.0"
 ]
 requires-python = ">=3.7"
+description = "Geospatial extensions for Polars"
+readme = "README.md"
+# Specify SPDX expression in Cargo.toml instead of here
+# https://maturin.rs/metadata.html#add-spdx-license-expressions
+# license = "MIT"
+authors = [
+  { name = "Kyle Barron" },
+  { name = "Stuart Lynn" }
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Topic :: Scientific/Engineering :: GIS",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Rust",
+  "Programming Language :: Python",
+]
 
-[project.optional-dependencies]
-# the Arrow memory format is stable between 4.0 and 5.0-SNAPSHOTS
-# (which the Rust libraries use to take advantage of Rust API changes).
-pyarrow = ["pyarrow>=4.0.*"]
-pandas = ["pyarrow>=4.0.*", "pandas"]
+[project.urls]
+repository = "https://github.com/geopolars/geopolars"
 
 [tool.isort]
 profile = "black"
+known_first_party = ["geopolars"]
 
-# [tool.mypy]
-# disallow_untyped_defs = true
-# warn_unused_ignores = true
-# show_error_codes = true
-# files = ["polars", "tests"]
+[tool.mypy]
+check_untyped_defs = true
+files = ["python/**/*.py", "tests/**/*.py"]
+warn_unused_ignores = true
+show_error_codes = true
 
-# [[tool.mypy.overrides]]
-# module = ["pyarrow.*", "polars.polars", "matplotlib.*", "fsspec.*", "connectorx", "IPython.*"]
-# ignore_missing_imports = true
+[[tool.mypy.overrides]]
+module = ["pyarrow.*", "geopandas.*"]
+ignore_missing_imports = true
 
 # [tool.coverage.report]
 # exclude_lines = ["pragma: no cover", "@overload"]

@@ -1,16 +1,20 @@
 use std::sync::Arc;
 
 use crate::broadcasting::BroadcastableParameter;
+use crate::error::{inner_type_name, GeopolarsError, Result};
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
+use polars::error::ErrString;
 use polars::export::arrow::array::{
-    ArrayRef, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
+    Array, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
     MutablePrimitiveArray, PrimitiveArray,
 };
-use polars::prelude::{PolarsError, Result, Series};
+use polars::prelude::{PolarsError, Series};
 use std::convert::Into;
+
+pub type ArrayRef = Box<dyn Array>;
 
 pub enum GeodesicLengthMethod {
     Haversine,
@@ -70,6 +74,9 @@ pub trait GeoSeries {
     /// Applies to GeoSeries containing only Polygons. Returns `None` for other geometry types.
     fn exterior(&self) -> Result<Series>;
 
+    /// Explodes multi-part geometries into multiple single geometries.
+    fn explode(&self) -> Result<Series>;
+
     /// Create a Series from a vector of geometries
     fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series>;
 
@@ -83,7 +90,7 @@ pub trait GeoSeries {
 
     /// Returns the type ids of each geometry
     /// This mimics the pygeos implementation
-    /// https://pygeos.readthedocs.io/en/latest/geometry.html?highlight=id#pygeos.geometry.get_type_id
+    /// <https://pygeos.readthedocs.io/en/latest/geometry.html?highlight=id#pygeos.geometry.get_type_id>
     ///
     /// None (missing) is -1
     /// POINT is 0
@@ -140,7 +147,7 @@ pub trait GeoSeries {
     /// connects these parts’ endpoints by a straight line. Then, it removes all points whose
     /// distance to the straight line is smaller than tolerance. It does not move any points and it
     /// always preserves endpoints of the original line or polygon. See
-    /// https://docs.rs/geo/latest/geo/algorithm/simplify/trait.Simplify.html for details
+    /// <https://docs.rs/geo/latest/geo/algorithm/simplify/trait.Simplify.html> for details
     fn simplify(&self, tolerance: f64) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries skewed by a fixed x and y amount around a
@@ -165,6 +172,18 @@ pub trait GeoSeries {
     /// yoff = -origin.x * tan(ys)
     /// ```
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series>;
+
+    /// Returns a Series containing the distance to aligned other. Distance is cartesian distance in 2D space, and the units of the output are in terms of the CRS of the two input series. The operation works on a 1-to-1 row-wise manner.
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The Geoseries (elementwise) to find the distance to.
+    fn distance(&self, other: &Series) -> Result<Series>;
+
+    // Note: Ideally we wouldn't have both `from` and `to` here, where the series would include the
+    // current CRS, but that would require polars to support extension types.
+    #[cfg(feature = "proj")]
+    fn to_crs(&self, from: &str, to: &str) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries translated by a fixed x and y amount
     ///
@@ -220,7 +239,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn convex_hull(&self) -> Result<Series> {
@@ -234,7 +254,7 @@ impl GeoSeries for Series {
                 Geometry::MultiPoint(points) => Ok(points.convex_hull()),
                 Geometry::LineString(line_string) => Ok(line_string.convex_hull()),
                 Geometry::MultiLineString(multi_line_string) => Ok(multi_line_string.convex_hull()),
-                _ => Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                _ => Err(PolarsError::ComputeError(ErrString::from(
                     "ConvexHull not supported for this geometry type",
                 ))),
             }?;
@@ -245,7 +265,8 @@ impl GeoSeries for Series {
         }
 
         let result: BinaryArray<i32> = output_array.into();
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn envelope(&self) -> Result<Series> {
@@ -264,7 +285,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn euclidean_length(&self) -> Result<Series> {
@@ -285,11 +307,9 @@ impl GeoSeries for Series {
                     .iter()
                     .map(|poly| poly.exterior().euclidean_length())
                     .sum()),
-                Geometry::GeometryCollection(_) => {
-                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Length methods are not implemented for geometry collection",
-                    )))
-                }
+                Geometry::GeometryCollection(_) => Err(PolarsError::ComputeError(ErrString::from(
+                    "Length methods are not implemented for geometry collection",
+                ))),
                 Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().euclidean_length()),
                 Geometry::Triangle(triangle) => {
                     Ok(triangle.to_polygon().exterior().euclidean_length())
@@ -299,7 +319,64 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+        Ok(series)
+    }
+
+    fn explode(&self) -> Result<Series> {
+        let mut exploded_vector = Vec::new();
+
+        for geometry in iter_geom(self) {
+            match geometry {
+                Geometry::Point(geometry) => {
+                    let point = Geometry::Point(geometry);
+                    exploded_vector.push(point)
+                }
+                Geometry::MultiPoint(geometry) => {
+                    for geom in geometry.into_iter() {
+                        let point = Geometry::Point(geom);
+                        exploded_vector.push(point)
+                    }
+                }
+                Geometry::Line(geometry) => {
+                    let line = Geometry::Line(geometry);
+                    exploded_vector.push(line)
+                }
+                Geometry::LineString(geometry) => {
+                    let line_string = Geometry::LineString(geometry);
+                    exploded_vector.push(line_string)
+                }
+                Geometry::MultiLineString(geometry) => {
+                    for geom in geometry.into_iter() {
+                        let line_string = Geometry::LineString(geom);
+                        exploded_vector.push(line_string)
+                    }
+                }
+                Geometry::Polygon(geometry) => {
+                    let polygon = Geometry::Polygon(geometry);
+                    exploded_vector.push(polygon)
+                }
+                Geometry::MultiPolygon(geometry) => {
+                    for geom in geometry.into_iter() {
+                        let polygon = Geometry::Polygon(geom);
+                        exploded_vector.push(polygon)
+                    }
+                }
+                Geometry::Rect(geometry) => {
+                    let rectangle = Geometry::Rect(geometry);
+                    exploded_vector.push(rectangle)
+                }
+                Geometry::Triangle(geometry) => {
+                    let triangle = Geometry::Triangle(geometry);
+                    exploded_vector.push(triangle)
+                }
+                _ => unimplemented!(),
+            };
+        }
+
+        let exploded_series = Series::from_geom_vec(&exploded_vector)?;
+
+        Ok(exploded_series)
     }
 
     fn exterior(&self) -> Result<Series> {
@@ -318,7 +395,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Self> {
@@ -326,7 +404,7 @@ impl GeoSeries for Series {
 
         for geom in geoms {
             let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
-                PolarsError::ComputeError(std::borrow::Cow::Borrowed(
+                PolarsError::ComputeError(ErrString::from(
                     "Failed to convert geom vec to GeoSeries",
                 ))
             })?;
@@ -334,7 +412,7 @@ impl GeoSeries for Series {
         }
         let array: BinaryArray<i32> = wkb_array.into();
 
-        let series = Series::try_from(("geometry", Arc::new(array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(array) as ArrayRef))?;
         Ok(series)
     }
 
@@ -345,11 +423,8 @@ impl GeoSeries for Series {
         };
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
-        let map_vincenty_error = |_| {
-            PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                "Failed to calculate vincenty length",
-            ))
-        };
+        let map_vincenty_error =
+            |_| PolarsError::ComputeError(ErrString::from("Failed to calculate vincenty length"));
 
         for geom in iter_geom(self) {
             let length: f64 = match (&method, geom) {
@@ -420,11 +495,9 @@ impl GeoSeries for Series {
                         .collect();
                     result.map(|v| v.iter().sum()).map_err(map_vincenty_error)
                 }
-                (_, Geometry::GeometryCollection(_)) => {
-                    Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Length methods are not implemented for geometry collection",
-                    )))
-                }
+                (_, Geometry::GeometryCollection(_)) => Err(PolarsError::ComputeError(
+                    ErrString::from("Length methods are not implemented for geometry collection"),
+                )),
                 (GeodesicLengthMethod::Haversine, Geometry::Rect(rec)) => {
                     Ok(rec.to_polygon().exterior().haversine_length())
                 }
@@ -452,7 +525,8 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn geom_type(&self) -> Result<Series> {
@@ -476,7 +550,8 @@ impl GeoSeries for Series {
         }
 
         let result: PrimitiveArray<i8> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn is_empty(&self) -> Result<Series> {
@@ -489,7 +564,8 @@ impl GeoSeries for Series {
         }
 
         let result: BooleanArray = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn is_ring(&self) -> Result<Series> {
@@ -505,7 +581,8 @@ impl GeoSeries for Series {
         }
 
         let result: BooleanArray = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn rotate<'a>(
@@ -601,7 +678,8 @@ impl GeoSeries for Series {
 
         let result: BinaryArray<i32> = output_array.into();
 
-        Series::try_from(("geometry", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series> {
@@ -635,6 +713,93 @@ impl GeoSeries for Series {
         }
     }
 
+    fn distance(&self, other: &Series) -> Result<Series> {
+        use geo::algorithm::EuclideanDistance;
+
+        let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(self.len());
+
+        for (g1, g2) in iter_geom(self).zip(iter_geom(other)) {
+            let distance = match (g1, g2) {
+                (Geometry::Point(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::MultiPoint(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::LineString(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::MultiLineString(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+                (Geometry::Point(p1), Geometry::Polygon(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Point(p1), Geometry::MultiPolygon(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+                (Geometry::MultiPoint(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+
+                (Geometry::Line(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::LineString(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::Polygon(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Line(p1), Geometry::MultiPolygon(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+
+                (Geometry::LineString(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::LineString(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::LineString(p1), Geometry::LineString(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+                (Geometry::LineString(p1), Geometry::Polygon(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+
+                (Geometry::MultiLineString(p1), Geometry::Point(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+
+                (Geometry::Polygon(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Polygon(p1), Geometry::Line(p2)) => Some(p1.euclidean_distance(&p2)),
+                (Geometry::Polygon(p1), Geometry::LineString(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+                (Geometry::Polygon(p1), Geometry::Polygon(p2)) => Some(p1.euclidean_distance(&p2)),
+
+                (Geometry::MultiPolygon(p1), Geometry::Point(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+                (Geometry::MultiPolygon(p1), Geometry::Line(p2)) => {
+                    Some(p1.euclidean_distance(&p2))
+                }
+
+                (Geometry::Triangle(p1), Geometry::Point(p2)) => Some(p1.euclidean_distance(&p2)),
+                _ => None,
+            };
+            output_array.push(distance);
+        }
+
+        let result: PrimitiveArray<f64> = output_array.into();
+        let series = Series::try_from(("distance", Box::new(result) as ArrayRef))?;
+        Ok(series)
+    }
+
+    #[cfg(feature = "proj")]
+    fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
+        use proj::{Proj, Transform};
+
+        let proj = Proj::new_known_crs(from, to, None)?;
+        // Specify literal Result<> to propagate error from within closure
+        // https://stackoverflow.com/a/26370894
+        let output_vec: Result<Vec<Geometry>> = iter_geom(self)
+            .map(|mut geom| {
+                // geom.tranform modifies `geom` in place.
+                // Note that this doesn't modify the _original series_ because iter_geom makes a
+                // copy
+                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
+                geom.transform(&proj)?;
+                Ok(geom)
+            })
+            .collect();
+
+        Series::from_geom_vec(&output_vec?)
+    }
+
     fn translate(&self, x: f64, y: f64) -> Result<Series> {
         let transform = AffineTransform::translate(x, y);
         self.affine_transform(transform)
@@ -644,38 +809,42 @@ impl GeoSeries for Series {
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
         for geom in iter_geom(self) {
-            let point: Point<f64> = match geom.try_into() {
-                Ok(point) => point,
-                Err(_) => {
-                    return Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Not a point geometry",
-                    )))
+            let point: Point<f64> = match geom {
+                Geometry::Point(point) => point,
+                geom => {
+                    return Err(GeopolarsError::MismatchedGeometry {
+                        expected: "Point",
+                        found: inner_type_name(&geom),
+                    })
                 }
             };
             result.push(Some(point.x()));
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 
     fn y(&self) -> Result<Series> {
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
         for geom in iter_geom(self) {
-            let point: Point<f64> = match geom.try_into() {
-                Ok(point) => point,
-                Err(_) => {
-                    return Err(PolarsError::ComputeError(std::borrow::Cow::Borrowed(
-                        "Not a point geometry",
-                    )))
+            let point: Point<f64> = match geom {
+                Geometry::Point(point) => point,
+                geom => {
+                    return Err(GeopolarsError::MismatchedGeometry {
+                        expected: "Point",
+                        found: inner_type_name(&geom),
+                    })
                 }
             };
             result.push(Some(point.y()));
         }
 
         let result: PrimitiveArray<f64> = result.into();
-        Series::try_from(("result", Arc::new(result) as ArrayRef))
+        let series = Series::try_from(("result", Box::new(result) as ArrayRef))?;
+        Ok(series)
     }
 }
 
@@ -690,9 +859,9 @@ mod tests {
 
     use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point};
     use geozero::{CoordDimensions, ToWkb};
-    use polars::export::arrow::array::{ArrayRef, BinaryArray, MutableBinaryArray};
+    use polars::export::arrow::array::{BinaryArray, MutableBinaryArray};
 
-    use super::TransformOrigin;
+    use super::{ArrayRef, TransformOrigin};
 
     #[test]
     fn convex_hull_for_multipoint() {
@@ -727,7 +896,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let convex_res = series.convex_hull();
 
         assert!(
@@ -785,6 +954,72 @@ mod tests {
     }
 
     #[test]
+    fn distance() {
+        let geo_series = Series::from_geom_vec(&[
+            Geometry::Point(Point::new(0.0, 0.0)),
+            Geometry::Point(Point::new(0.0, 0.0)),
+            Geometry::Point(Point::new(1.0, 1.0)),
+            Geometry::LineString(LineString::<f64>::from(vec![(0.0, 0.0), (0.0, 4.0)])),
+        ])
+        .unwrap();
+
+        let other_geo_series = Series::from_geom_vec(&[
+            Geometry::Point(Point::new(0.0, 1.0)),
+            Geometry::Point(Point::new(1.0, 1.0)),
+            Geometry::Point(Point::new(4.0, 5.0)),
+            Geometry::Point(Point::new(2.0, 2.0)),
+        ])
+        .unwrap();
+        let results = vec![1.0_f64, 2.0_f64.sqrt(), 5.0_f64, 2.0_f64];
+
+        let distance_series = geo_series.distance(&other_geo_series);
+        assert!(distance_series.is_ok(), "To get a series back");
+
+        let distance_series = distance_series.unwrap();
+        let distance_vec: Vec<f64> = distance_series.f64().unwrap().into_no_null_iter().collect();
+
+        for (d1, d2) in distance_vec.iter().zip(results.iter()) {
+            assert_eq!(d1, d2, "Distances differ, should be the same");
+        }
+    }
+
+    #[test]
+    fn rotate() {
+        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
+        (x: 0.0,y:0.0),
+        (x: 0.0,y:1.0),
+        (x: 1.0,y: 1.0),
+        (x: 1.0,y: 0.0)
+        ))])
+        .unwrap();
+
+        let result: Geometry<f64> = polygon!(
+        (x:0.0,y:0.0),
+        (x:-1.0,y:0.0),
+        (x:-1.0, y:1.0),
+        (x:0.0, y:1.0)
+        )
+        .into();
+
+        let rotated_series = geo_series.rotate(90.0, TransformOrigin::Point(Point::new(0.0, 0.0)));
+        assert!(rotated_series.is_ok(), "To get a series back");
+
+        let geom = iter_geom(&rotated_series.unwrap()).next().unwrap();
+
+        for (p1, p2) in geom.coords_iter().zip(result.coords_iter()) {
+            assert!(
+                (p1.x - p2.x).abs() < 0.00000001,
+                "The geometries x coords to be correct to within some tolerance"
+            );
+            assert!(
+                (p1.y - p2.y).abs() < 0.00000001,
+                "The geometries y coords to be correct to within some tolerance"
+            );
+        }
+    }
+
+
+    #[test]
     fn rotate_with_series() {
         let geo_series = Series::from_geom_vec(&[
             Geometry::Polygon(polygon!(
@@ -838,41 +1073,6 @@ mod tests {
                     "The geometries y coords to be correct to within some tolerance"
                 );
             }
-        }
-    }
-
-    #[test]
-    fn rotate() {
-        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
-        (x: 0.0,y:0.0),
-        (x: 0.0,y:1.0),
-        (x: 1.0,y: 1.0),
-        (x: 1.0,y: 0.0)
-        ))])
-        .unwrap();
-
-        let result: Geometry<f64> = polygon!(
-        (x:0.0,y:0.0),
-        (x:-1.0,y:0.0),
-        (x:-1.0, y:1.0),
-        (x:0.0, y:1.0)
-        )
-        .into();
-
-        let rotated_series = geo_series.rotate(90.0, TransformOrigin::Point(Point::new(0.0, 0.0)));
-        assert!(rotated_series.is_ok(), "To get a series back");
-
-        let geom = iter_geom(&rotated_series.unwrap()).next().unwrap();
-
-        for (p1, p2) in geom.coords_iter().zip(result.coords_iter()) {
-            assert!(
-                (p1.x - p2.x).abs() < 0.00000001,
-                "The geometries x coords to be correct to within some tolerance"
-            );
-            assert!(
-                (p1.y - p2.y).abs() < 0.00000001,
-                "The geometries y coords to be correct to within some tolerance"
-            );
         }
     }
 
@@ -964,11 +1164,41 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series.euclidean_length().unwrap();
         let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
 
         assert_eq!(10.0_f64, as_vec[0]);
+    }
+    #[test]
+    fn explode() {
+        let point_0 = Point::new(0., 0.);
+        let point_1 = Point::new(1., 1.);
+        let point_2 = Point::new(2., 2.);
+        let point_3 = Point::new(3., 3.);
+        let point_4 = Point::new(4., 4.);
+
+        let expected_series = Series::from_geom_vec(&[
+            Geometry::Point(point_0),
+            Geometry::Point(point_1),
+            Geometry::Point(point_2),
+            Geometry::Point(point_3),
+            Geometry::Point(point_4),
+        ])
+        .unwrap();
+
+        let multipoint_0 = MultiPoint::new(vec![point_0, point_1]);
+        let multipoint_1 = MultiPoint::new(vec![point_2, point_3, point_4]);
+
+        let input_series = Series::from_geom_vec(&[
+            Geometry::MultiPoint(multipoint_0),
+            Geometry::MultiPoint(multipoint_1),
+        ])
+        .unwrap();
+
+        let output_series = GeoSeries::explode(&input_series).unwrap();
+
+        assert_eq!(output_series, expected_series);
     }
     #[test]
     fn haversine_length() {
@@ -987,7 +1217,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series
             .geodesic_length(GeodesicLengthMethod::Haversine)
             .unwrap();
@@ -1015,7 +1245,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series
             .geodesic_length(GeodesicLengthMethod::Vincenty)
             .unwrap();
@@ -1046,7 +1276,7 @@ mod tests {
 
         let test_array: BinaryArray<i32> = test_data.into();
 
-        let series = Series::try_from(("geometry", Arc::new(test_array) as ArrayRef)).unwrap();
+        let series = Series::try_from(("geometry", Box::new(test_array) as ArrayRef)).unwrap();
         let lengths = series
             .geodesic_length(GeodesicLengthMethod::Geodesic)
             .unwrap();
