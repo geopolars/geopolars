@@ -1,6 +1,13 @@
 use crate::geoseries;
 use pyo3::prelude::*;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+#[pyfunction]
+fn version() -> &'static str {
+    VERSION
+}
+
 #[pymodule]
 pub fn geopolars(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(geoseries::affine_transform))?;
@@ -22,5 +29,7 @@ pub fn geopolars(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(geoseries::translate))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::x))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::y))?;
+
+    m.add_wrapped(wrap_pyfunction!(version))?;
     Ok(())
 }

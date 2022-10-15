@@ -23,6 +23,13 @@ project = "GeoPolars"
 author = "Kyle Barron"
 copyright = f"{date.today().year}, {author}"
 
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
+import geopolars  # noqa (E402 module level import not at top of file)
+
+version = geopolars.__version__
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
