@@ -17,7 +17,7 @@ except ImportError:
 
 
 class GeoSeries(pl.Series):
-    """Extension of polars Series to handle geospatial vector data"""
+    """Extension of :class:`polars.Series` to handle geospatial vector data."""
 
     def __init__(self, *args, **kwargs):
         if isinstance(args[0], pl.Series):
@@ -41,6 +41,16 @@ class GeoSeries(pl.Series):
         return cls(polars_series)
 
     def to_geopandas(self) -> geopandas.GeoSeries:
+        """Converts this ``GeoSeries`` to a :class:`geopandas.GeoSeries`.
+
+        This operation clones data. This requires that :mod:`geopandas` and
+        :mod:`pyarrow` are installed.
+
+        Returns
+        -------
+
+        :class:`geopandas.GeoSeries`
+        """
         if geopandas is None:
             raise ImportError("Geopandas is required when using to_geopandas().")
 
@@ -56,13 +66,16 @@ class GeoSeries(pl.Series):
         )
 
     def affine_transform(self, matrix) -> GeoSeries:
-        """Return a ``GeoSeries`` with translated geometries
+        """Returns a ``GeoSeries`` with translated geometries.
+
+        See http://shapely.readthedocs.io/en/stable/manual.html#shapely.affinity.affine_transform
+        or https://docs.rs/geo/latest/geo/algorithm/affine_ops/trait.AffineOps.html for details.
 
         Parameters
         ----------
         matrix: List or tuple
             The 6 parameter matrix is ``[a, b, d, e, xoff, yoff]``
-        """
+        """  # noqa (E501 link is longer than max line length)
         # TODO: check if transform is an instance of Affine? Or add a test?
         # Since Affine is a namedtuple, will it *just work*?
         return core.affine_transform(self, matrix)
@@ -72,6 +85,11 @@ class GeoSeries(pl.Series):
         """Returns a ``Series`` containing the area of each geometry in the
         ``GeoSeries`` expressed in the units of the CRS.
 
+        See also
+        --------
+        GeoSeries.euclidean_length : measure euclidean length
+        GeoSeries.geodesic_length : measure geodesic length
+
         Notes
         -----
         Area may be invalid for a geographic CRS using degrees as units;
@@ -80,17 +98,47 @@ class GeoSeries(pl.Series):
         """
         return core.area(self)
 
+    @property
     def centroid(self) -> GeoSeries:
+        """Returns a ``GeoSeries`` of points representing the centroid of each
+        geometry.
+
+        Note that centroid does not have to be on or within original geometry.
+        """
         return core.centroid(self)
 
     def convex_hull(self) -> GeoSeries:
+        """Returns a ``GeoSeries`` of geometries representing the convex hull
+        of each geometry.
+
+        The convex hull of a geometry is the smallest convex `Polygon`
+        containing all the points in each geometry, unless the number of points
+        in the geometric object is less than three. For two points, the convex
+        hull collapses to a `LineString`; for 1, a `Point`.
+
+        See also
+        --------
+        GeoSeries.envelope : bounding rectangle geometry
+
+        """
         return core.convex_hull(self)
 
     def envelope(self) -> GeoSeries:
+        """Returns a ``GeoSeries`` of geometries representing the envelope of
+        each geometry.
+
+        The envelope of a geometry is the bounding rectangle. That is, the
+        point or smallest rectangular polygon (with sides parallel to the
+        coordinate axes) that contains the geometry.
+
+        See also
+        --------
+        GeoSeries.convex_hull : convex hull geometry
+        """
         return core.envelope(self)
 
     def euclidean_length(self) -> pl.Series:
-        """Returns a ``Series`` containing the length of each geometry
+        """Returns a ``Series`` containing the euclidean length of each geometry
         expressed in the units of the CRS.
 
         See also
@@ -106,9 +154,43 @@ class GeoSeries(pl.Series):
         return core.euclidean_length(self)
 
     def exterior(self) -> GeoSeries:
+        """Returns a ``GeoSeries`` of LinearRings representing the outer
+        boundary of each polygon in the GeoSeries.
+        """
         return core.exterior(self)
 
     def geodesic_length(self, method: GeodesicMethod = "geodesic") -> pl.Series:
+        """Returns a ``Series`` containing the geodesic length of each geometry
+        expressed in meters.
+
+        Parameters
+        ----------
+        method : str
+            Method for calculating length: one of ``'geodesic'``, ``'haversine'``, or
+            ``'vincenty'``.
+
+            ``'geodesic'`` uses the geodesic measurement methods given by
+            `Karney (2013)`_. As opposed to older methods like Vincenty, this method is
+            accurate to a few nanometers and always converges. ``'vincenty'`` uses
+            `Vincenty's formulae`_. ``'haversine'`` uses the `haversine formula`_.
+
+            .. _Karney (2013): https://arxiv.org/pdf/1109.4448.pdf
+            .. _Vincenty's formulae: https://en.wikipedia.org/wiki/Vincenty%27s_formulae
+            .. _haversine formula: https://en.wikipedia.org/wiki/Haversine_formula
+
+        See also
+        --------
+        GeoSeries.area : measure area of a polygon
+
+        Notes
+        -----
+        This method is only meaningful for input data as longitude/latitude coordinates
+        on the WGS84 ellipsoid (i.e. EPSG:4326).
+
+        Length may be invalid for a geographic CRS using degrees as units;
+        use :meth:`GeoSeries.to_crs` to project geometries to a planar
+        CRS before using this function.
+        """
         return core.geodesic_length(self, method)
 
     @property
@@ -134,6 +216,10 @@ class GeoSeries(pl.Series):
     def rotate(self, angle: float, origin: TransformOrigin = "center") -> GeoSeries:
         """Returns a ``GeoSeries`` with rotated geometries.
 
+        See http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.rotate
+        or https://docs.rs/geo/latest/geo/algorithm/rotate/trait.Rotate.html
+        for details.
+
         Parameters
         ----------
         angle : float
@@ -154,6 +240,10 @@ class GeoSeries(pl.Series):
         The geometries can be scaled by different factors along each
         dimension. Negative scale factors will mirror or reflect coordinates.
 
+        See http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.scale
+        or https://docs.rs/geo/latest/geo/algorithm/scale/trait.Scale.html
+        for details.
+
         Parameters
         ----------
         xfact, yfact : float, float
@@ -172,6 +262,10 @@ class GeoSeries(pl.Series):
         """Returns a ``GeoSeries`` with skewed geometries.
 
         The geometries are sheared by angles along the x and y dimensions.
+
+        See http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.skew
+        or https://docs.rs/geo/latest/geo/algorithm/skew/trait.Skew.html
+        for details.
 
         Parameters
         ----------
@@ -206,13 +300,17 @@ class GeoSeries(pl.Series):
     def translate(self, xoff: float = 0.0, yoff: float = 0.0) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.
 
+        See http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.translate
+        or https://docs.rs/geo/latest/geo/algorithm/translate/trait.Translate.html
+        for details.
+
         Parameters
         ----------
         xoff, yoff : float, float
             Amount of offset along each dimension.
             xoff and yoff for translation along the x and y
             dimensions respectively.
-        """
+        """  # noqa (E501 link is longer than max line length)
         return core.translate(self, xoff, yoff)
 
     @property

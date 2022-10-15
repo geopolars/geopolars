@@ -7,4 +7,4 @@ else:
     from typing_extensions import Literal
 
 GeodesicMethod = Literal["geodesic", "haversine", "vincenty"]
-TransformOrigin = Union[Literal["centroid"], Literal["center"], Tuple[float, float]]
+TransformOrigin = Union[Literal["centroid", "center"], Tuple[float, float]]

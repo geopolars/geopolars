@@ -23,7 +23,7 @@ General methods and attributes
    GeoSeries.euclidean_length
    GeoSeries.geodesic_length
    GeoSeries.geom_type
-   .. GeoSeries.distance
+   GeoSeries.distance
    .. GeoSeries.representative_point
    GeoSeries.exterior
    .. GeoSeries.interiors
@@ -31,14 +31,14 @@ General methods and attributes
    GeoSeries.y
    .. GeoSeries.z
 
-.. Unary predicates
-.. ----------------
+Unary predicates
+----------------
 
-.. .. autosummary::
-..    :toctree: api/
+.. autosummary::
+   :toctree: api/
 
-..    GeoSeries.is_empty
-..    GeoSeries.is_ring
+   GeoSeries.is_geom_empty
+   GeoSeries.is_ring
 ..    GeoSeries.is_simple
 ..    GeoSeries.is_valid
 ..    GeoSeries.has_z
@@ -98,7 +98,7 @@ Affine transformations
    GeoSeries.affine_transform
    GeoSeries.rotate
    GeoSeries.scale
-   GeoSeries.skew
+   GeoSeries.geom_skew
    GeoSeries.translate
 
 .. Aggregating and exploding
@@ -110,12 +110,13 @@ Affine transformations
 ..    GeoSeries.unary_union
 ..    GeoSeries.explode
 
-.. Serialization / IO / conversion
-.. -------------------------------
+Serialization / IO / conversion
+-------------------------------
 
-.. .. autosummary::
-..    :toctree: api/
+.. autosummary::
+   :toctree: api/
 
+   GeoSeries.to_geopandas
 ..    GeoSeries.from_file
 ..    GeoSeries.from_wkb
 ..    GeoSeries.from_wkt
@@ -125,15 +126,15 @@ Affine transformations
 ..    GeoSeries.to_wkb
 ..    GeoSeries.to_wkt
 
-Projection handling
--------------------
+.. Projection handling
+.. -------------------
 
-.. autosummary::
-   :toctree: api/
+.. .. autosummary::
+..    :toctree: api/
 
    .. GeoSeries.crs
    .. GeoSeries.set_crs
-   GeoSeries.to_crs
+   .. GeoSeries.to_crs
    .. GeoSeries.estimate_utm_crs
 
 .. Missing values
@@ -190,9 +191,6 @@ Projection handling
 ..    GeoSeries.__geo_interface__
 
 
-.. Methods of pandas ``Series`` objects are also available, although not
-.. all are applicable to geometric objects and some may return a
-.. ``Series`` rather than a ``GeoSeries`` result when appropriate. The methods
-.. ``isna()`` and ``fillna()`` have been
-.. implemented specifically for ``GeoSeries`` and are expected to work
-.. correctly.
+Methods of polars ``Series`` objects are also available, although not
+all are applicable to geometric objects and some may return a
+``Series`` rather than a ``GeoSeries`` result when appropriate.

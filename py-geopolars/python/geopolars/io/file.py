@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import polars as pl
+from polars import DataFrame
 
 from geopolars.internals.geodataframe import GeoDataFrame
 
@@ -10,10 +11,11 @@ except ImportError:
     geopandas = None
 
 
-def read_file(filename, *args, **kwargs) -> pl.DataFrame | GeoDataFrame:
+def read_file(filename, *args, **kwargs) -> DataFrame | GeoDataFrame:
     """Returns a GeoDataFrame from a file or URL.
 
-    .. versionadded:: 0.7.0 mask, rows
+    For now, this is a convenience wrapper around :func:`geopandas.read_file`. In the
+    future, the implementation and this function signature may change.
 
     Parameters
     ----------

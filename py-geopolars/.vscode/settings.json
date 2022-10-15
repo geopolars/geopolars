@@ -18,5 +18,6 @@
         "titleBar.inactiveBackground": "#3572a599",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.color": "#3572A5"
+    "peacock.color": "#3572A5",
+    "esbonio.sphinx.confDir": ""
 }
