@@ -126,11 +126,11 @@ Serialization / IO / conversion
 ..    GeoSeries.to_wkb
 ..    GeoSeries.to_wkt
 
-Projection handling
--------------------
+.. Projection handling
+.. -------------------
 
-.. autosummary::
-   :toctree: api/
+.. .. autosummary::
+..    :toctree: api/
 
    .. GeoSeries.crs
    .. GeoSeries.set_crs
@@ -193,7 +193,4 @@ Projection handling
 
 Methods of polars ``Series`` objects are also available, although not
 all are applicable to geometric objects and some may return a
-``Series`` rather than a ``GeoSeries`` result when appropriate. The methods
-``isna()`` and ``fillna()`` have been
-implemented specifically for ``GeoSeries`` and are expected to work
-correctly.
+``Series`` rather than a ``GeoSeries`` result when appropriate.

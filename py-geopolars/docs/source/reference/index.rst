@@ -12,7 +12,7 @@ methods. All classes and functions exposed in ``geopolars.*`` namespace are publ
 
    geoseries
    functions
-   .. io
+   io
    .. series
    .. dataframe
    .. expression
