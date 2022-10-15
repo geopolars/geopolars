@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "GeoPolars"
-author = "Kyle Barron"
+author = "GeoPolars contributors"
 copyright = f"{date.today().year}, {author}"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -160,8 +160,6 @@ intersphinx_mapping = {
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-# html_theme = 'alabaster'
 html_theme = "pydata_sphinx_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -175,10 +173,10 @@ autosummary_generate = True
 
 html_theme_options = {
     "external_links": [
-        # {
-        #     "name": "User Guide",
-        #     "url": "https://pola-rs.github.io/polars-book/user-guide/index.html",
-        # },
+        {
+            "name": "Rust Docs",
+            "url": "https://docs.rs/geopolars",
+        },
     ],
     "icon_links": [
         {
