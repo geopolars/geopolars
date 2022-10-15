@@ -55,7 +55,7 @@ Documentation is available at [docs.rs/geopolars](https://docs.rs/geopolars).
 
 ### Python
 
-An early alpha (`v0.1.0-alpha.2`) is published to PyPI:
+An early alpha (`v0.1.0-alpha.3`) is published to PyPI:
 
 ```
 pip install --pre geopolars
