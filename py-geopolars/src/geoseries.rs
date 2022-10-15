@@ -1,7 +1,6 @@
 use crate::error::PyGeopolarsError;
 use crate::ffi;
 use crate::utils::PythonTransformOrigin;
-use geo::AffineTransform;
 use geopolars::geoseries::{GeoSeries, GeodesicLengthMethod};
 use pyo3::prelude::*;
 
@@ -9,7 +8,6 @@ use pyo3::prelude::*;
 #[pyfunction]
 pub(crate) fn affine_transform(series: &PyAny, transform: [f64; 6]) -> PyResult<PyObject> {
     let series = ffi::py_series_to_rust_series(series)?;
-    let transform = AffineTransform::try_from(transform)?;
     let out = series
         .affine_transform(transform)
         .map_err(PyGeopolarsError::from)?;
