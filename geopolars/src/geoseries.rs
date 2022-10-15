@@ -640,7 +640,7 @@ impl GeoSeries for Series {
                 let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
                     .map(|geom| {
                         let center = geom.bounding_rect().unwrap().center();
-                        let transform = AffineTransform::scale(xfact, yfact, center.into());
+                        let transform = AffineTransform::scale(xfact, yfact, center);
                         geom.map_coords(|c| transform.apply(c))
                     })
                     .collect();
@@ -700,7 +700,7 @@ impl GeoSeries for Series {
                 let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
                     .map(|geom| {
                         let center = geom.bounding_rect().unwrap().center();
-                        let transform = AffineTransform::skew(xs, ys, center.into());
+                        let transform = AffineTransform::skew(xs, ys, center);
                         geom.map_coords(|c| transform.apply(c))
                     })
                     .collect();
