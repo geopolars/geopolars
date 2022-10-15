@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import polars as pl
 
-from geopolars import geopolars as core  # type: ignore
+from geopolars import geopolars as core
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
 
 try:
