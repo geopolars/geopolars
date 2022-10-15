@@ -47,6 +47,7 @@ extensions = [
     # "sphinx.ext.linkcode",
     "sphinx.ext.mathjax",
     "sphinx.ext.todo",
+    "sphinxext.opengraph",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -56,6 +57,10 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
+
+# Open graph metadata
+ogp_site_url = "https://geopolars.org/"
+ogp_image = "https://geopolars.org/_static/geopolars_logo.png"
 
 # connect docs in other projects
 # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
