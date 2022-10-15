@@ -20,7 +20,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 def from_arrow(a: pa.Table | pa.Array | pa.ChunkedArray) -> GeoDataFrame | GeoSeries:
     """
-    Create a GeoDataFrame or GeoSeries from an Arrow Table or Array.
+    Construct a GeoPolars :class:`GeoDataFrame` or :class:`GeoSeries` from an
+    Arrow Table or Array.
 
     This operation will be zero copy for the most part. Types that are not
     supported by Polars may be cast to the closest supported type.
@@ -32,6 +33,8 @@ def from_arrow(a: pa.Table | pa.Array | pa.ChunkedArray) -> GeoDataFrame | GeoSe
 
     Returns
     -------
+
+    :class:`GeoDataFrame` or :class:`GeoSeries`
     """
     # TODO: this should probably have a check that the data is indeed geographic?
     # And return a bare Series/DataFrame if it isn't?
@@ -50,14 +53,14 @@ def from_geopandas(
     | geopandas.GeoSeries
     | pandas.DataFrame
     | pandas.Series,
-) -> GeoDataFrame | GeoSeries | pl.DataFrame | pl.Series:
+) -> GeoDataFrame | GeoSeries | DataFrame | Series:
     """
-    Construct a GeoPolars GeoDataFrame or GeoSeries from a
+    Construct a GeoPolars :class:`GeoDataFrame` or :class:`GeoSeries` from a
     :class:`geopandas.GeoDataFrame` or :class:`geopandas.GeoSeries`.
 
     This operation clones data.
 
-    This requires that :mod:geopandas and :mod:pyarrow are installed.
+    This requires that :mod:`geopandas` and :mod:`pyarrow` are installed.
 
     Parameters
     ----------
@@ -67,7 +70,7 @@ def from_geopandas(
     Returns
     -------
 
-    GeoDataFrame or GeoSeries
+    `GeoDataFrame` or `GeoSeries`
     """
     if geopandas is None:
         raise ImportError("Geopandas is required when using from_geopandas().")
