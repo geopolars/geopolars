@@ -1,3 +1,6 @@
+use std::sync::Arc;
+
+use crate::broadcasting::BroadcastableParameter;
 use crate::error::{inner_type_name, GeopolarsError, Result};
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
@@ -33,7 +36,7 @@ pub enum TransformOrigin {
 }
 
 pub trait GeoSeries {
-    /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
+    /// Apply an affine transform to the geoseries and return a geoseries of the transformed geometries;
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series>;
 
     /// Returns a Series containing the area of each geometry in the GeoSeries expressed in the
@@ -118,7 +121,11 @@ pub trait GeoSeries {
     /// * `angle` - The angle to rotate specified in degrees
     ///
     /// * `origin` - The origin around which to rotate the geometry
-    fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series>;
+    fn rotate<'a>(
+        &self,
+        angle: impl Into<BroadcastableParameter<'a, f64>>,
+        origin: TransformOrigin,
+    ) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries skewd by a fixed x and y amount around a
     /// given origin
@@ -578,35 +585,41 @@ impl GeoSeries for Series {
         Ok(series)
     }
 
-    fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series> {
+    fn rotate<'a>(
+        &self,
+        angle: impl Into<BroadcastableParameter<'a, f64>>,
+        origin: TransformOrigin,
+    ) -> Result<Series> {
         use geo::algorithm::bounding_rect::BoundingRect;
         use geo::algorithm::centroid::Centroid;
-        match origin {
-            TransformOrigin::Centroid => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let centroid = geom.centroid().unwrap();
-                        let transform = AffineTransform::rotate(angle, centroid);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Center => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let center = geom.bounding_rect().unwrap().center();
-                        let transform = AffineTransform::rotate(angle, center);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Point(point) => {
-                let transform = AffineTransform::rotate(angle, point);
-                self.affine_transform(transform)
-            }
-        }
+
+        let apply_rotation: Box<dyn Fn(&Geometry<f64>, f64) -> Geometry<f64>> = match origin {
+            TransformOrigin::Centroid => Box::new(|geom: &Geometry<f64>, angle: f64| {
+                let centroid = geom.centroid().unwrap();
+                let transform = AffineTransform::rotate(angle, centroid);
+                geom.map_coords(|c| transform.apply(c))
+            }),
+            TransformOrigin::Center => Box::new(|geom: &Geometry, angle: f64| {
+                let center = geom.bounding_rect().unwrap().center();
+                let transform = AffineTransform::rotate(angle, center.into());
+                geom.map_coords(|c| transform.apply(c))
+            }),
+            TransformOrigin::Point(point) => Box::new({
+                move |geom: &Geometry, angle: f64| {
+                    let transform = AffineTransform::rotate(angle, point);
+                    geom.map_coords(|c| transform.apply(c))
+                }
+            }),
+        };
+
+        let angle: BroadcastableParameter<'a, f64> = angle.into();
+
+        let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
+            .zip(angle.into_iter())
+            .map(|(geom, angle)| apply_rotation(&geom, angle.extract::<f64>().unwrap()))
+            .collect();
+
+        Series::from_geom_vec(&rotated_geoms)
     }
 
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series> {
@@ -841,7 +854,8 @@ mod tests {
         geoseries::{GeoSeries, GeodesicLengthMethod},
         util::iter_geom,
     };
-    use polars::prelude::Series;
+    use polars::prelude::{NamedFromOwned, Series};
+    use std::sync::Arc;
 
     use geo::{line_string, polygon, CoordsIter, Geometry, LineString, MultiPoint, Point};
     use geozero::{CoordDimensions, ToWkb};
@@ -991,15 +1005,74 @@ mod tests {
         assert!(rotated_series.is_ok(), "To get a series back");
 
         let geom = iter_geom(&rotated_series.unwrap()).next().unwrap();
+
         for (p1, p2) in geom.coords_iter().zip(result.coords_iter()) {
             assert!(
                 (p1.x - p2.x).abs() < 0.00000001,
-                "The geometries x coords to be correct to within some tollerenace"
+                "The geometries x coords to be correct to within some tolerance"
             );
             assert!(
                 (p1.y - p2.y).abs() < 0.00000001,
-                "The geometries y coords to be correct to within some tollerenace"
+                "The geometries y coords to be correct to within some tolerance"
             );
+        }
+    }
+
+
+    #[test]
+    fn rotate_with_series() {
+        let geo_series = Series::from_geom_vec(&[
+            Geometry::Polygon(polygon!(
+            (x: 0.0,y:0.0),
+            (x: 0.0,y:1.0),
+            (x: 1.0,y: 1.0),
+            (x: 1.0,y: 0.0)
+            )),
+            Geometry::Polygon(polygon!(
+            (x: 0.0,y:0.0),
+            (x: 0.0,y:1.0),
+            (x: 1.0,y: 1.0),
+            (x: 1.0,y: 0.0)
+            )),
+        ])
+        .unwrap();
+
+        let rotation_values = Series::from_vec("rotations", vec![90.0_f64, -90.0_f64]);
+        let result = geo_series.rotate(
+            &rotation_values,
+            TransformOrigin::Point(Point::new(0.0, 0.0)),
+        );
+        assert!(result.is_ok(), "Should be apply the rotation as expected");
+
+        let expected = &[
+            Geometry::Polygon(polygon!(
+                (x:0.0,y:0.0),
+                (x:-1.0,y:0.0),
+                (x:-1.0, y:1.0),
+                (x:0.0, y:1.0)
+            )),
+            Geometry::Polygon(polygon!(
+                (x:0.0,y:0.0),
+                (x:1.0,y:0.0),
+                (x:1.0, y:-1.0),
+                (x:0.0, y:-1.0)
+            )),
+        ];
+
+        for (geom_index, result_geom) in iter_geom(&result.unwrap()).enumerate() {
+            for (p1, p2) in result_geom
+                .coords_iter()
+                .zip(expected.get(geom_index).unwrap().coords_iter())
+            {
+                assert!(
+                    (p1.x - p2.x).abs() < 0.00000001,
+                    "The geometries x coords to be correct to within some tolerance"
+                );
+                assert!(
+                    (p1.y - p2.y).abs() < 0.00000001,
+                    "The geometries y coords to be correct to within some tolerance"
+                );
+            }
         }
     }
 

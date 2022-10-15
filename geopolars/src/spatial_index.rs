@@ -475,9 +475,6 @@ mod tests {
 
         assert_eq!(inner_result.shape(), (2, 4));
         assert_eq!(left_result.shape(), (9, 4));
-
-        println!("inner {}", inner_result);
-        println!("left {}", left_result);
     }
 
     #[test]
@@ -547,9 +544,6 @@ mod tests {
                 "string_col_right!"
             ]
         );
-
-        println!("inner {}", inner_result);
-        println!("left {}", left_result);
     }
 
     #[test]
@@ -615,8 +609,5 @@ mod tests {
 
         assert_eq!(inner_result.shape(), (2, 4));
         assert_eq!(left_result.shape(), (9, 4));
-
-        println!("inner {}", inner_result);
-        println!("left {}", left_result);
     }
 }
