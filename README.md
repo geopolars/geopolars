@@ -87,4 +87,4 @@ The biggest pieces of future work are:
 - Implement GeoArrow extension types for seamless handling of CRS metadata in Rust, rather than in the Python wrapper.
 
 [polars]: https://github.com/pola-rs/polars
-[geo-arrow-spec]: https://github.com/geopandas/geo-arrow-spec
+[geo-arrow-spec]: https://github.com/geoarrow/geoarrow
