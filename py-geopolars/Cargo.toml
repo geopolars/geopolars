@@ -1,6 +1,6 @@
 [package]
 name = "py-geopolars"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 edition = "2021"
 # Specify SPDX expression here instead of in pyproject.toml
 # https://maturin.rs/metadata.html#add-spdx-license-expressions
@@ -19,7 +19,6 @@ pyo3 = { version = "0.17.2", features = ["extension-module"] }
 # geopolars = { path = "../geopolars", features = ["proj"] }
 geopolars = { path = "../geopolars" }
 thiserror = "1.0"
-geo = { git = "https://github.com/georust/geo.git", rev = '578e213875915e1f895892487b5a36ca0d91fac3' }
 
 [package.metadata.maturin]
 python-source = "python"
