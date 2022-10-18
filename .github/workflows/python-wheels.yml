@@ -17,8 +17,11 @@ jobs:
       fail-fast: true
       matrix:
         include:
-        - os: ubuntu-20.04
+        # - os: ubuntu-20.04
+        #   arch: x86_64
+        - os: macos-11
           arch: x86_64
+          cmake_osx_architectures: x86_64
 
     steps:
       - uses: actions/checkout@v2
@@ -43,9 +46,20 @@ jobs:
             # LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"
             # Add binary path for configure utils etc
             # export PATH="/usr/local/bin:$PATH"
-          # CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
+          CIBW_ENVIRONMENT_MACOS:
+            PATH="$PATH:$HOME/.cargo/bin"
+            PROJ_WHEEL=true
+            PROJ_NETWORK=ON
+            PROJ_VERSION=${{ env.PROJ_VERSION }}
+            PROJ_DIR=${GITHUB_WORKSPACE}/pyproj/proj_dir
+            PKG_CONFIG_PATH="${GITHUB_WORKSPACE}/pyproj/proj_dir/lib/pkgconfig/:$PKG_CONFIG_PATH"
+            MACOSX_DEPLOYMENT_TARGET=10.9
+            CMAKE_OSX_ARCHITECTURES='${{ matrix.cmake_osx_architectures }}'
+            LDFLAGS="${LDFLAGS} -Wl,-rpath,${GITHUB_WORKSPACE}/pyproj/proj_dir/lib"
+
+          CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
           CIBW_BEFORE_ALL_LINUX: yum install clang && curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y && bash ./ci/proj-compile-wheels.sh; cat /project/proj-9.1.0/CMakeFiles/CMakeOutput.log; cat /project/proj-9.1.0/CMakeFiles/CMakeError.log; ls /project/pyproj/proj_dir
-          CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin"
+          CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin && bash ./ci/proj-compile-wheels.sh"
         with:
           package-dir: py-geopolars
 
