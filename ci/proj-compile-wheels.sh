@@ -297,5 +297,5 @@ function build_proj {
 update_env_for_build_prefix
 suppress build_zlib
 suppress build_sqlite
-suppress build_libtiff
+build_libtiff
 build_proj
