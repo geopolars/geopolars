@@ -14,10 +14,7 @@ crate-type = ["cdylib"]
 [dependencies]
 polars = "0.24"
 pyo3 = { version = "0.17.2", features = ["extension-module"] }
-# Re-enable proj whenever we figure out how to build wheels with it
-# https://github.com/geopolars/geopolars/issues/125
-# geopolars = { path = "../geopolars", features = ["proj"] }
-geopolars = { path = "../geopolars" }
+geopolars = { path = "../geopolars", features = ["proj"] }
 thiserror = "1.0"
 
 [package.metadata.maturin]
