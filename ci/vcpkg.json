@@ -1,0 +1,6 @@
+{
+  "name": "geopolars",
+  "version": "0.1.0",
+  "dependencies": ["sqlite3"],
+  "builtin-baseline": "c382312bed3da7be96bdab0f7426eaee1b3e0460"
+}
