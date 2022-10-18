@@ -1,88 +1,142 @@
 .DEFAULT_GOAL := help
 
 SHELL=/bin/bash
-PYTHON=venv/bin/python
-PYTHON_BIN=venv/bin
+VENV ?= venv
 
-venv:  ## Set up virtual environment
-	@python -m venv venv
-	@venv/bin/pip install -U pip
-	@venv/bin/pip install -r build.requirements.txt
-	@unset CONDA_PREFIX && source venv/bin/activate && maturin develop
+WHEELS_DEBUG   = wheels/debug
+WHEELS_RELEASE = wheels/release
 
-.PHONY: clean
-clean:  ## Clean up caches and build artifacts
-	@rm -rf venv/
-	@rm -rf docs/build/
-	@rm -rf docs/source/reference/api/
-	@rm -rf .hypothesis/
-	@rm -rf .mypy_cache/
-	@rm -rf .pytest_cache/
-	@rm -f .coverage
-	@rm -f coverage.xml
-	@find -type f -name '*.py[co]' -delete -or -type d -name __pycache__ -delete
-	@cargo clean
+ifeq ($(OS),Windows_NT)
+    VENV_BIN=$(VENV)/Scripts
+else
+    VENV_BIN=$(VENV)/bin
+endif
 
-# We use pre-commit separately
-# .PHONY: pre-commit
-# pre-commit: venv  ## Run autoformatting and linting
-# 	$(PYTHON_BIN)/isort .
-# 	$(PYTHON_BIN)/black .
-# 	$(PYTHON_BIN)/blackdoc .
-# 	$(PYTHON_BIN)/pyupgrade --py37-plus `find geopolars/ tests/ -name "*.py" -type f`
-# 	$(PYTHON_BIN)/mypy
-# 	$(PYTHON_BIN)/flake8
-# 	make -C .. fmt_toml
-# 	cargo fmt --all
+ifneq ($(CONDA_EXE),)
+	CONDA_DEACT = . $(shell $(CONDA_EXE) info --base -q)/etc/profile.d/conda.sh; \
+		while [ -n "$$CONDA_PREFIX" ]; do conda deactivate; done;
+else
+	CONDA_DEACT =
+endif
+
+ifeq ($(VENV),) # no virtual environment
+	VENV_BIN     =
+	VENV_ACT_BIN =
+	CLEAN_VENV   = @:
+venv:
+	:
+else # use VENV
+	VENV_BIN    := $(abspath $(VENV_BIN))/# no space after trailing '/'
+	VENV_ACT_BIN = $(VENV_BIN)# no space after closing ')'
+	CLEAN_VENV   = -rm -rf $(VENV)
+ifeq ($(VENV),venv)
+venv:  ## Create virtual environment for building polars (optionally with VENV=<name>)
+else
+.PHONY: venv
+venv: $(VENV)
+$(VENV):
+endif
+	python -m venv  $(VENV)
+	$(VENV_ACT_BIN)pip install -U pip
+	$(VENV_ACT_BIN)pip install -r requirements-dev.txt
+	$(VENV_ACT_BIN)pip install -r requirements-lint.txt
+endif
+
+develop: $(VENV)  ## Build by running `maturin develop`
+	$(VENV_ACT_BIN)maturin develop
+
+develop-release: $(VENV)  ## Build by running `maturin develop --release`
+	$(VENV_ACT_BIN)maturin develop --release
+
+.PHONY: clean cleaner cleanest
+clean:  ## Just run `cargo clean`
+	-cargo clean
+
+cleaner: clean  ## clean + remove VENV and other auto-generated dirs & files
+	$(CLEAN_VENV)
+	-rm -rf target
+	-rm -rf docs/build
+	-rm -rf docs/source/reference/api
+	-rm -rf .hypothesis
+	-rm -rf .mypy_cache
+	-rm -rf .pytest_cache
+	-rm -rf .ruff_cache
+	-rm -f .coverage
+	-rm -f coverage.xml
+	-rm -f polars/polars.abi3.so
+	-find . \( -type f -name '*.py[co]' \) -or \( -type d -name __pycache__ \) -delete
+
+cleanest: cleaner  ## cleaner + remove the wheels
+	-rm -rf $(WHEELS_DEBUG)
+	-rm -rf $(WHEELS_RELEASE)
+	-rm -rf wheels
+
+.PHONY: pre-commit
+pre-commit: fmt clippy  ## Run all code quality checks
+
+.PHONY: fmt
+fmt: $(VENV)  ## Run autoformatting and linting
+	$(VENV_ACT_BIN)isort .
+	$(VENV_ACT_BIN)black .
+	$(VENV_ACT_BIN)blackdoc .
+	$(VENV_ACT_BIN)pyupgrade --py37-plus `find polars docs tests -name "*.py" -type f`
+	cargo fmt --all
+	-dprint fmt
+	-$(VENV_ACT_BIN)mypy
+	-$(VENV_ACT_BIN)flake8 polars tests docs
 
 .PHONY: clippy
 clippy:  ## Run clippy
 	cargo clippy -- -D warnings -A clippy::borrow_deref_ref
 
 .PHONY: test
-test: venv  ## Run fast unittests
-	$(PYTHON_BIN)/maturin develop
-	$(PYTHON) -m pytest tests/unit/
-
-.PHONY: test-all
-test-all: venv  ## Run all tests
-	$(PYTHON_BIN)/maturin develop
-	$(PYTHON) -m pytest
-	$(PYTHON) tests/docs/run_doc_examples.py
-
-.PHONY: test-with-cov
-test-with-cov: venv  ## Run tests and report coverage
-	$(PYTHON) -m pytest --cov=geopolars --cov-report xml
+test: develop # develop  ## Run fast unittests
+	$(VENV_ACT_BIN)pytest tests/unit/
 
 .PHONY: doctest
-doctest:  ## Run doctests
-	$(PYTHON) tests/docs/run_doc_examples.py
+doctest: $(VENV) develop  ## Run doctests
+	$(VENV_ACT_BIN)python tests/docs/run_doc_examples.py
 
-.PHONY: install-wheel
-install-wheel:
-	pip install --force-reinstall -U wheels/geopolars-*.whl
+.PHONY: test-all
+test-all: # develop  ## Run all tests
+	$(VENV_ACT_BIN)pytest
+	$(VENV_ACT_BIN)python tests/docs/run_doc_examples.py
 
-.PHONY: build-no-venv
-build-no-venv:
-	maturin build -o wheels
+.PHONY: coverage
+coverage:  ## Run tests and report coverage
+	$(VENV_ACT_BIN)pytest --cov
 
-.PHONY: build-no-venv-release
-build-no-venv-release:
-	maturin build -o wheels --release
+build-debug: $(VENV)  ## Build debug wheel
+	$(VENV_ACT_BIN)maturin build -o $(WHEELS_DEBUG)
 
-.PHONY: build-and-test-no-venv
-build-and-test-no-venv:
-	maturin build -o wheels
-	pip install --force-reinstall -U wheels/geopolars-*.whl
-	pytest tests
+build: $(VENV)  ## Build release wheel
+	$(VENV_ACT_BIN)maturin build -o $(WHEELS_RELEASE) --release -- -C codegen-units=16 -C lto=thin -C target-cpu=native
 
-.PHONY: install-no-venv
-install-no-venv: build-no-venv install-wheel
+install-debug: $(VENV)  ## pip install debug wheel
+	$(VENV_ACT_BIN)pip install --no-deps --force-reinstall -U $(WHEELS_DEBUG)/polars-*.whl
 
-.PHONY: install-no-venv-release
-install-no-venv-release: build-no-venv-release install-wheel
+install: $(VENV)  ## pip install release wheel
+	$(VENV_ACT_BIN)pip install --no-deps --force-reinstall -U $(WHEELS_RELEASE)/polars-*.whl
+
+# Shortcut targets
+build-install-debug: build-debug install-debug  ## Build and install debug wheel
+build-install: build install  ## Build and install release wheel
 
 .PHONY: help
 help:  ## Display this help screen
+	@echo "Usage:"
+	@echo "* To run a make <comand> with venv, issue"
+	@echo "  > make <command>"
+	@echo "* To run a make <command> with alternative environement <name>, issue"
+	@echo "  > make VENV=<name> <command>"
+	@echo "* To run a make <command> without virtual environment (ex: conda), issue"
+	@echo "  > make VENV='' <command>"
+	@echo
+	@echo "Currently:"
+	@echo "  VENV = '$(VENV)'"
+	@echo
+
 	@echo -e '\033[1mAvailable commands:\033[0m'
-	@grep -E '^[a-z.A-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-z.A-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' | sort
+
+#EOF
