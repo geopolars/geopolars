@@ -59,7 +59,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.9.0
         env:
-          CIBW_SKIP: "cp2* cp35* cp36* pp* *win32 *i686 *musllinux*"
+          CIBW_SKIP: "cp2* cp35* cp36* cp37* pp* *win32 *i686 *musllinux*"
           CIBW_ARCHS: ${{ matrix.arch }}
           # CIBW_ARCHS_MACOS: x86_64 arm64
           # CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
