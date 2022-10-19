@@ -94,7 +94,7 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --add-path C:/vcpkg/installed/${{ matrix.triplet }}/bin -w {dest_dir} {wheel}"
 
           CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
-          CIBW_BEFORE_ALL_LINUX: curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y && apt install -y libgdal-dev clang-7 && bash ./ci/proj-compile-wheels.sh; cat /project/proj-9.1.0/CMakeFiles/CMakeOutput.log; cat /project/proj-9.1.0/CMakeFiles/CMakeError.log; ls /project/pyproj/proj_dir
+          CIBW_BEFORE_ALL_LINUX: curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y && apt update && apt install -y libgdal-dev clang-7 && bash ./ci/proj-compile-wheels.sh; cat /project/proj-9.1.0/CMakeFiles/CMakeOutput.log; cat /project/proj-9.1.0/CMakeFiles/CMakeError.log; ls /project/pyproj/proj_dir
           CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin && bash ./ci/proj-compile-wheels.sh"
           CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux_2_24_x86_64"
         with:
