@@ -281,7 +281,7 @@ function build_proj {
     (cd proj-${PROJ_VERSION:0:5} \
         && cmake . \
         -DCMAKE_INSTALL_PREFIX=$PROJ_DIR \
-        -DBUILD_SHARED_LIBS=OFF \
+        -DBUILD_SHARED_LIBS=ON \
         -DCMAKE_BUILD_TYPE=Release \
         -DENABLE_IPO=ON \
         -DBUILD_APPS:BOOL=OFF \
