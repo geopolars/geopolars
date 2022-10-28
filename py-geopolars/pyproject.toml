@@ -6,6 +6,7 @@ build-backend = "maturin"
 name = "geopolars"
 version = "0.1.0-alpha.3"
 dependencies = [
+  # Minimum version with binary dtype
   "polars>=0.14.19",
   "pyarrow>=4.0.*",
   "numpy >= 1.16.0"
