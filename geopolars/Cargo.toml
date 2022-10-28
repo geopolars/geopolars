@@ -32,6 +32,7 @@ geo = "0.23"
 polars = { version = "0.25", features = [
   "dtype-u8",
   "dtype-i8",
+  "dtype-binary",
   "ipc",
   "private",
 ], default-features = false }
