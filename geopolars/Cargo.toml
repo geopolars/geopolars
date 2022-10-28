@@ -29,7 +29,7 @@ geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
 geo = "0.23"
 # Only the _minimal_ features to get polars to compile should be declared here
-polars = { version = "0.24", features = [
+polars = { version = "0.25", features = [
   "dtype-u8",
   "dtype-i8",
   "ipc",
