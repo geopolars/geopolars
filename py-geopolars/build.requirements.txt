@@ -1,5 +1,6 @@
 # Dependencies
-polars==0.14.18
+# Minimum version with binary dtype
+polars>=0.14.19
 pyarrow>=4.0
 numpy>=1.16.0
 geopandas
