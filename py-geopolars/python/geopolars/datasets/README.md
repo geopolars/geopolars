@@ -1,6 +1,6 @@
 These datasets are derived from those included with `geopandas`:
 
-https://github.com/geopandas/geopandas/blob/f01bcedf72d6a89a5c2f71b782db660c4ac5a414/geopandas/datasets/README.md
+https://github.com/geopandas/geopandas/tree/b7ddddb109832304c066dc3982147b669e8f4868/geopandas/datasets
 
 ```py
 import geopandas as gpd
@@ -16,7 +16,6 @@ gdf = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
 gdf["pop_est"] = pd.to_numeric(gdf["pop_est"], downcast="unsigned")
 gdf["gdp_md_est"] = pd.to_numeric(gdf["gdp_md_est"], downcast="float")
 gdf.to_feather("naturalearth_lowres.arrow")
-
 
 gdf = gpd.read_file(gpd.datasets.get_path("naturalearth_cities"))
 gdf.to_feather("naturalearth_cities.arrow")

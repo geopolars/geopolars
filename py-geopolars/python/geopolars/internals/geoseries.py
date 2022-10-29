@@ -55,15 +55,10 @@ class GeoSeries(pl.Series):
             raise ImportError("Geopandas is required when using to_geopandas().")
 
         pyarrow_array = self.to_arrow()
-
-        # This is kinda ugly, but necessary because polars stores binary data as
-        # List<u8> which geopandas doesn't know how to accept, and pyarrow hasn't
-        # implemented a cast for List<u8> to the binary type
-        return geopandas.GeoSeries(
-            geopandas.array.from_wkb(
-                [row.values.to_numpy().tobytes() for row in pyarrow_array]
-            )
-        )
+        numpy_array = pyarrow_array.to_numpy(zero_copy_only=False)
+        # Ideally we shouldn't need the cast to numpy, but the pyarrow BinaryScalar
+        # hasn't implemented len()
+        return geopandas.GeoSeries(geopandas.array.from_wkb(numpy_array))
 
     def affine_transform(self, matrix) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.

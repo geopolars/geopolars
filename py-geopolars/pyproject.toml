@@ -6,10 +6,8 @@ build-backend = "maturin"
 name = "geopolars"
 version = "0.1.0-alpha.3"
 dependencies = [
-  # Polars 0.14.19 is a breaking change for us. That patch release adds BinaryArray support, which
-  # means that data conversions from PyArrow become BinaryArray instead of ListArray<u8>. See
-  # https://github.com/geopolars/geopolars/issues/122
-  "polars<=0.14.18",
+  # Minimum version with binary dtype
+  "polars>=0.14.19",
   "pyarrow>=4.0.*",
   "numpy >= 1.16.0"
 ]
