@@ -19,39 +19,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-          override: true
-
-      - uses: Swatinem/rust-cache@v2
-
-      - uses: actions/setup-python@v4
-        with:
-          # Minimum abi3 version
-          python-version: "3.8"
-          cache: "pip"
-          cache-dependency-path: "py-geopolars/build.requirements.txt"
+      - name: Install latest stable rust
+        run: |
+          curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
           pip install -r build.requirements.txt
-
-      # - name: Install dependencies
-      #   run: |
-      #     apt update
-      #     apt install -y libgdal-dev clang-7
-      #     export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-      #     pip install wheel
-      #     pip install rasterio
-      #     python install-dev-dependencies.py
 
       - name: Build Python wheel
         shell: bash
         run: |
-          maturin build --release --strip --manylinux 2_24
+          source $HOME/.cargo/env
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24
 
       - name: List wheels
         run: find ./target/wheels/
