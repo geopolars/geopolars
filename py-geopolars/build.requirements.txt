@@ -2,7 +2,8 @@
 polars==0.14.18
 pyarrow>=4.0
 numpy>=1.16.0
-geopandas
+# temporary so that tests pass with old datasets
+geopandas<0.12
 
 # Tooling
 maturin==0.13.2
