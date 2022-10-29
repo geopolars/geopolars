@@ -3,8 +3,8 @@
 polars>=0.14.19
 pyarrow>=4.0
 numpy>=1.16.0
-# temporary so that tests pass with old datasets
-geopandas<0.12
+# First version with latest naturalearth sample datasets for tests
+geopandas>=0.12
 
 # Tooling
 maturin==0.13.2
