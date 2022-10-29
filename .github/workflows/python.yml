@@ -48,10 +48,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.7
+      - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: "3.7"
+          python-version: "3.8"
 
       - name: run pre-commit
         run: |
@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version: ["3.8", "3.11"]
     defaults:
       run:
         working-directory: py-geopolars
