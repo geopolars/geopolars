@@ -294,8 +294,12 @@ class GeoSeries(pl.Series):
 
         return core.distance(self, other)
 
-    # def to_crs(self, from_crs: str, to_crs: str) -> GeoSeries:
-    #     return core.to_crs(self, from_crs, to_crs)
+    def to_crs(self, from_crs: str, to_crs: str) -> GeoSeries:
+        if not hasattr(core, "to_crs"):
+            # TODO: use a custom geopolars exception class here
+            raise ValueError("Geopolars not built with proj support")
+
+        return core.to_crs(self, from_crs, to_crs)
 
     def translate(self, xoff: float = 0.0, yoff: float = 0.0) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.
