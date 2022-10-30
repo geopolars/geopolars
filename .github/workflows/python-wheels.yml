@@ -72,14 +72,16 @@ jobs:
 
       - name: Build
         run: |
-          maturin build --target aarch64-apple-darwin --release --strip --interpreter python -o wheels
+          maturin build --target aarch64-apple-darwin --strip --interpreter python -o wheels
 
       - name: List wheels
         run: find ./wheels
 
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
       - uses: actions/upload-artifact@v2
         with:
-          path: ./wheels/*.whl
+          path: py-geopolars/wheels/*.whl
 
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
