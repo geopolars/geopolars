@@ -28,7 +28,8 @@ jobs:
         run: |
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
           pip install -r build.requirements.txt
-          apt install -y clang-7
+          apt update
+          apt install -y libgdal-dev clang-7
 
       - name: Build Python wheel
         shell: bash
