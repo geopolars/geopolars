@@ -60,8 +60,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-          cache: 'pip'
-          cache-dependency-path: 'py-geopolars/build.requirements.txt'
+          cache: "pip"
+          cache-dependency-path: "py-geopolars/build.requirements.txt"
 
       - name: Install Python dependencies
         run: |
@@ -72,15 +72,16 @@ jobs:
 
       - name: Build
         run: |
-          maturin build --release --strip --interpreter python
+          maturin build --strip --interpreter python -o wheels
 
       - name: List wheels
-        run: find ./target/wheels/
+        run: find .wheels/
 
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
       - uses: actions/upload-artifact@v2
         with:
-          path: ./target/wheels/*.whl
-
+          path: py-geopolars/wheels/*.whl
 
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
