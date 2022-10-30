@@ -7,36 +7,36 @@ on:
     #   - "v*"
 
 jobs:
-  # build-wheel-manylinux-2-24:
-  #   name: "Build manylinux 2.24 wheels"
-  #   # if: (github.event_name == 'release' && github.event.action == 'created') || github.event_name == 'schedule'
-  #   runs-on: ubuntu-latest
-  #   container: quay.io/pypa/manylinux_2_24_x86_64
-  #   defaults:
-  #     run:
-  #       working-directory: py-geopolars
+  build-wheel-manylinux-2-24:
+    name: "Build manylinux 2.24 wheels"
+    # if: (github.event_name == 'release' && github.event.action == 'created') || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    container: quay.io/pypa/manylinux_2_24_x86_64
+    defaults:
+      run:
+        working-directory: py-geopolars
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Install latest stable rust
-  #       run: |
-  #         curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
+      - name: Install latest stable rust
+        run: |
+          curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
 
-  #     - name: Install dependencies
-  #       run: |
-  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-  #         pip install -r build.requirements.txt
+      - name: Install dependencies
+        run: |
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          pip install -r build.requirements.txt
 
-  #     - name: Build Python wheel
-  #       shell: bash
-  #       run: |
-  #         source $HOME/.cargo/env
-  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-  #         maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24
+      - name: Build Python wheel
+        shell: bash
+        run: |
+          source $HOME/.cargo/env
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24
 
-  #     - name: List wheels
-  #       run: find ./target/wheels/
+      - name: List wheels
+        run: find ./target/wheels/
 
   build-wheel-windows:
     runs-on: windows-latest
