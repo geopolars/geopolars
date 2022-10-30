@@ -6,6 +6,7 @@ on:
     # tags:
     #   - "v*"
 
+# TODO: restore --release before merging
 jobs:
   build-wheel-manylinux-2-24:
     name: "Build manylinux 2.24 wheels"
@@ -33,14 +34,16 @@ jobs:
         run: |
           source $HOME/.cargo/env
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
+          maturin build --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
 
       - name: List wheels
         run: find ./wheels
 
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
       - uses: actions/upload-artifact@v2
         with:
-          path: ./wheels/*.whl
+          path: py-geopolars/wheels/*.whl
 
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
