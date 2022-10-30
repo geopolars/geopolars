@@ -75,7 +75,7 @@ jobs:
 
       - name: Build
         run: |
-          maturin build --strip --interpreter python -o wheels
+          maturin build --strip --interpreter python -o wheels --features proj
 
       - name: List wheels
         run: find ./wheels
