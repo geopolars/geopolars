@@ -33,10 +33,14 @@ jobs:
         run: |
           source $HOME/.cargo/env
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24
+          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
 
       - name: List wheels
-        run: find ./target/wheels/
+        run: find ./wheels
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheels/*.whl
 
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
