@@ -66,6 +66,10 @@ jobs:
           cache: "pip"
           cache-dependency-path: "py-geopolars/build.requirements.txt"
 
+      - name: Install system dependencies
+        run: |
+          brew install proj
+
       - name: Install Python dependencies
         run: |
           python -V
