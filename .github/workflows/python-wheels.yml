@@ -83,7 +83,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          maturin build --strip --interpreter python -o wheels
+          maturin build --strip --interpreter python -o wheels --features proj
 
       - name: List wheels
         shell: bash
