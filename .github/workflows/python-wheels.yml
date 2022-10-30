@@ -34,7 +34,7 @@ jobs:
         run: |
           source $HOME/.cargo/env
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-          maturin build --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
+          maturin build --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels --features proj
 
       - name: List wheels
         run: find ./wheels
