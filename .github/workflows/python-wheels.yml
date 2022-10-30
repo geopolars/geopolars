@@ -6,40 +6,43 @@ on:
     # tags:
     #   - "v*"
 
+# TODO: restore --release before merging
 jobs:
-  # build-wheel-manylinux-2-24:
-  #   name: "Build manylinux 2.24 wheels"
-  #   runs-on: ubuntu-latest
-  #   container: quay.io/pypa/manylinux_2_24_x86_64
-  #   defaults:
-  #     run:
-  #       working-directory: py-geopolars
+  build-wheel-manylinux-2-24:
+    name: "Build manylinux 2.24 wheels"
+    runs-on: ubuntu-latest
+    container: quay.io/pypa/manylinux_2_24_x86_64
+    defaults:
+      run:
+        working-directory: py-geopolars
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Install latest stable rust
-  #       run: |
-  #         curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
+      - name: Install latest stable rust
+        run: |
+          curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
 
-  #     - name: Install dependencies
-  #       run: |
-  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-  #         pip install -r build.requirements.txt
+      - name: Install dependencies
+        run: |
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          pip install -r build.requirements.txt
 
-  #     - name: Build Python wheel
-  #       shell: bash
-  #       run: |
-  #         source $HOME/.cargo/env
-  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-  #         maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24
+      - name: Build Python wheel
+        shell: bash
+        run: |
+          source $HOME/.cargo/env
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          maturin build --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
 
-  #     - name: List wheels
-  #       run: find ./target/wheels/
+      - name: List wheels
+        run: find ./wheels
 
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: ./target/wheels/*.whl
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
 
   build-wheel-mac-x86_64:
     runs-on: macos-latest
@@ -75,7 +78,7 @@ jobs:
           maturin build --strip --interpreter python -o wheels
 
       - name: List wheels
-        run: find .wheels/
+        run: find ./wheels
 
       # Have to set path from root
       # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
