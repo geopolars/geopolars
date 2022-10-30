@@ -62,7 +62,6 @@ jobs:
           python-version: "3.8"
           cache: 'pip'
           cache-dependency-path: 'py-geopolars/build.requirements.txt'
-          architecture: x64
 
       - name: Install Python dependencies
         run: |
