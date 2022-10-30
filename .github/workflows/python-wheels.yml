@@ -76,15 +76,15 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          maturin build --release --strip --interpreter python
+          maturin build --release --strip --interpreter python -o wheels
 
       - name: List wheels
         shell: bash
-        run: find ./target/wheels/
+        run: find ./wheels
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./target/wheels/*.whl
+          path: wheels/*.whl
 
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
