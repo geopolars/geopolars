@@ -45,6 +45,56 @@ jobs:
         with:
           path: py-geopolars/wheels/*.whl
 
+  build-wheel-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: py-geopolars
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.8"
+          miniforge-version: latest
+          miniforge-variant: Mambaforge
+          use-mamba: true
+
+      - name: Set LIBCLANG_PATH
+        run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python -V
+          pip install wheel
+          pip install --upgrade pip
+          pip install -r build.requirements.txt
+
+      - name: Build
+        shell: bash
+        run: |
+          maturin build --strip --interpreter python -o wheels
+
+      - name: List wheels
+        shell: bash
+        run: find ./wheels
+
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
+
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
   #   runs-on: ${{ matrix.os }}
