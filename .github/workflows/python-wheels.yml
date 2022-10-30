@@ -10,7 +10,6 @@ on:
 jobs:
   build-wheel-manylinux-2-24:
     name: "Build manylinux 2.24 wheels"
-    # if: (github.event_name == 'release' && github.event.action == 'created') || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     container: quay.io/pypa/manylinux_2_24_x86_64
     defaults:
@@ -44,6 +43,49 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: py-geopolars/wheels/*.whl
+
+  build-wheel-mac-x86_64:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: py-geopolars
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          cache: "pip"
+          cache-dependency-path: "py-geopolars/build.requirements.txt"
+
+      - name: Install Python dependencies
+        run: |
+          python -V
+          pip install wheel
+          pip install --upgrade pip
+          pip install -r build.requirements.txt
+
+      - name: Build
+        run: |
+          maturin build --strip --interpreter python -o wheels
+
+      - name: List wheels
+        run: find ./wheels
+
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
+
 
   build-wheel-windows:
     runs-on: windows-latest
@@ -79,12 +121,10 @@ jobs:
           pip install wheel
           pip install --upgrade pip
           pip install -r build.requirements.txt
-
       - name: Build
         shell: bash
         run: |
           maturin build --strip --interpreter python -o wheels
-
       - name: List wheels
         shell: bash
         run: find ./wheels
