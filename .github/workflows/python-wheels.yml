@@ -77,7 +77,6 @@ jobs:
         run: |
           choco install sqlite -y
           cd C:\ProgramData\chocolatey\lib\SQLite\tools
-          & 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.31.31103\bin\Hostx64\x64\lib.exe' /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
           echo "SQLITE3_LIB_DIR=C:\ProgramData\chocolatey\lib\SQLite\tools" >> $env:GITHUB_ENV
 
       - name: Install Python dependencies
