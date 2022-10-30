@@ -72,14 +72,14 @@ jobs:
 
       - name: Build
         run: |
-          maturin build --target aarch64-apple-darwin --release --strip --interpreter python
+          maturin build --target aarch64-apple-darwin --release --strip --interpreter python -o wheels
 
       - name: List wheels
-        run: find ./target/wheels/
+        run: find ./wheels
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./target/wheels/*.whl
+          path: ./wheels/*.whl
 
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
