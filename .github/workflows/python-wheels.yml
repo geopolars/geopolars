@@ -7,36 +7,74 @@ on:
     #   - "v*"
 
 jobs:
-  build-wheel-manylinux-2-24:
-    name: "Build manylinux 2.24 wheels"
-    # if: (github.event_name == 'release' && github.event.action == 'created') || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_24_x86_64
+  # build-wheel-manylinux-2-24:
+  #   name: "Build manylinux 2.24 wheels"
+  #   runs-on: ubuntu-latest
+  #   container: quay.io/pypa/manylinux_2_24_x86_64
+  #   defaults:
+  #     run:
+  #       working-directory: py-geopolars
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Install latest stable rust
+  #       run: |
+  #         curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
+
+  #     - name: Install dependencies
+  #       run: |
+  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+  #         pip install -r build.requirements.txt
+
+  #     - name: Build Python wheel
+  #       shell: bash
+  #       run: |
+  #         source $HOME/.cargo/env
+  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+  #         maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24
+
+  #     - name: List wheels
+  #       run: find ./target/wheels/
+
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         path: ./target/wheels/*.whl
+
+  build-wheel-mac-x86_64:
+    runs-on: macos-latest
     defaults:
       run:
         working-directory: py-geopolars
-
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install latest stable rust
-        run: |
-          curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: 'py-geopolars/build.requirements.txt'
+          architecture: x64
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
-          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          python -V
+          pip install wheel
+          pip install --upgrade pip
           pip install -r build.requirements.txt
 
-      - name: Build Python wheel
-        shell: bash
+      - name: Build
         run: |
-          source $HOME/.cargo/env
-          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24
+          maturin build --release --strip --interpreter python
 
       - name: List wheels
         run: find ./target/wheels/
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./target/wheels/*.whl
+
 
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
