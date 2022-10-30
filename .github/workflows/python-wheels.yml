@@ -49,6 +49,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
