@@ -20,6 +20,7 @@ clean:  ## Clean up caches and build artifacts
 	@rm -rf .pytest_cache/
 	@rm -f .coverage
 	@rm -f coverage.xml
+	@rm -f geopolars.data/data/proj_data
 	@find -type f -name '*.py[co]' -delete -or -type d -name __pycache__ -delete
 	@cargo clean
 
@@ -62,16 +63,20 @@ doctest:  ## Run doctests
 install-wheel:
 	pip install --force-reinstall -U wheels/geopolars-*.whl
 
+.PHONY: copy-proj-data
+copy-proj-data:  ## Copy PROJ data into the working tree for bundling with the wheel
+	python copy-proj-data.py
+
 .PHONY: build-no-venv
-build-no-venv:
-	maturin build -o wheels
+build-no-venv: copy-proj-data
+	maturin build -o wheels --features "proj"
 
 .PHONY: build-no-venv-release
-build-no-venv-release:
-	maturin build -o wheels --release
+build-no-venv-release: copy-proj-data
+	maturin build -o wheels --release --features "proj"
 
 .PHONY: build-and-test-no-venv
-build-and-test-no-venv:
+build-and-test-no-venv: copy-proj-data
 	maturin build -o wheels
 	pip install --force-reinstall -U wheels/geopolars-*.whl
 	pytest tests
