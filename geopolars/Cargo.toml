@@ -23,6 +23,7 @@ default = [
 ]
 
 proj = ["dep:proj"]
+bundled_proj = ["proj", "proj/bundled_proj"]
 
 [dependencies]
 geozero = { version = "0.9.4", features = ["with-wkb"] }
