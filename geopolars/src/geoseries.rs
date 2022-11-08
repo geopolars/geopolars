@@ -9,6 +9,8 @@ use polars::export::arrow::array::{
     MutablePrimitiveArray, PrimitiveArray,
 };
 use polars::prelude::{PolarsError, Series};
+#[cfg(feature = "proj")]
+use proj::ProjBuilder;
 use std::convert::Into;
 
 pub type ArrayRef = Box<dyn Array>;
@@ -177,6 +179,16 @@ pub trait GeoSeries {
     // current CRS, but that would require polars to support extension types.
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series>;
+
+    // Note: Ideally we wouldn't have both `from` and `to` here, where the series would include the
+    // current CRS, but that would require polars to support extension types.
+    #[cfg(feature = "proj")]
+    fn to_crs_with_builder(
+        &self,
+        from: &str,
+        to: &str,
+        proj_builder: ProjBuilder,
+    ) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries translated by a fixed x and y amount
     ///
@@ -768,9 +780,20 @@ impl GeoSeries for Series {
 
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
-        use proj::{Proj, Transform};
+        self.to_crs_with_builder(from, to, ProjBuilder::new())
+    }
 
-        let proj = Proj::new_known_crs(from, to, None)?;
+    #[cfg(feature = "proj")]
+    fn to_crs_with_builder(
+        &self,
+        from: &str,
+        to: &str,
+        proj_builder: ProjBuilder,
+    ) -> Result<Series> {
+        use proj::Transform;
+
+        let proj = proj_builder.proj_known_crs(from, to, None)?;
+
         // Specify literal Result<> to propagate error from within closure
         // https://stackoverflow.com/a/26370894
         let output_vec: Result<Vec<Geometry>> = iter_geom(self)

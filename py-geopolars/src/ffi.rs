@@ -5,6 +5,9 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::{ffi::Py_uintptr_t, PyAny, PyObject, PyResult};
 
+#[cfg(feature = "proj")]
+use std::path::{Path, PathBuf};
+
 pub type ArrayRef = Box<dyn Array>;
 
 /// Take an arrow array from python and convert it to a rust arrow array.
@@ -105,5 +108,21 @@ pub fn rust_series_to_py_geoseries(series: &Series) -> PyResult<PyObject> {
         let geopolars = py.import("geopolars")?;
         let out = geopolars.call_method1("from_arrow", (pyarrow_array,))?;
         Ok(out.to_object(py))
+    })
+}
+
+#[cfg(feature = "proj")]
+pub fn proj_data_directory() -> PyResult<PathBuf> {
+    use pyo3::exceptions::PyIOError;
+
+    Python::with_gil(|py| {
+        let geopolars = py.import("geopolars")?;
+        let file_location: String = geopolars.getattr("__file__")?.extract()?;
+        let mut pb = Path::new(&file_location)
+            .parent()
+            .ok_or_else(|| PyIOError::new_err("can not resolve bundled proj_data directory"))?
+            .to_path_buf();
+        pb.push("proj_data");
+        Ok(pb)
     })
 }

@@ -34,7 +34,7 @@ def get_data_dir() -> str:
 
 
 def copy_proj_data():
-    data_dir = "geopolars.data/data"
+    data_dir = "python/geopolars"
     os.makedirs(data_dir, exist_ok=True)
     proj_data_dir = Path(data_dir) / "proj_data"
     if proj_data_dir.exists():
