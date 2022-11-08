@@ -1,8 +1,8 @@
 pub mod error;
+pub mod export;
 pub mod geodataframe;
 pub mod geoseries;
 pub mod spatial_index;
-pub mod export;
 mod util;
 
 #[cfg(test)]

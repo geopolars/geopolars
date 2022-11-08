@@ -3,14 +3,16 @@ import sys
 import shutil
 from pathlib import Path
 
+
 def get_data_dir() -> str:
     """
     Taken and adapted from pyproj
     """
+
     def valid_data_dir(potential_data_dir):
         if (
-                potential_data_dir is not None
-                and Path(potential_data_dir, "proj.db").exists()
+            potential_data_dir is not None
+            and Path(potential_data_dir, "proj.db").exists()
         ):
             return True
         return False
