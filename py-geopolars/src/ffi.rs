@@ -110,19 +110,3 @@ pub fn rust_series_to_py_geoseries(series: &Series) -> PyResult<PyObject> {
         Ok(out.to_object(py))
     })
 }
-
-#[cfg(feature = "proj")]
-pub fn proj_data_directory() -> PyResult<PathBuf> {
-    use pyo3::exceptions::PyIOError;
-
-    Python::with_gil(|py| {
-        let geopolars = py.import("geopolars")?;
-        let file_location: String = geopolars.getattr("__file__")?.extract()?;
-        let mut pb = Path::new(&file_location)
-            .parent()
-            .ok_or_else(|| PyIOError::new_err("can not resolve bundled proj_data directory"))?
-            .to_path_buf();
-        pb.push("proj_data");
-        Ok(pb)
-    })
-}
