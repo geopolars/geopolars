@@ -209,14 +209,9 @@ jobs:
           git pull > nul
           ./bootstrap-vcpkg.bat -disableMetrics
           vcpkg install --feature-flags="versions,manifests" --x-manifest-root=${GITHUB_WORKSPACE}/py-geopolars/ci --x-install-root=$VCPKG_INSTALLATION_ROOT/installed
-          mkdir -p ${GITHUB_WORKSPACE}/pyproj/proj_dir/share/proj
-          cp "$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/share/proj/"* ${GITHUB_WORKSPACE}/pyproj/proj_dir/share/proj/
-
-      - name: Copy PROJ_DATA into current tree
-        shell: bash
-        run: |
-          PROJ_DIR=$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }} python scripts/copy-proj-data.py
-          ls python/geopolars/proj_data/
+          mkdir -p ${GITHUB_WORKSPACE}/py-geopolars/python/geopolars/proj_data
+          cp "$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/share/proj/"* ${GITHUB_WORKSPACE}/py-geopolars/python/geopolars/proj_data/
+          ls ${GITHUB_WORKSPACE}/py-geopolars/python/geopolars/proj_data/
 
       - name: Build
         shell: bash
