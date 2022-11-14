@@ -13,7 +13,7 @@ from pkg_resources import parse_version
 
 PROJ_MIN_VERSION = parse_version("9.1.0")
 CURRENT_FILE_PATH = Path(__file__).absolute().parent
-INTERNAL_PROJ_DATA_DIR = CURRENT_FILE_PATH / "python" / "geopolars" / "proj_data"
+INTERNAL_PROJ_DATA_DIR = CURRENT_FILE_PATH / ".." / "python" / "geopolars" / "proj_data"
 PROJ_VERSION_SEARCH = re.compile(r".*Rel\.\s+(?P<version>\d+\.\d+\.\d+).*")
 
 
