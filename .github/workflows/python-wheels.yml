@@ -42,6 +42,7 @@ jobs:
           PROJ_VERSION=${{ env.PROJ_VERSION }}
           PKG_CONFIG_PATH="/project/pyproj/proj_dir/lib/pkgconfig/:$PKG_CONFIG_PATH"
           PROJ_DIR=/project/pyproj/proj_dir
+          MB_ML_VER=_2_24
 
           bash ./ci/proj-compile-wheels.sh
           ls /project/pyproj/proj_dir
