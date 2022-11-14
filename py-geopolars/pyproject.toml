@@ -9,7 +9,8 @@ dependencies = [
   # Minimum version with binary dtype
   "polars>=0.14.19",
   "pyarrow>=4.0.*",
-  "numpy >= 1.16.0"
+  "numpy >= 1.16.0",
+  "importlib_resources; python_version < '3.11'",
 ]
 requires-python = ">=3.8"
 description = "Geospatial extensions for Polars"
@@ -17,10 +18,7 @@ readme = "README.md"
 # Specify SPDX expression in Cargo.toml instead of here
 # https://maturin.rs/metadata.html#add-spdx-license-expressions
 # license = "MIT"
-authors = [
-  { name = "Kyle Barron" },
-  { name = "Stuart Lynn" }
-]
+authors = [{ name = "Kyle Barron" }, { name = "Stuart Lynn" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Topic :: Scientific/Engineering :: GIS",
@@ -43,7 +41,7 @@ warn_unused_ignores = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ["pyarrow.*", "geopandas.*"]
+module = ["pyarrow.*", "geopandas.*", "importlib_resources.*"]
 ignore_missing_imports = true
 
 # [tool.coverage.report]

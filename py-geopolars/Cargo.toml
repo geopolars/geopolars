@@ -16,7 +16,7 @@ proj = ["geopolars/proj"]
 
 [dependencies]
 polars = "0.25"
-pyo3 = { version = "0.17.2", features = ["abi3-py38", "extension-module"] }
+pyo3 = { version = "0.17.3", features = ["abi3-py38", "extension-module"] }
 geopolars = { path = "../geopolars" }
 thiserror = "1.0"
 
