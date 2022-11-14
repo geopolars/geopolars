@@ -179,6 +179,16 @@ jobs:
     defaults:
       run:
         working-directory: py-geopolars
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: "windows-2019"
+            arch: "auto64"
+            triplet: "x64-windows"
+            vcpkg_cache: "c:\\vcpkg\\installed"
+            vcpkg_logs: "c:\\vcpkg\\buildtrees\\**\\*.log"
+
     steps:
       - uses: actions/checkout@v3
 
@@ -205,13 +215,47 @@ jobs:
         shell: bash
         run: |
           python -V
-          pip install wheel
-          pip install --upgrade pip
-          pip install -r build.requirements.txt
+          python -m pip install wheel
+          python -m pip install --upgrade pip
+          python -m pip install -r build.requirements.txt
+          python -m pip install delvewheel
+
+      - name: Cache vcpkg
+        uses: actions/cache@v3
+        id: vcpkgcache
+        with:
+          path: |
+            ${{ matrix.vcpkg_cache }}
+          key: ${{ matrix.os }}-${{ matrix.triplet }}-vcpkg-proj${{ env.PROJ_VERSION }}-cache
+
+      - name: Install pkg-config
+        run: |
+          choco install pkgconfiglite -y
+
+      - name: Install PROJ with vcpkg
+        env:
+          VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+        shell: bash
+        run: |
+          cd "$VCPKG_INSTALLATION_ROOT"
+          git pull > nul
+          ./bootstrap-vcpkg.bat -disableMetrics
+          vcpkg install --feature-flags="versions,manifests" --x-manifest-root=${GITHUB_WORKSPACE}/py-geopolars/ci --x-install-root=$VCPKG_INSTALLATION_ROOT/installed
+          mkdir -p ${GITHUB_WORKSPACE}/py-geopolars/python/geopolars/proj_data
+          cp "$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/share/proj/"* ${GITHUB_WORKSPACE}/py-geopolars/python/geopolars/proj_data/
+          ls ${GITHUB_WORKSPACE}/py-geopolars/python/geopolars/proj_data/
+
       - name: Build
         shell: bash
         run: |
-          maturin build --release --strip --interpreter python -o wheels
+          export PKG_CONFIG_PATH="$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/lib/pkgconfig"
+          maturin build --release --strip --interpreter python -o wheels-pre-repair --features proj
+
+      - name: Repair wheel
+        shell: bash
+        run: |
+          python -m delvewheel repair --add-path C:/vcpkg/installed/${{ matrix.triplet }}/bin -w wheels wheels-pre-repair/*
+
       - name: List wheels
         shell: bash
         run: find ./wheels

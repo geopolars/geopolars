@@ -1,0 +1,11 @@
+{
+  "name": "py-geopolars",
+  "version": "0.1.0-alpha.3",
+  "dependencies": [
+      {
+          "name": "proj",
+          "version>=": "9.1.0"
+      }
+  ],
+  "builtin-baseline": "c382312bed3da7be96bdab0f7426eaee1b3e0460"
+}
