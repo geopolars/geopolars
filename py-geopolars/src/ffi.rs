@@ -5,9 +5,6 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::{ffi::Py_uintptr_t, PyAny, PyObject, PyResult};
 
-#[cfg(feature = "proj")]
-use std::path::{Path, PathBuf};
-
 pub type ArrayRef = Box<dyn Array>;
 
 /// Take an arrow array from python and convert it to a rust arrow array.

@@ -4,6 +4,7 @@ import polars as pl
 
 from geopolars import geopolars as core
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
+from geopolars.proj import PROJ_DATA_PATH
 
 try:
     import geopandas
@@ -294,7 +295,7 @@ class GeoSeries(pl.Series):
             # TODO: use a custom geopolars exception class here
             raise ValueError("Geopolars not built with proj support")
 
-        return core.to_crs(self, from_crs, to_crs)
+        return core.to_crs(self, from_crs, to_crs, str(PROJ_DATA_PATH))
 
     def translate(self, xoff: float = 0.0, yoff: float = 0.0) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.

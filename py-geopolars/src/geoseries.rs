@@ -149,24 +149,25 @@ pub(crate) fn distance(series: &PyAny, other: &PyAny) -> PyResult<PyObject> {
 
 #[cfg(feature = "proj")]
 #[pyfunction]
-pub(crate) fn to_crs(series: &PyAny, from: &str, to: &str) -> PyResult<PyObject> {
+pub(crate) fn to_crs(
+    series: &PyAny,
+    from: &str,
+    to: &str,
+    proj_data_dir: &str,
+) -> PyResult<PyObject> {
     use geopolars::export::proj::ProjBuilder;
 
     let series = ffi::py_series_to_rust_series(series)?;
 
     let mut proj_builder = ProjBuilder::new();
-    proj_builder
-        .set_search_paths(&ffi::proj_data_directory()?)
-        .map_err(|e| {
-            PyGeopolarsError::GeopolarsError(geopolars::error::GeopolarsError::ProjError(Box::new(
-                e,
-            )))
-        })?;
+    proj_builder.set_search_paths(proj_data_dir).map_err(|e| {
+        PyGeopolarsError::GeopolarsError(geopolars::error::GeopolarsError::ProjError(Box::new(e)))
+    })?;
 
     let out = series
         .to_crs_with_builder(from, to, proj_builder)
         .map_err(PyGeopolarsError::from)?;
-    ffi::rust_series_to_py_series(&out)
+    ffi::rust_series_to_py_geoseries(&out)
 }
 
 #[pyfunction]
