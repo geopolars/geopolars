@@ -157,10 +157,10 @@ pub(crate) fn to_crs(
     series: &PyAny,
     from: &str,
     to: &str,
-    proj_data_dir: &str,
+    proj_data_dir: PathBuf,
 ) -> PyResult<PyObject> {
     let proj_options = ProjOptions {
-        search_paths: Some(vec![PathBuf::from(proj_data_dir)]),
+        search_paths: Some(vec![proj_data_dir]),
     };
 
     let series = ffi::py_series_to_rust_series(series)?;

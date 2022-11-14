@@ -298,7 +298,7 @@ class GeoSeries(pl.Series):
         if not PROJ_DATA_PATH:
             raise ValueError("PROJ_DATA could not be found.")
 
-        return core.to_crs(self, from_crs, to_crs, str(PROJ_DATA_PATH))
+        return core.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
 
     def translate(self, xoff: float = 0.0, yoff: float = 0.0) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.
