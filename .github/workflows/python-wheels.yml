@@ -196,6 +196,10 @@ jobs:
             ${{ matrix.vcpkg_cache }}
           key: ${{ matrix.os }}-${{ matrix.triplet }}-vcpkg-proj${{ env.PROJ_VERSION }}-cache
 
+      - name: Install pkg-config
+        run: |
+          choco install pkgconfiglite -y
+
       - name: Install PROJ with vcpkg
         env:
           VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
@@ -208,10 +212,11 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/pyproj/proj_dir/share/proj
           cp "$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/share/proj/"* ${GITHUB_WORKSPACE}/pyproj/proj_dir/share/proj/
 
-        # PROJ_WHEEL=true
-        # PROJ_NETWORK=ON
-        # PROJ_VERSION=${{ env.PROJ_VERSION }}
-        # PROJ_DIR=$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}
+      - name: Copy PROJ_DATA into current tree
+        shell: bash
+        run: |
+          PROJ_DIR=$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }} python scripts/copy-proj-data.py
+          ls python/geopolars/proj_data/
 
       - name: Build
         shell: bash
