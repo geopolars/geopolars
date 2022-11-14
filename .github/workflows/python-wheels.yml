@@ -294,7 +294,14 @@ jobs:
           path: py-geopolars/dist/*.tar.gz
 
   upload_pypi:
-    needs: [build_wheels, build_sdist]
+    needs:
+      [
+        build-wheel-manylinux-2-24,
+        build-wheel-mac-x86_64,
+        build-wheel-mac-aarch64,
+        build-wheel-windows,
+        build_sdist,
+      ]
     runs-on: ubuntu-latest
     # Make sure we only run this on new tags/release
     if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
