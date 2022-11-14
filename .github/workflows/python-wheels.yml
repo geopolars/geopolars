@@ -15,6 +15,8 @@ jobs:
       run:
         working-directory: py-geopolars
 
+    # NOTE: We abstain from most reusable github actions given that this is running in a docker
+    # image
     steps:
       - uses: actions/checkout@v3
 
