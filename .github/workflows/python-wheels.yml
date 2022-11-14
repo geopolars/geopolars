@@ -67,6 +67,16 @@ jobs:
           cache: "pip"
           cache-dependency-path: "py-geopolars/build.requirements.txt"
 
+      - name: Install system dependencies
+        run: |
+          brew install proj
+          brew info proj
+
+      - name: Copy PROJ_DATA into current tree
+        run: |
+          python scripts/copy-proj-data.py
+          find python/geopolars/proj_data/
+
       - name: Install Python dependencies
         run: |
           python -V
@@ -76,7 +86,7 @@ jobs:
 
       - name: Build
         run: |
-          maturin build --release --strip --interpreter python -o wheels
+          maturin build --release --strip --interpreter python -o wheels --features proj
 
       - name: List wheels
         run: find ./wheels
