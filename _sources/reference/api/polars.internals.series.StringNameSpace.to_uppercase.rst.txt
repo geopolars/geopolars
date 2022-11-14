@@ -1,0 +1,6 @@
+﻿polars.internals.series.StringNameSpace.to\_uppercase
+=====================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: StringNameSpace.to_uppercase

@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprStringNameSpace.zfill
+===============================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprStringNameSpace.zfill

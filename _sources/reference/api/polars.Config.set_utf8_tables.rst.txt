@@ -1,0 +1,6 @@
+﻿polars.Config.set\_utf8\_tables
+===============================
+
+.. currentmodule:: polars
+
+.. automethod:: Config.set_utf8_tables

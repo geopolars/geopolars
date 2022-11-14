@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprCatNameSpace.set\_ordering
+====================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprCatNameSpace.set_ordering

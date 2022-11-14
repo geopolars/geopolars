@@ -1,0 +1,125 @@
+﻿polars.DataFrame
+================
+
+.. currentmodule:: polars
+
+.. autoclass:: DataFrame
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DataFrame.__init__
+      ~DataFrame.apply
+      ~DataFrame.cleared
+      ~DataFrame.clone
+      ~DataFrame.describe
+      ~DataFrame.distinct
+      ~DataFrame.drop
+      ~DataFrame.drop_in_place
+      ~DataFrame.drop_nulls
+      ~DataFrame.estimated_size
+      ~DataFrame.explode
+      ~DataFrame.extend
+      ~DataFrame.fill_nan
+      ~DataFrame.fill_null
+      ~DataFrame.filter
+      ~DataFrame.find_idx_by_name
+      ~DataFrame.fold
+      ~DataFrame.frame_equal
+      ~DataFrame.get_column
+      ~DataFrame.get_columns
+      ~DataFrame.groupby
+      ~DataFrame.groupby_dynamic
+      ~DataFrame.groupby_rolling
+      ~DataFrame.hash_rows
+      ~DataFrame.head
+      ~DataFrame.hstack
+      ~DataFrame.insert_at_idx
+      ~DataFrame.interpolate
+      ~DataFrame.is_duplicated
+      ~DataFrame.is_empty
+      ~DataFrame.is_unique
+      ~DataFrame.join
+      ~DataFrame.join_asof
+      ~DataFrame.lazy
+      ~DataFrame.limit
+      ~DataFrame.max
+      ~DataFrame.mean
+      ~DataFrame.median
+      ~DataFrame.melt
+      ~DataFrame.min
+      ~DataFrame.n_chunks
+      ~DataFrame.null_count
+      ~DataFrame.partition_by
+      ~DataFrame.pipe
+      ~DataFrame.pivot
+      ~DataFrame.product
+      ~DataFrame.quantile
+      ~DataFrame.rechunk
+      ~DataFrame.rename
+      ~DataFrame.replace
+      ~DataFrame.replace_at_idx
+      ~DataFrame.reverse
+      ~DataFrame.row
+      ~DataFrame.rows
+      ~DataFrame.sample
+      ~DataFrame.select
+      ~DataFrame.select_at_idx
+      ~DataFrame.shift
+      ~DataFrame.shift_and_fill
+      ~DataFrame.shrink_to_fit
+      ~DataFrame.slice
+      ~DataFrame.sort
+      ~DataFrame.std
+      ~DataFrame.sum
+      ~DataFrame.tail
+      ~DataFrame.take_every
+      ~DataFrame.to_arrow
+      ~DataFrame.to_avro
+      ~DataFrame.to_csv
+      ~DataFrame.to_dict
+      ~DataFrame.to_dicts
+      ~DataFrame.to_dummies
+      ~DataFrame.to_ipc
+      ~DataFrame.to_json
+      ~DataFrame.to_numpy
+      ~DataFrame.to_pandas
+      ~DataFrame.to_parquet
+      ~DataFrame.to_series
+      ~DataFrame.to_struct
+      ~DataFrame.transpose
+      ~DataFrame.unique
+      ~DataFrame.unnest
+      ~DataFrame.upsample
+      ~DataFrame.var
+      ~DataFrame.vstack
+      ~DataFrame.with_column
+      ~DataFrame.with_columns
+      ~DataFrame.with_row_count
+      ~DataFrame.write_avro
+      ~DataFrame.write_csv
+      ~DataFrame.write_ipc
+      ~DataFrame.write_json
+      ~DataFrame.write_parquet
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DataFrame.columns
+      ~DataFrame.dtypes
+      ~DataFrame.height
+      ~DataFrame.schema
+      ~DataFrame.shape
+      ~DataFrame.width
+   
+   

@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprStringNameSpace.replace\_all
+======================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprStringNameSpace.replace_all

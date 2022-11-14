@@ -1,0 +1,6 @@
+﻿polars.internals.frame.PivotOps.median
+======================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: PivotOps.median

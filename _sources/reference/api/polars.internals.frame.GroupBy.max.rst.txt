@@ -1,0 +1,6 @@
+﻿polars.internals.frame.GroupBy.max
+==================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: GroupBy.max

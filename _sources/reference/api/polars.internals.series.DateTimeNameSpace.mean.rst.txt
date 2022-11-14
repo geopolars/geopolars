@@ -1,0 +1,6 @@
+﻿polars.internals.series.DateTimeNameSpace.mean
+==============================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: DateTimeNameSpace.mean

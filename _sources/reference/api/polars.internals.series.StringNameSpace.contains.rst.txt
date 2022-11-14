@@ -1,0 +1,6 @@
+﻿polars.internals.series.StringNameSpace.contains
+================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: StringNameSpace.contains

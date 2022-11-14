@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprListNameSpace.unique
+==============================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprListNameSpace.unique

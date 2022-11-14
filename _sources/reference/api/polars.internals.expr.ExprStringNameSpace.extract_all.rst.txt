@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprStringNameSpace.extract\_all
+======================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprStringNameSpace.extract_all

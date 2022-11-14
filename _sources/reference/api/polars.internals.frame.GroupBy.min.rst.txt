@@ -1,0 +1,6 @@
+﻿polars.internals.frame.GroupBy.min
+==================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: GroupBy.min

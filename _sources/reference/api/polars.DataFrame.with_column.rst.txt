@@ -1,0 +1,6 @@
+﻿polars.DataFrame.with\_column
+=============================
+
+.. currentmodule:: polars
+
+.. automethod:: DataFrame.with_column

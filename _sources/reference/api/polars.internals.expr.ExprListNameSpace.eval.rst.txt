@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprListNameSpace.eval
+============================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprListNameSpace.eval

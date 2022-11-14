@@ -1,0 +1,6 @@
+﻿polars.internals.series.DateTimeNameSpace.epoch\_days
+=====================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: DateTimeNameSpace.epoch_days

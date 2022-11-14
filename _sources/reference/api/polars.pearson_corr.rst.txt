@@ -1,0 +1,6 @@
+﻿polars.pearson\_corr
+====================
+
+.. currentmodule:: polars
+
+.. autofunction:: pearson_corr

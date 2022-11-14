@@ -1,0 +1,6 @@
+﻿polars.LazyFrame.describe\_plan
+===============================
+
+.. currentmodule:: polars
+
+.. automethod:: LazyFrame.describe_plan

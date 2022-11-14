@@ -1,0 +1,6 @@
+﻿polars.Series.dt
+================
+
+.. currentmodule:: polars
+
+.. autoproperty:: Series.dt

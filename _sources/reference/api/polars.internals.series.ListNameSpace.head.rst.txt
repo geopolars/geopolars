@@ -1,0 +1,6 @@
+﻿polars.internals.series.ListNameSpace.head
+==========================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: ListNameSpace.head

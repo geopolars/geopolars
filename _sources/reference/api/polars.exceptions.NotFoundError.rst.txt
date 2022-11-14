@@ -1,0 +1,6 @@
+﻿polars.exceptions.NotFoundError
+===============================
+
+.. currentmodule:: polars.exceptions
+
+.. autoexception:: NotFoundError

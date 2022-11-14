@@ -1,0 +1,23 @@
+﻿polars.datatypes.Utf8
+=====================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: Utf8
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Utf8.__init__
+      ~Utf8.string_repr
+   
+   
+
+   
+   
+   

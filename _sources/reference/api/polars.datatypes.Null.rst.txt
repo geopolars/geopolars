@@ -1,0 +1,23 @@
+﻿polars.datatypes.Null
+=====================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: Null
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Null.__init__
+      ~Null.string_repr
+   
+   
+
+   
+   
+   

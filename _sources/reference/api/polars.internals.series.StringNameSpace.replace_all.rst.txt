@@ -1,0 +1,6 @@
+﻿polars.internals.series.StringNameSpace.replace\_all
+====================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: StringNameSpace.replace_all

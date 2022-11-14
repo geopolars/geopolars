@@ -1,0 +1,6 @@
+﻿polars.Expr.arr
+===============
+
+.. currentmodule:: polars
+
+.. autoproperty:: Expr.arr

@@ -1,0 +1,6 @@
+﻿polars.Series.inner\_dtype
+==========================
+
+.. currentmodule:: polars
+
+.. autoproperty:: Series.inner_dtype

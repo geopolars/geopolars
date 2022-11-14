@@ -1,0 +1,205 @@
+﻿geopolars.GeoSeries
+===================
+
+.. currentmodule:: geopolars
+
+.. autoclass:: GeoSeries
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GeoSeries.__init__
+      ~GeoSeries.abs
+      ~GeoSeries.affine_transform
+      ~GeoSeries.alias
+      ~GeoSeries.all
+      ~GeoSeries.any
+      ~GeoSeries.append
+      ~GeoSeries.apply
+      ~GeoSeries.arccos
+      ~GeoSeries.arccosh
+      ~GeoSeries.arcsin
+      ~GeoSeries.arcsinh
+      ~GeoSeries.arctan
+      ~GeoSeries.arctanh
+      ~GeoSeries.arg_max
+      ~GeoSeries.arg_min
+      ~GeoSeries.arg_sort
+      ~GeoSeries.arg_true
+      ~GeoSeries.arg_unique
+      ~GeoSeries.argsort
+      ~GeoSeries.cast
+      ~GeoSeries.ceil
+      ~GeoSeries.chunk_lengths
+      ~GeoSeries.cleared
+      ~GeoSeries.clip
+      ~GeoSeries.clip_max
+      ~GeoSeries.clip_min
+      ~GeoSeries.clone
+      ~GeoSeries.convex_hull
+      ~GeoSeries.cos
+      ~GeoSeries.cosh
+      ~GeoSeries.cummax
+      ~GeoSeries.cummin
+      ~GeoSeries.cumprod
+      ~GeoSeries.cumsum
+      ~GeoSeries.cumulative_eval
+      ~GeoSeries.describe
+      ~GeoSeries.diff
+      ~GeoSeries.distance
+      ~GeoSeries.dot
+      ~GeoSeries.drop_nans
+      ~GeoSeries.drop_nulls
+      ~GeoSeries.entropy
+      ~GeoSeries.envelope
+      ~GeoSeries.estimated_size
+      ~GeoSeries.euclidean_length
+      ~GeoSeries.ewm_mean
+      ~GeoSeries.ewm_std
+      ~GeoSeries.ewm_var
+      ~GeoSeries.exp
+      ~GeoSeries.explode
+      ~GeoSeries.extend_constant
+      ~GeoSeries.exterior
+      ~GeoSeries.fill_nan
+      ~GeoSeries.fill_null
+      ~GeoSeries.filter
+      ~GeoSeries.floor
+      ~GeoSeries.geodesic_length
+      ~GeoSeries.geom_skew
+      ~GeoSeries.has_validity
+      ~GeoSeries.hash
+      ~GeoSeries.head
+      ~GeoSeries.interpolate
+      ~GeoSeries.is_boolean
+      ~GeoSeries.is_datelike
+      ~GeoSeries.is_duplicated
+      ~GeoSeries.is_empty
+      ~GeoSeries.is_finite
+      ~GeoSeries.is_first
+      ~GeoSeries.is_float
+      ~GeoSeries.is_geom_empty
+      ~GeoSeries.is_in
+      ~GeoSeries.is_infinite
+      ~GeoSeries.is_nan
+      ~GeoSeries.is_not_nan
+      ~GeoSeries.is_not_null
+      ~GeoSeries.is_null
+      ~GeoSeries.is_numeric
+      ~GeoSeries.is_ring
+      ~GeoSeries.is_unique
+      ~GeoSeries.is_utf8
+      ~GeoSeries.kurtosis
+      ~GeoSeries.len
+      ~GeoSeries.limit
+      ~GeoSeries.log
+      ~GeoSeries.log10
+      ~GeoSeries.max
+      ~GeoSeries.mean
+      ~GeoSeries.median
+      ~GeoSeries.min
+      ~GeoSeries.mode
+      ~GeoSeries.n_chunks
+      ~GeoSeries.n_unique
+      ~GeoSeries.nan_max
+      ~GeoSeries.nan_min
+      ~GeoSeries.new_from_index
+      ~GeoSeries.null_count
+      ~GeoSeries.pct_change
+      ~GeoSeries.peak_max
+      ~GeoSeries.peak_min
+      ~GeoSeries.product
+      ~GeoSeries.quantile
+      ~GeoSeries.rank
+      ~GeoSeries.rechunk
+      ~GeoSeries.reinterpret
+      ~GeoSeries.rename
+      ~GeoSeries.reshape
+      ~GeoSeries.reverse
+      ~GeoSeries.rolling_apply
+      ~GeoSeries.rolling_max
+      ~GeoSeries.rolling_mean
+      ~GeoSeries.rolling_median
+      ~GeoSeries.rolling_min
+      ~GeoSeries.rolling_quantile
+      ~GeoSeries.rolling_skew
+      ~GeoSeries.rolling_std
+      ~GeoSeries.rolling_sum
+      ~GeoSeries.rolling_var
+      ~GeoSeries.rotate
+      ~GeoSeries.round
+      ~GeoSeries.sample
+      ~GeoSeries.scale
+      ~GeoSeries.search_sorted
+      ~GeoSeries.series_equal
+      ~GeoSeries.set
+      ~GeoSeries.set_at_idx
+      ~GeoSeries.set_sorted
+      ~GeoSeries.shift
+      ~GeoSeries.shift_and_fill
+      ~GeoSeries.shrink_dtype
+      ~GeoSeries.shrink_to_fit
+      ~GeoSeries.shuffle
+      ~GeoSeries.sign
+      ~GeoSeries.sin
+      ~GeoSeries.sinh
+      ~GeoSeries.skew
+      ~GeoSeries.slice
+      ~GeoSeries.sort
+      ~GeoSeries.sqrt
+      ~GeoSeries.std
+      ~GeoSeries.sum
+      ~GeoSeries.tail
+      ~GeoSeries.take
+      ~GeoSeries.take_every
+      ~GeoSeries.tan
+      ~GeoSeries.tanh
+      ~GeoSeries.to_arrow
+      ~GeoSeries.to_crs
+      ~GeoSeries.to_dummies
+      ~GeoSeries.to_frame
+      ~GeoSeries.to_geopandas
+      ~GeoSeries.to_list
+      ~GeoSeries.to_numpy
+      ~GeoSeries.to_pandas
+      ~GeoSeries.to_physical
+      ~GeoSeries.top_k
+      ~GeoSeries.translate
+      ~GeoSeries.unique
+      ~GeoSeries.unique_counts
+      ~GeoSeries.value_counts
+      ~GeoSeries.var
+      ~GeoSeries.view
+      ~GeoSeries.zip_with
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GeoSeries.area
+      ~GeoSeries.arr
+      ~GeoSeries.cat
+      ~GeoSeries.centroid
+      ~GeoSeries.dt
+      ~GeoSeries.dtype
+      ~GeoSeries.flags
+      ~GeoSeries.geom_type
+      ~GeoSeries.inner_dtype
+      ~GeoSeries.name
+      ~GeoSeries.shape
+      ~GeoSeries.str
+      ~GeoSeries.struct
+      ~GeoSeries.time_unit
+      ~GeoSeries.x
+      ~GeoSeries.y
+   
+   

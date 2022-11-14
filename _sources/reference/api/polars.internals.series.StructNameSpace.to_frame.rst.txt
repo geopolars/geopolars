@@ -1,0 +1,6 @@
+﻿polars.internals.series.StructNameSpace.to\_frame
+=================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: StructNameSpace.to_frame

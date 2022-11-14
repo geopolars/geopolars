@@ -1,0 +1,166 @@
+﻿polars.Expr
+===========
+
+.. currentmodule:: polars
+
+.. autoclass:: Expr
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Expr.__init__
+      ~Expr.abs
+      ~Expr.agg_groups
+      ~Expr.alias
+      ~Expr.all
+      ~Expr.any
+      ~Expr.append
+      ~Expr.apply
+      ~Expr.arccos
+      ~Expr.arcsin
+      ~Expr.arctan
+      ~Expr.arg_max
+      ~Expr.arg_min
+      ~Expr.arg_sort
+      ~Expr.arg_unique
+      ~Expr.argsort
+      ~Expr.backward_fill
+      ~Expr.cast
+      ~Expr.ceil
+      ~Expr.clip
+      ~Expr.cos
+      ~Expr.count
+      ~Expr.cumcount
+      ~Expr.cummax
+      ~Expr.cummin
+      ~Expr.cumprod
+      ~Expr.cumsum
+      ~Expr.cumulative_eval
+      ~Expr.diff
+      ~Expr.dot
+      ~Expr.drop_nans
+      ~Expr.drop_nulls
+      ~Expr.entropy
+      ~Expr.eq
+      ~Expr.ewm_mean
+      ~Expr.ewm_std
+      ~Expr.ewm_var
+      ~Expr.exclude
+      ~Expr.exp
+      ~Expr.explode
+      ~Expr.extend_constant
+      ~Expr.fill_nan
+      ~Expr.fill_null
+      ~Expr.filter
+      ~Expr.first
+      ~Expr.flatten
+      ~Expr.floor
+      ~Expr.forward_fill
+      ~Expr.gt
+      ~Expr.gt_eq
+      ~Expr.hash
+      ~Expr.head
+      ~Expr.inspect
+      ~Expr.interpolate
+      ~Expr.is_between
+      ~Expr.is_duplicated
+      ~Expr.is_finite
+      ~Expr.is_first
+      ~Expr.is_in
+      ~Expr.is_infinite
+      ~Expr.is_nan
+      ~Expr.is_not
+      ~Expr.is_not_nan
+      ~Expr.is_not_null
+      ~Expr.is_null
+      ~Expr.is_unique
+      ~Expr.keep_name
+      ~Expr.kurtosis
+      ~Expr.last
+      ~Expr.len
+      ~Expr.list
+      ~Expr.log
+      ~Expr.log10
+      ~Expr.lower_bound
+      ~Expr.lt
+      ~Expr.lt_eq
+      ~Expr.map
+      ~Expr.map_alias
+      ~Expr.max
+      ~Expr.mean
+      ~Expr.median
+      ~Expr.min
+      ~Expr.mode
+      ~Expr.n_unique
+      ~Expr.neq
+      ~Expr.null_count
+      ~Expr.over
+      ~Expr.pct_change
+      ~Expr.pow
+      ~Expr.prefix
+      ~Expr.product
+      ~Expr.quantile
+      ~Expr.rank
+      ~Expr.rechunk
+      ~Expr.reinterpret
+      ~Expr.repeat_by
+      ~Expr.reshape
+      ~Expr.reverse
+      ~Expr.rolling_apply
+      ~Expr.rolling_max
+      ~Expr.rolling_mean
+      ~Expr.rolling_median
+      ~Expr.rolling_min
+      ~Expr.rolling_quantile
+      ~Expr.rolling_skew
+      ~Expr.rolling_std
+      ~Expr.rolling_sum
+      ~Expr.rolling_var
+      ~Expr.round
+      ~Expr.sample
+      ~Expr.set_sorted
+      ~Expr.shift
+      ~Expr.shift_and_fill
+      ~Expr.shuffle
+      ~Expr.sign
+      ~Expr.sin
+      ~Expr.skew
+      ~Expr.slice
+      ~Expr.sort
+      ~Expr.sort_by
+      ~Expr.sqrt
+      ~Expr.std
+      ~Expr.suffix
+      ~Expr.sum
+      ~Expr.tail
+      ~Expr.take
+      ~Expr.take_every
+      ~Expr.tan
+      ~Expr.to_physical
+      ~Expr.unique
+      ~Expr.unique_counts
+      ~Expr.upper_bound
+      ~Expr.value_counts
+      ~Expr.var
+      ~Expr.where
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Expr.arr
+      ~Expr.cat
+      ~Expr.dt
+      ~Expr.str
+      ~Expr.struct
+   
+   

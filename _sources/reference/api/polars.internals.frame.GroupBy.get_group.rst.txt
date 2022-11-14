@@ -1,0 +1,6 @@
+﻿polars.internals.frame.GroupBy.get\_group
+=========================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: GroupBy.get_group

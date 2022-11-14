@@ -1,0 +1,23 @@
+﻿polars.datatypes.Datetime
+=========================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: Datetime
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Datetime.__init__
+      ~Datetime.string_repr
+   
+   
+
+   
+   
+   

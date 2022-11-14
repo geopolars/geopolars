@@ -1,0 +1,6 @@
+﻿polars.internals.series.DateTimeNameSpace.timestamp
+===================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: DateTimeNameSpace.timestamp

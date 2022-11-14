@@ -1,0 +1,6 @@
+﻿polars.DataFrame.select\_at\_idx
+================================
+
+.. currentmodule:: polars
+
+.. automethod:: DataFrame.select_at_idx

@@ -1,0 +1,6 @@
+﻿geopolars.GeoSeries.centroid
+============================
+
+.. currentmodule:: geopolars
+
+.. autoproperty:: GeoSeries.centroid

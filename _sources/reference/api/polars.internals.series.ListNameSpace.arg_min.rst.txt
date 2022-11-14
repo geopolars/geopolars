@@ -1,0 +1,6 @@
+﻿polars.internals.series.ListNameSpace.arg\_min
+==============================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: ListNameSpace.arg_min

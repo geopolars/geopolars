@@ -1,0 +1,2016 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; GeoPolars  documentation</title>
+  <script>
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+
+  
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/6.1.2/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fas fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="_static/geopolars_logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="_static/geopolars_logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="reference/index.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://docs.rs/geopolars">Rust Docs<i class="fas fa-external-link-alt"></i></a>
+            </li>
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      <div class="navbar-end-item navbar-end__search-button-container">
+        
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/geopolars/geopolars" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  <div class="search-button-container--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+  </div>
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fas fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="reference/index.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://docs.rs/geopolars">Rust Docs<i class="fas fa-external-link-alt"></i></a>
+            </li>
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/geopolars/geopolars" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+      </div>
+      <main class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#X"><strong>X</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/geopolars.GeoDataFrame.html#geopolars.GeoDataFrame.__init__">__init__() (geopolars.GeoDataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/geopolars.GeoSeries.html#geopolars.GeoSeries.__init__">(geopolars.GeoSeries method)</a>
+</li>
+        <li><a href="reference/api/polars.DataFrame.html#polars.DataFrame.__init__">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Boolean.html#polars.datatypes.Boolean.__init__">(polars.datatypes.Boolean method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Categorical.html#polars.datatypes.Categorical.__init__">(polars.datatypes.Categorical method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.DataType.html#polars.datatypes.DataType.__init__">(polars.datatypes.DataType method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Date.html#polars.datatypes.Date.__init__">(polars.datatypes.Date method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Datetime.html#polars.datatypes.Datetime.__init__">(polars.datatypes.Datetime method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Duration.html#polars.datatypes.Duration.__init__">(polars.datatypes.Duration method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Float32.html#polars.datatypes.Float32.__init__">(polars.datatypes.Float32 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Float64.html#polars.datatypes.Float64.__init__">(polars.datatypes.Float64 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Int16.html#polars.datatypes.Int16.__init__">(polars.datatypes.Int16 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Int32.html#polars.datatypes.Int32.__init__">(polars.datatypes.Int32 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Int64.html#polars.datatypes.Int64.__init__">(polars.datatypes.Int64 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Int8.html#polars.datatypes.Int8.__init__">(polars.datatypes.Int8 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.List.html#polars.datatypes.List.__init__">(polars.datatypes.List method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Null.html#polars.datatypes.Null.__init__">(polars.datatypes.Null method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Object.html#polars.datatypes.Object.__init__">(polars.datatypes.Object method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Struct.html#polars.datatypes.Struct.__init__">(polars.datatypes.Struct method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Time.html#polars.datatypes.Time.__init__">(polars.datatypes.Time method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.UInt16.html#polars.datatypes.UInt16.__init__">(polars.datatypes.UInt16 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.UInt32.html#polars.datatypes.UInt32.__init__">(polars.datatypes.UInt32 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.UInt64.html#polars.datatypes.UInt64.__init__">(polars.datatypes.UInt64 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.UInt8.html#polars.datatypes.UInt8.__init__">(polars.datatypes.UInt8 method)</a>
+</li>
+        <li><a href="reference/api/polars.datatypes.Utf8.html#polars.datatypes.Utf8.__init__">(polars.datatypes.Utf8 method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.html#polars.Expr.__init__">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.html#polars.Series.__init__">(polars.Series method)</a>
+</li>
+        <li><a href="reference/api/polars.StringCache.html#polars.StringCache.__init__">(polars.StringCache method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.abs.html#polars.Expr.abs">abs() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.abs.html#polars.Series.abs">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.affine_transform.html#geopolars.GeoSeries.affine_transform">affine_transform() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.agg_groups.html#polars.Expr.agg_groups">agg_groups() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.alias.html#polars.Expr.alias">alias() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.alias.html#polars.Series.alias">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.all.html#polars.all">all() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.all.html#polars.Expr.all">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.all.html#polars.Series.all">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.any.html#polars.any">any() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.any.html#polars.Expr.any">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.any.html#polars.Series.any">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.append.html#polars.Expr.append">append() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.append.html#polars.Series.append">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.apply.html#polars.apply">apply() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.apply.html#polars.DataFrame.apply">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.apply.html#polars.Expr.apply">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.apply.html#polars.Series.apply">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.arange.html#polars.arange">arange() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.arccos.html#polars.Expr.arccos">arccos() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.arccos.html#polars.Series.arccos">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.arcsin.html#polars.Expr.arcsin">arcsin() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.arcsin.html#polars.Series.arcsin">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.arctan.html#polars.Expr.arctan">arctan() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.arctan.html#polars.Series.arctan">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.area.html#geopolars.GeoSeries.area">area (geopolars.GeoSeries property)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.arg_max.html#polars.Expr.arg_max">arg_max() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.arg_max.html#polars.Series.arg_max">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.arg_min.html#polars.Expr.arg_min">arg_min() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.arg_min.html#polars.Series.arg_min">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.arg_sort.html#polars.Expr.arg_sort">arg_sort() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.Series.arg_true.html#polars.Series.arg_true">arg_true() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.arg_unique.html#polars.Expr.arg_unique">arg_unique() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.arg_unique.html#polars.Series.arg_unique">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.arg_where.html#polars.arg_where">arg_where() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.argsort.html#polars.Expr.argsort">argsort() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.argsort.html#polars.Series.argsort">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.argsort_by.html#polars.argsort_by">argsort_by() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.arr.html#polars.Expr.arr">arr (polars.Expr property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.arr.html#polars.Series.arr">(polars.Series property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.exceptions.ArrowError.html#polars.exceptions.ArrowError">ArrowError (in module polars.exceptions)</a>
+</li>
+      <li><a href="reference/api/polars.testing.assert_frame_equal.html#polars.testing.assert_frame_equal">assert_frame_equal() (in module polars.testing)</a>
+</li>
+      <li><a href="reference/api/polars.testing.assert_series_equal.html#polars.testing.assert_series_equal">assert_series_equal() (in module polars.testing)</a>
+</li>
+      <li><a href="reference/api/polars.avg.html#polars.avg">avg() (in module polars)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.backward_fill.html#polars.Expr.backward_fill">backward_fill() (polars.Expr method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.datatypes.Boolean.html#polars.datatypes.Boolean">Boolean (class in polars.datatypes)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.LazyFrame.cache.html#polars.LazyFrame.cache">cache() (polars.LazyFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.cast.html#polars.Expr.cast">cast() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cast.html#polars.Series.cast">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.cat.html#polars.Expr.cat">cat (polars.Expr property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cat.html#polars.Series.cat">(polars.Series property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.datatypes.Categorical.html#polars.datatypes.Categorical">Categorical (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.ceil.html#polars.Expr.ceil">ceil() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.ceil.html#polars.Series.ceil">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.centroid.html#geopolars.GeoSeries.centroid">centroid (geopolars.GeoSeries property)</a>
+</li>
+      <li><a href="reference/api/polars.Series.chunk_lengths.html#polars.Series.chunk_lengths">chunk_lengths() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.clip.html#polars.Expr.clip">clip() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.clip.html#polars.Series.clip">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.clone.html#polars.DataFrame.clone">clone() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.clone.html#polars.Series.clone">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.col.html#polars.col">col() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.LazyFrame.collect.html#polars.LazyFrame.collect">collect() (polars.LazyFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.collect_all.html#polars.collect_all">collect_all() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.columns.html#polars.DataFrame.columns">columns (polars.DataFrame property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.columns.html#polars.LazyFrame.columns">(polars.LazyFrame property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.exceptions.ComputeError.html#polars.exceptions.ComputeError">ComputeError</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.concat.html#polars.concat">concat() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.concat_list.html#polars.concat_list">concat_list() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.concat_str.html#polars.concat_str">concat_str() (in module polars)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.convex_hull.html#geopolars.GeoSeries.convex_hull">convex_hull() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.cos.html#polars.Expr.cos">cos() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cos.html#polars.Series.cos">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.count.html#polars.count">count() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.count.html#polars.Expr.count">(polars.Expr method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.cov.html#polars.cov">cov() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.cumcount.html#polars.Expr.cumcount">cumcount() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.cummax.html#polars.Expr.cummax">cummax() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cummax.html#polars.Series.cummax">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.cummin.html#polars.Expr.cummin">cummin() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cummin.html#polars.Series.cummin">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.cumprod.html#polars.Expr.cumprod">cumprod() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cumprod.html#polars.Series.cumprod">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.cumsum.html#polars.Expr.cumsum">cumsum() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cumsum.html#polars.Series.cumsum">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.cumulative_eval.html#polars.Expr.cumulative_eval">cumulative_eval() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.cumulative_eval.html#polars.Series.cumulative_eval">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.html#polars.DataFrame">DataFrame (class in polars)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.DataType.html#polars.datatypes.DataType">DataType (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Date.html#polars.datatypes.Date">Date (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.date.html#polars.date">date() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.date_range.html#polars.date_range">date_range() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Datetime.html#polars.datatypes.Datetime">Datetime (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datetime.html#polars.datetime">datetime() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.describe.html#polars.DataFrame.describe">describe() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.describe.html#polars.Series.describe">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.LazyFrame.describe_optimized_plan.html#polars.LazyFrame.describe_optimized_plan">describe_optimized_plan() (polars.LazyFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.LazyFrame.describe_plan.html#polars.LazyFrame.describe_plan">describe_plan() (polars.LazyFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.diff.html#polars.Expr.diff">diff() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.diff.html#polars.Series.diff">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.distance.html#geopolars.GeoSeries.distance">distance() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.dot.html#polars.Expr.dot">dot() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.dot.html#polars.Series.dot">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.drop.html#polars.DataFrame.drop">drop() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.drop.html#polars.LazyFrame.drop">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.drop_in_place.html#polars.DataFrame.drop_in_place">drop_in_place() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.drop_nans.html#polars.Expr.drop_nans">drop_nans() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.drop_nans.html#polars.Series.drop_nans">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.drop_nulls.html#polars.DataFrame.drop_nulls">drop_nulls() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.drop_nulls.html#polars.Expr.drop_nulls">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.drop_nulls.html#polars.LazyFrame.drop_nulls">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.drop_nulls.html#polars.Series.drop_nulls">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.dt.html#polars.Expr.dt">dt (polars.Expr property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.dt.html#polars.Series.dt">(polars.Series property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.dtype.html#polars.Series.dtype">dtype (polars.Series property)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.dtypes.html#polars.DataFrame.dtypes">dtypes (polars.DataFrame property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.dtypes.html#polars.LazyFrame.dtypes">(polars.LazyFrame property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.exceptions.DuplicateError.html#polars.exceptions.DuplicateError">DuplicateError</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Duration.html#polars.datatypes.Duration">Duration (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.duration.html#polars.duration">duration() (in module polars)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.element.html#polars.element">element() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.entropy.html#polars.Expr.entropy">entropy() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.entropy.html#polars.Series.entropy">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.envelope.html#geopolars.GeoSeries.envelope">envelope() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.estimated_size.html#polars.DataFrame.estimated_size">estimated_size() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.estimated_size.html#polars.Series.estimated_size">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.euclidean_length.html#geopolars.GeoSeries.euclidean_length">euclidean_length() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.ewm_mean.html#polars.Expr.ewm_mean">ewm_mean() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.ewm_mean.html#polars.Series.ewm_mean">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.ewm_std.html#polars.Expr.ewm_std">ewm_std() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.ewm_std.html#polars.Series.ewm_std">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.ewm_var.html#polars.Expr.ewm_var">ewm_var() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.ewm_var.html#polars.Series.ewm_var">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.exclude.html#polars.exclude">exclude() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.exclude.html#polars.Expr.exclude">(polars.Expr method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.exp.html#polars.Expr.exp">exp() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.exp.html#polars.Series.exp">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.explode.html#polars.DataFrame.explode">explode() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.explode.html#polars.Expr.explode">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.explode.html#polars.LazyFrame.explode">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.explode.html#polars.Series.explode">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.html#polars.Expr">Expr (class in polars)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.extend.html#polars.DataFrame.extend">extend() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.extend_constant.html#polars.Expr.extend_constant">extend_constant() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.extend_constant.html#polars.Series.extend_constant">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.exterior.html#geopolars.GeoSeries.exterior">exterior() (geopolars.GeoSeries method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.LazyFrame.fetch.html#polars.LazyFrame.fetch">fetch() (polars.LazyFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.fill_nan.html#polars.DataFrame.fill_nan">fill_nan() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.fill_nan.html#polars.Expr.fill_nan">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.fill_nan.html#polars.LazyFrame.fill_nan">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.fill_nan.html#polars.Series.fill_nan">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.fill_null.html#polars.DataFrame.fill_null">fill_null() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.fill_null.html#polars.Expr.fill_null">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.fill_null.html#polars.LazyFrame.fill_null">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.fill_null.html#polars.Series.fill_null">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.filter.html#polars.DataFrame.filter">filter() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.filter.html#polars.Expr.filter">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.filter.html#polars.LazyFrame.filter">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.filter.html#polars.Series.filter">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.find_idx_by_name.html#polars.DataFrame.find_idx_by_name">find_idx_by_name() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.first.html#polars.first">first() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.first.html#polars.Expr.first">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.first.html#polars.LazyFrame.first">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.flatten.html#polars.Expr.flatten">flatten() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Float32.html#polars.datatypes.Float32">Float32 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Float64.html#polars.datatypes.Float64">Float64 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.floor.html#polars.Expr.floor">floor() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.floor.html#polars.Series.floor">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.fold.html#polars.fold">fold() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.fold.html#polars.DataFrame.fold">(polars.DataFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.format.html#polars.format">format() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.forward_fill.html#polars.Expr.forward_fill">forward_fill() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.frame_equal.html#polars.DataFrame.frame_equal">frame_equal() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/geopolars.from_arrow.html#geopolars.from_arrow">from_arrow() (in module geopolars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.from_arrow.html#polars.from_arrow">(in module polars)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.from_dict.html#polars.from_dict">from_dict() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.from_dicts.html#polars.from_dicts">from_dicts() (in module polars)</a>
+</li>
+      <li><a href="reference/api/geopolars.from_geopandas.html#geopolars.from_geopandas">from_geopandas() (in module geopolars)</a>
+</li>
+      <li><a href="reference/api/polars.LazyFrame.from_json.html#polars.LazyFrame.from_json">from_json() (polars.LazyFrame class method)</a>
+</li>
+      <li><a href="reference/api/polars.from_pandas.html#polars.from_pandas">from_pandas() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.from_records.html#polars.from_records">from_records() (in module polars)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/geopolars.GeoDataFrame.html#geopolars.GeoDataFrame">GeoDataFrame (class in geopolars)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.geodesic_length.html#geopolars.GeoSeries.geodesic_length">geodesic_length() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.geom_skew.html#geopolars.GeoSeries.geom_skew">geom_skew() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.geom_type.html#geopolars.GeoSeries.geom_type">geom_type (geopolars.GeoSeries property)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoDataFrame.geometry.html#geopolars.GeoDataFrame.geometry">geometry (geopolars.GeoDataFrame property)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.html#geopolars.GeoSeries">GeoSeries (class in geopolars)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoDataFrame.get_column.html#geopolars.GeoDataFrame.get_column">get_column() (geopolars.GeoDataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.get_column.html#polars.DataFrame.get_column">(polars.DataFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.get_columns.html#polars.DataFrame.get_columns">get_columns() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.get_dummies.html#polars.get_dummies">get_dummies() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.groupby.html#polars.DataFrame.groupby">groupby() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.groupby.html#polars.LazyFrame.groupby">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.groupby_dynamic.html#polars.DataFrame.groupby_dynamic">groupby_dynamic() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.groupby_dynamic.html#polars.LazyFrame.groupby_dynamic">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.groupby_rolling.html#polars.DataFrame.groupby_rolling">groupby_rolling() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.groupby_rolling.html#polars.LazyFrame.groupby_rolling">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.groups.html#polars.groups">groups() (in module polars)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Series.has_validity.html#polars.Series.has_validity">has_validity() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.hash.html#polars.Expr.hash">hash() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.hash.html#polars.Series.hash">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.hash_rows.html#polars.DataFrame.hash_rows">hash_rows() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.head.html#polars.head">head() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.head.html#polars.DataFrame.head">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.head.html#polars.Expr.head">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.head.html#polars.LazyFrame.head">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.head.html#polars.Series.head">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.height.html#polars.DataFrame.height">height (polars.DataFrame property)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.hstack.html#polars.DataFrame.hstack">hstack() (polars.DataFrame method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Series.inner_dtype.html#polars.Series.inner_dtype">inner_dtype (polars.Series property)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.insert_at_idx.html#polars.DataFrame.insert_at_idx">insert_at_idx() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.inspect.html#polars.Expr.inspect">inspect() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.inspect.html#polars.LazyFrame.inspect">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.datatypes.Int16.html#polars.datatypes.Int16">Int16 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Int32.html#polars.datatypes.Int32">Int32 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Int64.html#polars.datatypes.Int64">Int64 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Int8.html#polars.datatypes.Int8">Int8 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.interpolate.html#polars.DataFrame.interpolate">interpolate() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.interpolate.html#polars.Expr.interpolate">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.interpolate.html#polars.LazyFrame.interpolate">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.interpolate.html#polars.Series.interpolate">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.is_between.html#polars.Expr.is_between">is_between() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.Series.is_boolean.html#polars.Series.is_boolean">is_boolean() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Series.is_datelike.html#polars.Series.is_datelike">is_datelike() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.is_duplicated.html#polars.DataFrame.is_duplicated">is_duplicated() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.is_duplicated.html#polars.Expr.is_duplicated">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.is_duplicated.html#polars.Series.is_duplicated">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.is_empty.html#polars.DataFrame.is_empty">is_empty() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.is_finite.html#polars.Expr.is_finite">is_finite() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_finite.html#polars.Series.is_finite">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.is_first.html#polars.Expr.is_first">is_first() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_first.html#polars.Series.is_first">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Series.is_float.html#polars.Series.is_float">is_float() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.is_geom_empty.html#geopolars.GeoSeries.is_geom_empty">is_geom_empty() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.is_in.html#polars.Expr.is_in">is_in() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_in.html#polars.Series.is_in">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.is_infinite.html#polars.Expr.is_infinite">is_infinite() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_infinite.html#polars.Series.is_infinite">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.is_nan.html#polars.Expr.is_nan">is_nan() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_nan.html#polars.Series.is_nan">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.is_not.html#polars.Expr.is_not">is_not() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.is_not_nan.html#polars.Expr.is_not_nan">is_not_nan() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_not_nan.html#polars.Series.is_not_nan">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.is_not_null.html#polars.Expr.is_not_null">is_not_null() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_not_null.html#polars.Series.is_not_null">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.is_null.html#polars.Expr.is_null">is_null() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.is_null.html#polars.Series.is_null">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.is_numeric.html#polars.Series.is_numeric">is_numeric() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.is_ring.html#geopolars.GeoSeries.is_ring">is_ring() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.is_unique.html#polars.DataFrame.is_unique">is_unique() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.is_unique.html#polars.Expr.is_unique">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.is_unique.html#polars.Series.is_unique">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.is_utf8.html#polars.Series.is_utf8">is_utf8() (polars.Series method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.join.html#polars.DataFrame.join">join() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.join.html#polars.LazyFrame.join">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.join_asof.html#polars.DataFrame.join_asof">join_asof() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.join_asof.html#polars.LazyFrame.join_asof">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.keep_name.html#polars.Expr.keep_name">keep_name() (polars.Expr method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.kurtosis.html#polars.Expr.kurtosis">kurtosis() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.kurtosis.html#polars.Series.kurtosis">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.last.html#polars.last">last() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.last.html#polars.Expr.last">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.last.html#polars.LazyFrame.last">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.lazy.html#polars.DataFrame.lazy">lazy() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.len.html#polars.Expr.len">len() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.len.html#polars.Series.len">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.limit.html#polars.DataFrame.limit">limit() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.limit.html#polars.LazyFrame.limit">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.limit.html#polars.Series.limit">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.datatypes.List.html#polars.datatypes.List">List (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.list.html#polars.list">list() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.list.html#polars.Expr.list">(polars.Expr method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.lit.html#polars.lit">lit() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.log.html#polars.Expr.log">log() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.log.html#polars.Series.log">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.log10.html#polars.Expr.log10">log10() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.log10.html#polars.Series.log10">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.lower_bound.html#polars.Expr.lower_bound">lower_bound() (polars.Expr method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.map.html#polars.map">map() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.map.html#polars.Expr.map">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.map.html#polars.LazyFrame.map">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.map_alias.html#polars.Expr.map_alias">map_alias() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.max.html#polars.max">max() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.max.html#polars.DataFrame.max">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.max.html#polars.Expr.max">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.max.html#polars.LazyFrame.max">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.max.html#polars.Series.max">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.mean.html#polars.mean">mean() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.mean.html#polars.DataFrame.mean">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.mean.html#polars.Expr.mean">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.mean.html#polars.LazyFrame.mean">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.mean.html#polars.Series.mean">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.median.html#polars.median">median() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.median.html#polars.DataFrame.median">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.median.html#polars.Expr.median">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.median.html#polars.LazyFrame.median">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.median.html#polars.Series.median">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.melt.html#polars.DataFrame.melt">melt() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.melt.html#polars.LazyFrame.melt">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.min.html#polars.min">min() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.min.html#polars.DataFrame.min">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.min.html#polars.Expr.min">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.min.html#polars.LazyFrame.min">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.min.html#polars.Series.min">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.mode.html#polars.Expr.mode">mode() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.mode.html#polars.Series.mode">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.n_chunks.html#polars.DataFrame.n_chunks">n_chunks() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.n_chunks.html#polars.Series.n_chunks">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.n_unique.html#polars.n_unique">n_unique() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.n_unique.html#polars.Expr.n_unique">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.n_unique.html#polars.Series.n_unique">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.name.html#polars.Series.name">name (polars.Series property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.exceptions.NoDataError.html#polars.exceptions.NoDataError">NoDataError</a>
+</li>
+      <li><a href="reference/api/polars.exceptions.NotFoundError.html#polars.exceptions.NotFoundError">NotFoundError</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Null.html#polars.datatypes.Null">Null (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.null_count.html#polars.DataFrame.null_count">null_count() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.null_count.html#polars.Expr.null_count">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.null_count.html#polars.Series.null_count">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.datatypes.Object.html#polars.datatypes.Object">Object (class in polars.datatypes)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.over.html#polars.Expr.over">over() (polars.Expr method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.exceptions.PanicException.html#polars.exceptions.PanicException">PanicException</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.partition_by.html#polars.DataFrame.partition_by">partition_by() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.pct_change.html#polars.Expr.pct_change">pct_change() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.pct_change.html#polars.Series.pct_change">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.peak_max.html#polars.Series.peak_max">peak_max() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Series.peak_min.html#polars.Series.peak_min">peak_min() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.pearson_corr.html#polars.pearson_corr">pearson_corr() (in module polars)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.pipe.html#polars.DataFrame.pipe">pipe() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.pipe.html#polars.LazyFrame.pipe">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.pivot.html#polars.DataFrame.pivot">pivot() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.pow.html#polars.Expr.pow">pow() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.prefix.html#polars.Expr.prefix">prefix() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.product.html#polars.DataFrame.product">product() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.product.html#polars.Expr.product">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.product.html#polars.Series.product">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.quantile.html#polars.quantile">quantile() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.quantile.html#polars.DataFrame.quantile">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.quantile.html#polars.Expr.quantile">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.quantile.html#polars.LazyFrame.quantile">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.quantile.html#polars.Series.quantile">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.rank.html#polars.Expr.rank">rank() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rank.html#polars.Series.rank">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.read_avro.html#polars.read_avro">read_avro() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.read_csv.html#polars.read_csv">read_csv() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.read_excel.html#polars.read_excel">read_excel() (in module polars)</a>
+</li>
+      <li><a href="reference/api/geopolars.read_file.html#geopolars.read_file">read_file() (in module geopolars)</a>
+</li>
+      <li><a href="reference/api/polars.read_ipc.html#polars.read_ipc">read_ipc() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.read_ipc_schema.html#polars.read_ipc_schema">read_ipc_schema() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.read_json.html#polars.read_json">read_json() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.read_json.html#polars.LazyFrame.read_json">(polars.LazyFrame class method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.read_parquet.html#polars.read_parquet">read_parquet() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.read_parquet_schema.html#polars.read_parquet_schema">read_parquet_schema() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.read_sql.html#polars.read_sql">read_sql() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.rechunk.html#polars.DataFrame.rechunk">rechunk() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.rechunk.html#polars.Expr.rechunk">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.rechunk.html#polars.Series.rechunk">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.reinterpret.html#polars.Expr.reinterpret">reinterpret() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.reinterpret.html#polars.Series.reinterpret">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.rename.html#polars.DataFrame.rename">rename() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.rename.html#polars.LazyFrame.rename">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.rename.html#polars.Series.rename">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.repeat.html#polars.repeat">repeat() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.repeat_by.html#polars.Expr.repeat_by">repeat_by() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.replace.html#polars.DataFrame.replace">replace() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.replace_at_idx.html#polars.DataFrame.replace_at_idx">replace_at_idx() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.reshape.html#polars.Expr.reshape">reshape() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.reshape.html#polars.Series.reshape">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.reverse.html#polars.Expr.reverse">reverse() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.reverse.html#polars.LazyFrame.reverse">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_apply.html#polars.Expr.rolling_apply">rolling_apply() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_apply.html#polars.Series.rolling_apply">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_max.html#polars.Expr.rolling_max">rolling_max() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_max.html#polars.Series.rolling_max">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_mean.html#polars.Expr.rolling_mean">rolling_mean() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_mean.html#polars.Series.rolling_mean">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_median.html#polars.Expr.rolling_median">rolling_median() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_median.html#polars.Series.rolling_median">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_min.html#polars.Expr.rolling_min">rolling_min() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_min.html#polars.Series.rolling_min">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_quantile.html#polars.Expr.rolling_quantile">rolling_quantile() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_quantile.html#polars.Series.rolling_quantile">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_skew.html#polars.Expr.rolling_skew">rolling_skew() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_skew.html#polars.Series.rolling_skew">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_std.html#polars.Expr.rolling_std">rolling_std() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_std.html#polars.Series.rolling_std">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_sum.html#polars.Expr.rolling_sum">rolling_sum() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_sum.html#polars.Series.rolling_sum">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.rolling_var.html#polars.Expr.rolling_var">rolling_var() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.rolling_var.html#polars.Series.rolling_var">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.rotate.html#geopolars.GeoSeries.rotate">rotate() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.round.html#polars.Expr.round">round() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.round.html#polars.Series.round">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.row.html#polars.DataFrame.row">row() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.rows.html#polars.DataFrame.rows">rows() (polars.DataFrame method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.sample.html#polars.DataFrame.sample">sample() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.sample.html#polars.Expr.sample">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.sample.html#polars.Series.sample">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.scale.html#geopolars.GeoSeries.scale">scale() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.scan_csv.html#polars.scan_csv">scan_csv() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.scan_ds.html#polars.scan_ds">scan_ds() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.scan_ipc.html#polars.scan_ipc">scan_ipc() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.scan_parquet.html#polars.scan_parquet">scan_parquet() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.schema.html#polars.DataFrame.schema">schema (polars.DataFrame property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.schema.html#polars.LazyFrame.schema">(polars.LazyFrame property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.exceptions.SchemaError.html#polars.exceptions.SchemaError">SchemaError</a>
+</li>
+      <li><a href="reference/api/polars.select.html#polars.select">select() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.select.html#polars.DataFrame.select">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.select.html#polars.LazyFrame.select">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.html#polars.Series">Series (class in polars)</a>
+</li>
+      <li><a href="reference/api/polars.Series.series_equal.html#polars.Series.series_equal">series_equal() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Series.set.html#polars.Series.set">set() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Config.set_ascii_tables.html#polars.Config.set_ascii_tables">set_ascii_tables() (polars.Config class method)</a>
+</li>
+      <li><a href="reference/api/polars.Series.set_at_idx.html#polars.Series.set_at_idx">set_at_idx() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.set_sorted.html#polars.Expr.set_sorted">set_sorted() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.set_sorted.html#polars.Series.set_sorted">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Config.set_tbl_cols.html#polars.Config.set_tbl_cols">set_tbl_cols() (polars.Config class method)</a>
+</li>
+      <li><a href="reference/api/polars.Config.set_tbl_rows.html#polars.Config.set_tbl_rows">set_tbl_rows() (polars.Config class method)</a>
+</li>
+      <li><a href="reference/api/polars.Config.set_tbl_width_chars.html#polars.Config.set_tbl_width_chars">set_tbl_width_chars() (polars.Config class method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.shape.html#polars.DataFrame.shape">shape (polars.DataFrame property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.shape.html#polars.Series.shape">(polars.Series property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.exceptions.ShapeError.html#polars.exceptions.ShapeError">ShapeError</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.shift.html#polars.DataFrame.shift">shift() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.shift.html#polars.Expr.shift">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.shift.html#polars.LazyFrame.shift">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.shift.html#polars.Series.shift">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.shift_and_fill.html#polars.DataFrame.shift_and_fill">shift_and_fill() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.shift_and_fill.html#polars.Expr.shift_and_fill">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.shift_and_fill.html#polars.LazyFrame.shift_and_fill">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.shift_and_fill.html#polars.Series.shift_and_fill">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.LazyFrame.show_graph.html#polars.LazyFrame.show_graph">show_graph() (polars.LazyFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.shrink_to_fit.html#polars.DataFrame.shrink_to_fit">shrink_to_fit() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.shrink_to_fit.html#polars.Series.shrink_to_fit">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.shuffle.html#polars.Expr.shuffle">shuffle() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.shuffle.html#polars.Series.shuffle">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.sign.html#polars.Expr.sign">sign() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.sign.html#polars.Series.sign">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.sin.html#polars.Expr.sin">sin() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.sin.html#polars.Series.sin">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.skew.html#geopolars.GeoSeries.skew">skew() (geopolars.GeoSeries method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.skew.html#polars.Expr.skew">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.skew.html#polars.Series.skew">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.slice.html#polars.DataFrame.slice">slice() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.slice.html#polars.Expr.slice">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.slice.html#polars.LazyFrame.slice">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.slice.html#polars.Series.slice">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.sort.html#polars.DataFrame.sort">sort() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.sort.html#polars.Expr.sort">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.sort.html#polars.LazyFrame.sort">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.sort.html#polars.Series.sort">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.sort_by.html#polars.Expr.sort_by">sort_by() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.spearman_rank_corr.html#polars.spearman_rank_corr">spearman_rank_corr() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.sqrt.html#polars.Expr.sqrt">sqrt() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.sqrt.html#polars.Series.sqrt">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.std.html#polars.std">std() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.std.html#polars.DataFrame.std">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.std.html#polars.Expr.std">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.std.html#polars.LazyFrame.std">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.std.html#polars.Series.std">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.str.html#polars.Expr.str">str (polars.Expr property)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.str.html#polars.Series.str">(polars.Series property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.StringCache.html#polars.StringCache">StringCache (class in polars)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Struct.html#polars.datatypes.Struct">Struct (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.struct.html#polars.struct">struct() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.suffix.html#polars.Expr.suffix">suffix() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.sum.html#polars.sum">sum() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.sum.html#polars.DataFrame.sum">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.sum.html#polars.Expr.sum">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.sum.html#polars.LazyFrame.sum">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.sum.html#polars.Series.sum">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.tail.html#polars.tail">tail() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.tail.html#polars.DataFrame.tail">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.tail.html#polars.Expr.tail">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.tail.html#polars.LazyFrame.tail">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.tail.html#polars.Series.tail">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.take.html#polars.Expr.take">take() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.take.html#polars.Series.take">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.take_every.html#polars.Expr.take_every">take_every() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.take_every.html#polars.Series.take_every">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.tan.html#polars.Expr.tan">tan() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.tan.html#polars.Series.tan">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.threadpool_size.html#polars.threadpool_size">threadpool_size() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Time.html#polars.datatypes.Time">Time (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.Series.time_unit.html#polars.Series.time_unit">time_unit (polars.Series property)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.to_arrow.html#polars.DataFrame.to_arrow">to_arrow() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.to_arrow.html#polars.Series.to_arrow">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/geopolars.GeoSeries.to_crs.html#geopolars.GeoSeries.to_crs">to_crs() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.to_dict.html#polars.DataFrame.to_dict">to_dict() (polars.DataFrame method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.to_dicts.html#polars.DataFrame.to_dicts">to_dicts() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.to_dummies.html#polars.DataFrame.to_dummies">to_dummies() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.to_dummies.html#polars.Series.to_dummies">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.to_frame.html#polars.Series.to_frame">to_frame() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoDataFrame.to_geopandas.html#geopolars.GeoDataFrame.to_geopandas">to_geopandas() (geopolars.GeoDataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/geopolars.GeoSeries.to_geopandas.html#geopolars.GeoSeries.to_geopandas">(geopolars.GeoSeries method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Series.to_list.html#polars.Series.to_list">to_list() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.to_numpy.html#polars.DataFrame.to_numpy">to_numpy() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.to_numpy.html#polars.Series.to_numpy">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.to_pandas.html#polars.DataFrame.to_pandas">to_pandas() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.to_pandas.html#polars.Series.to_pandas">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.to_physical.html#polars.Expr.to_physical">to_physical() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.to_physical.html#polars.Series.to_physical">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.to_series.html#polars.DataFrame.to_series">to_series() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.to_struct.html#polars.DataFrame.to_struct">to_struct() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.toggle_string_cache.html#polars.toggle_string_cache">toggle_string_cache() (in module polars)</a>
+</li>
+      <li><a href="reference/api/geopolars.GeoSeries.translate.html#geopolars.GeoSeries.translate">translate() (geopolars.GeoSeries method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.transpose.html#polars.DataFrame.transpose">transpose() (polars.DataFrame method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.datatypes.UInt16.html#polars.datatypes.UInt16">UInt16 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.UInt32.html#polars.datatypes.UInt32">UInt32 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.UInt64.html#polars.datatypes.UInt64">UInt64 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.UInt8.html#polars.datatypes.UInt8">UInt8 (class in polars.datatypes)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.unique.html#polars.DataFrame.unique">unique() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Expr.unique.html#polars.Expr.unique">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.unique.html#polars.LazyFrame.unique">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.unique.html#polars.Series.unique">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.unique_counts.html#polars.Expr.unique_counts">unique_counts() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.unique_counts.html#polars.Series.unique_counts">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.unnest.html#polars.DataFrame.unnest">unnest() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.unnest.html#polars.LazyFrame.unnest">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.Expr.upper_bound.html#polars.Expr.upper_bound">upper_bound() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.upsample.html#polars.DataFrame.upsample">upsample() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.datatypes.Utf8.html#polars.datatypes.Utf8">Utf8 (class in polars.datatypes)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Expr.value_counts.html#polars.Expr.value_counts">value_counts() (polars.Expr method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.Series.value_counts.html#polars.Series.value_counts">(polars.Series method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.var.html#polars.var">var() (in module polars)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.DataFrame.var.html#polars.DataFrame.var">(polars.DataFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Expr.var.html#polars.Expr.var">(polars.Expr method)</a>
+</li>
+        <li><a href="reference/api/polars.LazyFrame.var.html#polars.LazyFrame.var">(polars.LazyFrame method)</a>
+</li>
+        <li><a href="reference/api/polars.Series.var.html#polars.Series.var">(polars.Series method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Series.view.html#polars.Series.view">view() (polars.Series method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.vstack.html#polars.DataFrame.vstack">vstack() (polars.DataFrame method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.when.html#polars.when">when() (in module polars)</a>
+</li>
+      <li><a href="reference/api/polars.Expr.where.html#polars.Expr.where">where() (polars.Expr method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.width.html#polars.DataFrame.width">width (polars.DataFrame property)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.with_column.html#polars.DataFrame.with_column">with_column() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.with_column.html#polars.LazyFrame.with_column">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.with_columns.html#polars.DataFrame.with_columns">with_columns() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.with_columns.html#polars.LazyFrame.with_columns">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.DataFrame.with_row_count.html#polars.DataFrame.with_row_count">with_row_count() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.with_row_count.html#polars.LazyFrame.with_row_count">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.write_avro.html#polars.DataFrame.write_avro">write_avro() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.write_csv.html#polars.DataFrame.write_csv">write_csv() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.write_ipc.html#polars.DataFrame.write_ipc">write_ipc() (polars.DataFrame method)</a>
+</li>
+      <li><a href="reference/api/polars.DataFrame.write_json.html#polars.DataFrame.write_json">write_json() (polars.DataFrame method)</a>
+
+      <ul>
+        <li><a href="reference/api/polars.LazyFrame.write_json.html#polars.LazyFrame.write_json">(polars.LazyFrame method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/api/polars.DataFrame.write_parquet.html#polars.DataFrame.write_parquet">write_parquet() (polars.DataFrame method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="X">X</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/geopolars.GeoSeries.x.html#geopolars.GeoSeries.x">x (geopolars.GeoSeries property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/geopolars.GeoSeries.y.html#geopolars.GeoSeries.y">y (geopolars.GeoSeries property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/polars.Series.zip_with.html#polars.Series.zip_with">zip_with() (polars.Series method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2022, GeoPolars contributors.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

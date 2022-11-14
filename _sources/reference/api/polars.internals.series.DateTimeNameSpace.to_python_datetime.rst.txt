@@ -1,0 +1,6 @@
+﻿polars.internals.series.DateTimeNameSpace.to\_python\_datetime
+==============================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: DateTimeNameSpace.to_python_datetime

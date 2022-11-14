@@ -1,0 +1,6 @@
+﻿geopolars.GeoDataFrame.to\_geopandas
+====================================
+
+.. currentmodule:: geopolars
+
+.. automethod:: GeoDataFrame.to_geopandas

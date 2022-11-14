@@ -1,0 +1,6 @@
+﻿polars.Config.unset\_global\_string\_cache
+==========================================
+
+.. currentmodule:: polars
+
+.. automethod:: Config.unset_global_string_cache

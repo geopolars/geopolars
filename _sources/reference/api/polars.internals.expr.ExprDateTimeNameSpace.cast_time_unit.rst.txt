@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprDateTimeNameSpace.cast\_time\_unit
+============================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprDateTimeNameSpace.cast_time_unit

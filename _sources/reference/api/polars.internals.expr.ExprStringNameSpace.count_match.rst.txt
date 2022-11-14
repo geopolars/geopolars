@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprStringNameSpace.count\_match
+======================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprStringNameSpace.count_match

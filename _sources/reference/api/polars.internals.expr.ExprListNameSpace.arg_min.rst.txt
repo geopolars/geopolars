@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprListNameSpace.arg\_min
+================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprListNameSpace.arg_min

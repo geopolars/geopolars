@@ -1,0 +1,23 @@
+﻿polars.datatypes.List
+=====================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: List
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~List.__init__
+      ~List.string_repr
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+﻿polars.internals.series.DateTimeNameSpace.strftime
+==================================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: DateTimeNameSpace.strftime

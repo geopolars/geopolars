@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprStringNameSpace.decode
+================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprStringNameSpace.decode

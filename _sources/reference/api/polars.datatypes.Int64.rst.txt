@@ -1,0 +1,23 @@
+﻿polars.datatypes.Int64
+======================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: Int64
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Int64.__init__
+      ~Int64.string_repr
+   
+   
+
+   
+   
+   

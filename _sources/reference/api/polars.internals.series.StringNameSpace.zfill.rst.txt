@@ -1,0 +1,6 @@
+﻿polars.internals.series.StringNameSpace.zfill
+=============================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: StringNameSpace.zfill

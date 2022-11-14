@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprListNameSpace.sum
+===========================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprListNameSpace.sum

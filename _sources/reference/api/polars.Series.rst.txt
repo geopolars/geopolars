@@ -1,0 +1,181 @@
+﻿polars.Series
+=============
+
+.. currentmodule:: polars
+
+.. autoclass:: Series
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Series.__init__
+      ~Series.abs
+      ~Series.alias
+      ~Series.all
+      ~Series.any
+      ~Series.append
+      ~Series.apply
+      ~Series.arccos
+      ~Series.arccosh
+      ~Series.arcsin
+      ~Series.arcsinh
+      ~Series.arctan
+      ~Series.arctanh
+      ~Series.arg_max
+      ~Series.arg_min
+      ~Series.arg_sort
+      ~Series.arg_true
+      ~Series.arg_unique
+      ~Series.argsort
+      ~Series.cast
+      ~Series.ceil
+      ~Series.chunk_lengths
+      ~Series.cleared
+      ~Series.clip
+      ~Series.clip_max
+      ~Series.clip_min
+      ~Series.clone
+      ~Series.cos
+      ~Series.cosh
+      ~Series.cummax
+      ~Series.cummin
+      ~Series.cumprod
+      ~Series.cumsum
+      ~Series.cumulative_eval
+      ~Series.describe
+      ~Series.diff
+      ~Series.dot
+      ~Series.drop_nans
+      ~Series.drop_nulls
+      ~Series.entropy
+      ~Series.estimated_size
+      ~Series.ewm_mean
+      ~Series.ewm_std
+      ~Series.ewm_var
+      ~Series.exp
+      ~Series.explode
+      ~Series.extend_constant
+      ~Series.fill_nan
+      ~Series.fill_null
+      ~Series.filter
+      ~Series.floor
+      ~Series.has_validity
+      ~Series.hash
+      ~Series.head
+      ~Series.interpolate
+      ~Series.is_boolean
+      ~Series.is_datelike
+      ~Series.is_duplicated
+      ~Series.is_empty
+      ~Series.is_finite
+      ~Series.is_first
+      ~Series.is_float
+      ~Series.is_in
+      ~Series.is_infinite
+      ~Series.is_nan
+      ~Series.is_not_nan
+      ~Series.is_not_null
+      ~Series.is_null
+      ~Series.is_numeric
+      ~Series.is_unique
+      ~Series.is_utf8
+      ~Series.kurtosis
+      ~Series.len
+      ~Series.limit
+      ~Series.log
+      ~Series.log10
+      ~Series.max
+      ~Series.mean
+      ~Series.median
+      ~Series.min
+      ~Series.mode
+      ~Series.n_chunks
+      ~Series.n_unique
+      ~Series.null_count
+      ~Series.pct_change
+      ~Series.peak_max
+      ~Series.peak_min
+      ~Series.product
+      ~Series.quantile
+      ~Series.rank
+      ~Series.rechunk
+      ~Series.reinterpret
+      ~Series.rename
+      ~Series.reshape
+      ~Series.reverse
+      ~Series.rolling_apply
+      ~Series.rolling_max
+      ~Series.rolling_mean
+      ~Series.rolling_median
+      ~Series.rolling_min
+      ~Series.rolling_quantile
+      ~Series.rolling_skew
+      ~Series.rolling_std
+      ~Series.rolling_sum
+      ~Series.rolling_var
+      ~Series.round
+      ~Series.sample
+      ~Series.search_sorted
+      ~Series.series_equal
+      ~Series.set
+      ~Series.set_at_idx
+      ~Series.set_sorted
+      ~Series.shift
+      ~Series.shift_and_fill
+      ~Series.shrink_to_fit
+      ~Series.shuffle
+      ~Series.sign
+      ~Series.sin
+      ~Series.sinh
+      ~Series.skew
+      ~Series.slice
+      ~Series.sort
+      ~Series.sqrt
+      ~Series.std
+      ~Series.sum
+      ~Series.tail
+      ~Series.take
+      ~Series.take_every
+      ~Series.tan
+      ~Series.tanh
+      ~Series.to_arrow
+      ~Series.to_dummies
+      ~Series.to_frame
+      ~Series.to_list
+      ~Series.to_numpy
+      ~Series.to_pandas
+      ~Series.to_physical
+      ~Series.top_k
+      ~Series.unique
+      ~Series.unique_counts
+      ~Series.value_counts
+      ~Series.var
+      ~Series.view
+      ~Series.zip_with
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Series.arr
+      ~Series.cat
+      ~Series.dt
+      ~Series.dtype
+      ~Series.flags
+      ~Series.inner_dtype
+      ~Series.name
+      ~Series.shape
+      ~Series.str
+      ~Series.struct
+      ~Series.time_unit
+   
+   

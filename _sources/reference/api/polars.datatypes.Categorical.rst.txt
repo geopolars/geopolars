@@ -1,0 +1,23 @@
+﻿polars.datatypes.Categorical
+============================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: Categorical
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Categorical.__init__
+      ~Categorical.string_repr
+   
+   
+
+   
+   
+   

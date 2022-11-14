@@ -1,0 +1,23 @@
+﻿polars.datatypes.UInt8
+======================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: UInt8
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UInt8.__init__
+      ~UInt8.string_repr
+   
+   
+
+   
+   
+   

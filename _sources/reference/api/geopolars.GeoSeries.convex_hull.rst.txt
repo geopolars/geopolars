@@ -1,0 +1,6 @@
+﻿geopolars.GeoSeries.convex\_hull
+================================
+
+.. currentmodule:: geopolars
+
+.. automethod:: GeoSeries.convex_hull

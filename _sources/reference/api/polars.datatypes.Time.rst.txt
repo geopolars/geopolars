@@ -1,0 +1,23 @@
+﻿polars.datatypes.Time
+=====================
+
+.. currentmodule:: polars.datatypes
+
+.. autoclass:: Time
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Time.__init__
+      ~Time.string_repr
+   
+   
+
+   
+   
+   

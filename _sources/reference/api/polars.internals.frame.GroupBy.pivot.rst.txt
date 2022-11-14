@@ -1,0 +1,6 @@
+﻿polars.internals.frame.GroupBy.pivot
+====================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: GroupBy.pivot

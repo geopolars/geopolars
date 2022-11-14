@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprStringNameSpace.json\_path\_match
+===========================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprStringNameSpace.json_path_match

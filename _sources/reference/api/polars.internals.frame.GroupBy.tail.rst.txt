@@ -1,0 +1,6 @@
+﻿polars.internals.frame.GroupBy.tail
+===================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: GroupBy.tail

@@ -1,0 +1,6 @@
+﻿polars.internals.frame.GroupBy.n\_unique
+========================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: GroupBy.n_unique

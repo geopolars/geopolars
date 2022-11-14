@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprDateTimeNameSpace.truncate
+====================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprDateTimeNameSpace.truncate

@@ -1,0 +1,6 @@
+﻿polars.internals.series.StructNameSpace.field
+=============================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: StructNameSpace.field

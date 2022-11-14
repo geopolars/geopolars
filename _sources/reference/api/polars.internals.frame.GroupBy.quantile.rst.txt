@@ -1,0 +1,6 @@
+﻿polars.internals.frame.GroupBy.quantile
+=======================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: GroupBy.quantile

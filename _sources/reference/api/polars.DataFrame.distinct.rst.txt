@@ -1,0 +1,6 @@
+﻿polars.DataFrame.distinct
+=========================
+
+.. currentmodule:: polars
+
+.. automethod:: DataFrame.distinct

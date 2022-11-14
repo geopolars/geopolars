@@ -1,0 +1,6 @@
+﻿polars.internals.frame.PivotOps.mean
+====================================
+
+.. currentmodule:: polars.internals.frame
+
+.. automethod:: PivotOps.mean

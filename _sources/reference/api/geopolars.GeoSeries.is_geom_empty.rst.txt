@@ -1,0 +1,6 @@
+﻿geopolars.GeoSeries.is\_geom\_empty
+===================================
+
+.. currentmodule:: geopolars
+
+.. automethod:: GeoSeries.is_geom_empty

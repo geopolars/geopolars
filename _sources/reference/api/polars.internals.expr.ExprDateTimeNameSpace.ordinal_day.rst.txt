@@ -1,0 +1,6 @@
+﻿polars.internals.expr.ExprDateTimeNameSpace.ordinal\_day
+========================================================
+
+.. currentmodule:: polars.internals.expr
+
+.. automethod:: ExprDateTimeNameSpace.ordinal_day

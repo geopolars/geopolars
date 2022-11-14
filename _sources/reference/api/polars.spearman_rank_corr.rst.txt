@@ -1,0 +1,6 @@
+﻿polars.spearman\_rank\_corr
+===========================
+
+.. currentmodule:: polars
+
+.. autofunction:: spearman_rank_corr

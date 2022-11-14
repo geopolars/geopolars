@@ -1,0 +1,6 @@
+﻿geopolars.GeoDataFrame.geometry
+===============================
+
+.. currentmodule:: geopolars
+
+.. autoproperty:: GeoDataFrame.geometry

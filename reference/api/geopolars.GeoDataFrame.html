@@ -1,0 +1,956 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+<meta property="og:title" content="geopolars.GeoDataFrame" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://geopolars.org/reference/api/geopolars.GeoDataFrame.html" />
+  
+<meta property="og:image" content="https://geopolars.org/_static/geopolars_logo.png" />
+  
+<meta property="og:image:alt" content="geopolars.GeoDataFrame" />
+  
+    <title>geopolars.GeoDataFrame &#8212; GeoPolars  documentation</title>
+  <script>
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+
+  
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/geopolars.GeoDataFrame';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fas fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../_static/geopolars_logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/geopolars_logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://docs.rs/geopolars">Rust Docs<i class="fas fa-external-link-alt"></i></a>
+            </li>
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      <div class="navbar-end-item navbar-end__search-button-container">
+        
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/geopolars/geopolars" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  <div class="search-button-container--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+  </div>
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fas fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://docs.rs/geopolars">Rust Docs<i class="fas fa-external-link-alt"></i></a>
+            </li>
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/geopolars/geopolars" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+      </div>
+      <main class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <section id="geopolars-geodataframe">
+<h1>geopolars.GeoDataFrame<a class="headerlink" href="#geopolars-geodataframe" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="geopolars.GeoDataFrame">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geopolars.</span></span><span class="sig-name descname"><span class="pre">GeoDataFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geopolars.GeoDataFrame" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">columns</span></code></dt><dd><p>Get or set column names.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">dtypes</span></code></dt><dd><p>Get dtypes of columns in DataFrame.</p>
+</dd>
+<dt><strong>geometry</strong></dt><dd></dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code></dt><dd><p>Get the height of the DataFrame.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">schema</span></code></dt><dd><p>Get a dict[column name, DataType].</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></dt><dd><p>Get the shape of the DataFrame.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></dt><dd><p>Get the width of the DataFrame.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code>(f[, return_dtype, inference_size])</p></td>
+<td><p>Apply a custom/user-defined function (UDF) over the rows of the DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleared</span></code>()</p></td>
+<td><p>Create an empty copy of the current DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clone</span></code>()</p></td>
+<td><p>Cheap deepcopy/clone.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">describe</span></code>()</p></td>
+<td><p>Summary statistics for a DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop</span></code>(columns)</p></td>
+<td><p>Remove column from DataFrame and return as new.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_in_place</span></code>(name)</p></td>
+<td><p>Drop in place.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_nulls</span></code>([subset])</p></td>
+<td><p>Return a new DataFrame where the null values are dropped.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_size</span></code>([unit])</p></td>
+<td><p>Return an estimation of the total (heap) allocated size of the <cite>DataFrame</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">explode</span></code>(columns)</p></td>
+<td><p>Explode <cite>DataFrame</cite> to long format by exploding a column with Lists.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">extend</span></code>(other)</p></td>
+<td><p>Extend the memory backed by this <cite>DataFrame</cite> with the values from <cite>other</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_nan</span></code>(fill_value)</p></td>
+<td><p>Fill floating point NaN values by an Expression evaluation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_null</span></code>([value, strategy, limit, ...])</p></td>
+<td><p>Fill null values using the specified value or strategy.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code>(predicate)</p></td>
+<td><p>Filter the rows in the DataFrame based on a predicate expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_idx_by_name</span></code>(name)</p></td>
+<td><p>Find the index of a column by name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fold</span></code>(operation)</p></td>
+<td><p>Apply a horizontal reduction on a DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">frame_equal</span></code>(other[, null_equal])</p></td>
+<td><p>Check if DataFrame is equal to other.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geopolars.GeoDataFrame.get_column.html#geopolars.GeoDataFrame.get_column" title="geopolars.GeoDataFrame.get_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column</span></code></a>(name)</p></td>
+<td><p>Get a single column as Series or GeoSeries by name.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_columns</span></code>()</p></td>
+<td><p>Get the DataFrame as a List of Series.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby</span></code>(by[, maintain_order])</p></td>
+<td><p>Start a groupby operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_dynamic</span></code>(index_column, every[, ...])</p></td>
+<td><p>Group based on a time value (or index value of type Int32, Int64).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_rolling</span></code>(index_column, period[, ...])</p></td>
+<td><p>Create rolling groups based on a time column.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_rows</span></code>([seed, seed_1, seed_2, seed_3])</p></td>
+<td><p>Hash and combine the rows in this DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">head</span></code>([n])</p></td>
+<td><p>Get the first <cite>n</cite> rows.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hstack</span></code>(columns[, in_place])</p></td>
+<td><p>Return a new DataFrame grown horizontally by stacking multiple Series to it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_at_idx</span></code>(index, series)</p></td>
+<td><p>Insert a Series at a certain column index.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code>()</p></td>
+<td><p>Interpolate intermediate values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_duplicated</span></code>()</p></td>
+<td><p>Get a mask of all duplicated rows in this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code>()</p></td>
+<td><p>Check if the dataframe is empty.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_unique</span></code>()</p></td>
+<td><p>Get a mask of all unique rows in this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code>(other[, left_on, right_on, on, how, suffix])</p></td>
+<td><p>Join in SQL-like fashion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join_asof</span></code>(other[, left_on, right_on, on, ...])</p></td>
+<td><p>Perform an asof join.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lazy</span></code>()</p></td>
+<td><p>Start a lazy query from this point.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">limit</span></code>([n])</p></td>
+<td><p>Get the first <cite>n</cite> rows.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code>([axis])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their maximum value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code>([axis, null_strategy])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their mean value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code>()</p></td>
+<td><p>Aggregate the columns of this DataFrame to their median value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">melt</span></code>([id_vars, value_vars, variable_name, ...])</p></td>
+<td><p>Unpivot a DataFrame from wide to long format.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code>([axis])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their minimum value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_chunks</span></code>([strategy])</p></td>
+<td><p>Get number of chunks used by the ChunkedArrays of this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_unique</span></code>([subset])</p></td>
+<td><p>Return the number of unique rows, or the number of unique row-subsets.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_count</span></code>()</p></td>
+<td><p>Create a new DataFrame that shows the null counts per column.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_by</span></code>(groups[, maintain_order, as_dict])</p></td>
+<td><p>Split into multiple DataFrames partitioned by groups.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code>(func, *args, **kwargs)</p></td>
+<td><p>Apply a function on Self.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot</span></code>(values, index, columns[, ...])</p></td>
+<td><p>Create a spreadsheet-style pivot table as a DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code>()</p></td>
+<td><p>Aggregate the columns of this DataFrame to their product values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile</span></code>(quantile[, interpolation])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their quantile value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rechunk</span></code>()</p></td>
+<td><p>Rechunk the data in this DataFrame to a contiguous allocation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename</span></code>(mapping)</p></td>
+<td><p>Rename column names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code>(column, new_col)</p></td>
+<td><p>Replace a column by a new Series.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_at_idx</span></code>(index, series)</p></td>
+<td><p>Replace a column at an index location.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse</span></code>()</p></td>
+<td><p>Reverse the DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">row</span></code>([index, by_predicate])</p></td>
+<td><p>Get a row as tuple, either by index or by predicate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows</span></code>()</p></td>
+<td><p>Convert columnar data to rows as python tuples.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code>([n, frac, with_replacement, shuffle, ...])</p></td>
+<td><p>Sample from this DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">select</span></code>(exprs)</p></td>
+<td><p>Select columns from this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift</span></code>(periods)</p></td>
+<td><p>Shift values by the given period.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_and_fill</span></code>(periods, fill_value)</p></td>
+<td><p>Shift the values by a given period and fill the resulting null values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shrink_to_fit</span></code>([in_place])</p></td>
+<td><p>Shrink DataFrame memory usage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice</span></code>(offset[, length])</p></td>
+<td><p>Get a slice of this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort</span></code>(by[, reverse, nulls_last])</p></td>
+<td><p>Sort the DataFrame by column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code>([ddof])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their standard deviation value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code>(*[, axis, null_strategy])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their sum value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tail</span></code>([n])</p></td>
+<td><p>Get the last <cite>n</cite> rows.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">take_every</span></code>(n)</p></td>
+<td><p>Take every nth row in the DataFrame and return as a new DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_arrow</span></code>()</p></td>
+<td><p>Collect the underlying arrow arrays in an Arrow Table.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>([as_series])</p></td>
+<td><p>Convert DataFrame to a dictionary mapping column name to values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dicts</span></code>()</p></td>
+<td><p>Convert every row to a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dummies</span></code>(*[, columns])</p></td>
+<td><p>Get one hot encoded dummy variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code>()</p></td>
+<td><p>Convert DataFrame to a 2D NumPy array.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pandas</span></code>(*args[, date_as_object])</p></td>
+<td><p>Cast to a pandas DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_series</span></code>([index])</p></td>
+<td><p>Select column as Series at index location.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_struct</span></code>(name)</p></td>
+<td><p>Convert a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to a <code class="docutils literal notranslate"><span class="pre">Series</span></code> of type <code class="docutils literal notranslate"><span class="pre">Struct</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code>([include_header, header_name, ...])</p></td>
+<td><p>Transpose a DataFrame over the diagonal.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unique</span></code>([maintain_order, subset, keep])</p></td>
+<td><p>Drop duplicate rows from this DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unnest</span></code>(names)</p></td>
+<td><p>Decompose a struct into its fields.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack</span></code>(step[, how, columns, fill_values])</p></td>
+<td><p>Unstack a long table to a wide form without doing an aggregation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">upsample</span></code>(time_column, every[, offset, by, ...])</p></td>
+<td><p>Upsample a DataFrame at a regular frequency.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">var</span></code>([ddof])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their variance value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">vstack</span></code>(df[, in_place])</p></td>
+<td><p>Grow this DataFrame vertically by stacking a DataFrame to it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_column</span></code>(column)</p></td>
+<td><p>Return a new DataFrame with the column added or replaced.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_columns</span></code>([exprs])</p></td>
+<td><p>Add or overwrite multiple columns in a DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_row_count</span></code>([name, offset])</p></td>
+<td><p>Add a column at index 0 that counts the rows.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_avro</span></code>(file[, compression])</p></td>
+<td><p>Write to Apache Avro file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_csv</span></code>([file, has_header, sep, quote, ...])</p></td>
+<td><p>Write to comma-separated values (CSV) file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_ipc</span></code>(file[, compression])</p></td>
+<td><p>Write to Arrow IPC binary stream or Feather file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_json</span></code>([file, pretty, row_oriented, ...])</p></td>
+<td><p>Serialize to JSON representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_ndjson</span></code>([file])</p></td>
+<td><p>Serialize to newline delimited JSON representation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_parquet</span></code>(file, *[, compression, ...])</p></td>
+<td><p>Write to Apache Parquet file.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<tbody>
+<tr class="row-odd"><td><p><strong>to_geopandas</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="geopolars.GeoDataFrame.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geopolars.GeoDataFrame.__init__" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#geopolars.GeoDataFrame.__init__" title="geopolars.GeoDataFrame.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([data, columns, orient, geometry])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code>(f[, return_dtype, inference_size])</p></td>
+<td><p>Apply a custom/user-defined function (UDF) over the rows of the DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleared</span></code>()</p></td>
+<td><p>Create an empty copy of the current DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clone</span></code>()</p></td>
+<td><p>Cheap deepcopy/clone.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">describe</span></code>()</p></td>
+<td><p>Summary statistics for a DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop</span></code>(columns)</p></td>
+<td><p>Remove column from DataFrame and return as new.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_in_place</span></code>(name)</p></td>
+<td><p>Drop in place.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_nulls</span></code>([subset])</p></td>
+<td><p>Return a new DataFrame where the null values are dropped.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_size</span></code>([unit])</p></td>
+<td><p>Return an estimation of the total (heap) allocated size of the <cite>DataFrame</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">explode</span></code>(columns)</p></td>
+<td><p>Explode <cite>DataFrame</cite> to long format by exploding a column with Lists.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">extend</span></code>(other)</p></td>
+<td><p>Extend the memory backed by this <cite>DataFrame</cite> with the values from <cite>other</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_nan</span></code>(fill_value)</p></td>
+<td><p>Fill floating point NaN values by an Expression evaluation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_null</span></code>([value, strategy, limit, ...])</p></td>
+<td><p>Fill null values using the specified value or strategy.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code>(predicate)</p></td>
+<td><p>Filter the rows in the DataFrame based on a predicate expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_idx_by_name</span></code>(name)</p></td>
+<td><p>Find the index of a column by name.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fold</span></code>(operation)</p></td>
+<td><p>Apply a horizontal reduction on a DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">frame_equal</span></code>(other[, null_equal])</p></td>
+<td><p>Check if DataFrame is equal to other.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geopolars.GeoDataFrame.get_column.html#geopolars.GeoDataFrame.get_column" title="geopolars.GeoDataFrame.get_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column</span></code></a>(name)</p></td>
+<td><p>Get a single column as Series or GeoSeries by name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_columns</span></code>()</p></td>
+<td><p>Get the DataFrame as a List of Series.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby</span></code>(by[, maintain_order])</p></td>
+<td><p>Start a groupby operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_dynamic</span></code>(index_column, every[, ...])</p></td>
+<td><p>Group based on a time value (or index value of type Int32, Int64).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_rolling</span></code>(index_column, period[, ...])</p></td>
+<td><p>Create rolling groups based on a time column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_rows</span></code>([seed, seed_1, seed_2, seed_3])</p></td>
+<td><p>Hash and combine the rows in this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">head</span></code>([n])</p></td>
+<td><p>Get the first <cite>n</cite> rows.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hstack</span></code>(columns[, in_place])</p></td>
+<td><p>Return a new DataFrame grown horizontally by stacking multiple Series to it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_at_idx</span></code>(index, series)</p></td>
+<td><p>Insert a Series at a certain column index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code>()</p></td>
+<td><p>Interpolate intermediate values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_duplicated</span></code>()</p></td>
+<td><p>Get a mask of all duplicated rows in this DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code>()</p></td>
+<td><p>Check if the dataframe is empty.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_unique</span></code>()</p></td>
+<td><p>Get a mask of all unique rows in this DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code>(other[, left_on, right_on, on, how, suffix])</p></td>
+<td><p>Join in SQL-like fashion.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join_asof</span></code>(other[, left_on, right_on, on, ...])</p></td>
+<td><p>Perform an asof join.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lazy</span></code>()</p></td>
+<td><p>Start a lazy query from this point.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">limit</span></code>([n])</p></td>
+<td><p>Get the first <cite>n</cite> rows.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code>([axis])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their maximum value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code>([axis, null_strategy])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their mean value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code>()</p></td>
+<td><p>Aggregate the columns of this DataFrame to their median value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">melt</span></code>([id_vars, value_vars, variable_name, ...])</p></td>
+<td><p>Unpivot a DataFrame from wide to long format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code>([axis])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their minimum value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_chunks</span></code>([strategy])</p></td>
+<td><p>Get number of chunks used by the ChunkedArrays of this DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_count</span></code>()</p></td>
+<td><p>Create a new DataFrame that shows the null counts per column.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_by</span></code>(groups[, maintain_order, as_dict])</p></td>
+<td><p>Split into multiple DataFrames partitioned by groups.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code>(func, *args, **kwargs)</p></td>
+<td><p>Apply a function on Self.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot</span></code>(values, index, columns[, ...])</p></td>
+<td><p>Create a spreadsheet-style pivot table as a DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code>()</p></td>
+<td><p>Aggregate the columns of this DataFrame to their product values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile</span></code>(quantile[, interpolation])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their quantile value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rechunk</span></code>()</p></td>
+<td><p>Rechunk the data in this DataFrame to a contiguous allocation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename</span></code>(mapping)</p></td>
+<td><p>Rename column names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code>(column, new_col)</p></td>
+<td><p>Replace a column by a new Series.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_at_idx</span></code>(index, series)</p></td>
+<td><p>Replace a column at an index location.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse</span></code>()</p></td>
+<td><p>Reverse the DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">row</span></code>([index, by_predicate])</p></td>
+<td><p>Get a row as tuple, either by index or by predicate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows</span></code>()</p></td>
+<td><p>Convert columnar data to rows as python tuples.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code>([n, frac, with_replacement, shuffle, ...])</p></td>
+<td><p>Sample from this DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">select</span></code>(exprs)</p></td>
+<td><p>Select columns from this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift</span></code>(periods)</p></td>
+<td><p>Shift values by the given period.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_and_fill</span></code>(periods, fill_value)</p></td>
+<td><p>Shift the values by a given period and fill the resulting null values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shrink_to_fit</span></code>([in_place])</p></td>
+<td><p>Shrink DataFrame memory usage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice</span></code>(offset[, length])</p></td>
+<td><p>Get a slice of this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort</span></code>(by[, reverse, nulls_last])</p></td>
+<td><p>Sort the DataFrame by column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code>([ddof])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their standard deviation value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code>(*[, axis, null_strategy])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their sum value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tail</span></code>([n])</p></td>
+<td><p>Get the last <cite>n</cite> rows.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">take_every</span></code>(n)</p></td>
+<td><p>Take every nth row in the DataFrame and return as a new DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_arrow</span></code>()</p></td>
+<td><p>Collect the underlying arrow arrays in an Arrow Table.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>([as_series])</p></td>
+<td><p>Convert DataFrame to a dictionary mapping column name to values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dicts</span></code>()</p></td>
+<td><p>Convert every row to a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dummies</span></code>(*[, columns])</p></td>
+<td><p>Get one hot encoded dummy variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geopolars.GeoDataFrame.to_geopandas.html#geopolars.GeoDataFrame.to_geopandas" title="geopolars.GeoDataFrame.to_geopandas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geopandas</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code>()</p></td>
+<td><p>Convert DataFrame to a 2D NumPy array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pandas</span></code>(*args[, date_as_object])</p></td>
+<td><p>Cast to a pandas DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_series</span></code>([index])</p></td>
+<td><p>Select column as Series at index location.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_struct</span></code>(name)</p></td>
+<td><p>Convert a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to a <code class="docutils literal notranslate"><span class="pre">Series</span></code> of type <code class="docutils literal notranslate"><span class="pre">Struct</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code>([include_header, header_name, ...])</p></td>
+<td><p>Transpose a DataFrame over the diagonal.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unique</span></code>([maintain_order, subset, keep])</p></td>
+<td><p>Drop duplicate rows from this DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unnest</span></code>(names)</p></td>
+<td><p>Decompose a struct into its fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack</span></code>(step[, how, columns, fill_values])</p></td>
+<td><p>Unstack a long table to a wide form without doing an aggregation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">upsample</span></code>(time_column, every[, offset, by, ...])</p></td>
+<td><p>Upsample a DataFrame at a regular frequency.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">var</span></code>([ddof])</p></td>
+<td><p>Aggregate the columns of this DataFrame to their variance value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">vstack</span></code>(df[, in_place])</p></td>
+<td><p>Grow this DataFrame vertically by stacking a DataFrame to it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_column</span></code>(column)</p></td>
+<td><p>Return a new DataFrame with the column added or replaced.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_columns</span></code>([exprs])</p></td>
+<td><p>Add or overwrite multiple columns in a DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_row_count</span></code>([name, offset])</p></td>
+<td><p>Add a column at index 0 that counts the rows.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_avro</span></code>(file[, compression])</p></td>
+<td><p>Write to Apache Avro file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_csv</span></code>([file, has_header, sep, quote, ...])</p></td>
+<td><p>Write to comma-separated values (CSV) file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_ipc</span></code>(file[, compression])</p></td>
+<td><p>Write to Arrow IPC binary stream or Feather file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_json</span></code>([file, pretty, row_oriented, ...])</p></td>
+<td><p>Serialize to JSON representation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_ndjson</span></code>([file])</p></td>
+<td><p>Serialize to newline delimited JSON representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_parquet</span></code>(file, *[, compression, ...])</p></td>
+<td><p>Write to Apache Parquet file.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">columns</span></code></p></td>
+<td><p>Get or set column names.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dtypes</span></code></p></td>
+<td><p>Get dtypes of columns in DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geopolars.GeoDataFrame.geometry.html#geopolars.GeoDataFrame.geometry" title="geopolars.GeoDataFrame.geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code></p></td>
+<td><p>Get the height of the DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">schema</span></code></p></td>
+<td><p>Get a dict[column name, DataType].</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></p></td>
+<td><p>Get the shape of the DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></p></td>
+<td><p>Get the width of the DataFrame.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../../_sources/reference/api/geopolars.GeoDataFrame.rst.txt">
+        <i class="fas fa-file-alt"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2022, GeoPolars contributors.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

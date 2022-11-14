@@ -1,0 +1,6 @@
+﻿polars.internals.series.StringNameSpace.lengths
+===============================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: StringNameSpace.lengths

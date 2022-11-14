@@ -1,0 +1,6 @@
+﻿polars.internals.series.ListNameSpace.arg\_max
+==============================================
+
+.. currentmodule:: polars.internals.series
+
+.. automethod:: ListNameSpace.arg_max

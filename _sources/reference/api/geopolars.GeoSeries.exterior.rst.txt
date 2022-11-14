@@ -1,0 +1,6 @@
+﻿geopolars.GeoSeries.exterior
+============================
+
+.. currentmodule:: geopolars
+
+.. automethod:: GeoSeries.exterior
