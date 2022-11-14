@@ -1,4 +1,6 @@
 use crate::error::{inner_type_name, GeopolarsError, Result};
+#[cfg(feature = "proj")]
+use crate::proj::ProjOptions;
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
@@ -177,6 +179,16 @@ pub trait GeoSeries {
     // current CRS, but that would require polars to support extension types.
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series>;
+
+    // Note: Ideally we wouldn't have both `from` and `to` here, where the series would include the
+    // current CRS, but that would require polars to support extension types.
+    #[cfg(feature = "proj")]
+    fn to_crs_with_options(
+        &self,
+        from: &str,
+        to: &str,
+        proj_options: ProjOptions,
+    ) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries translated by a fixed x and y amount
     ///
@@ -768,9 +780,22 @@ impl GeoSeries for Series {
 
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
-        use proj::{Proj, Transform};
+        self.to_crs_with_options(from, to, ProjOptions::default())
+    }
 
-        let proj = Proj::new_known_crs(from, to, None)?;
+    #[cfg(feature = "proj")]
+    fn to_crs_with_options(
+        &self,
+        from: &str,
+        to: &str,
+        proj_options: ProjOptions,
+    ) -> Result<Series> {
+        use proj::Transform;
+
+        let proj = proj_options
+            .to_proj_builder()?
+            .proj_known_crs(from, to, None)?;
+
         // Specify literal Result<> to propagate error from within closure
         // https://stackoverflow.com/a/26370894
         let output_vec: Result<Vec<Geometry>> = iter_geom(self)
