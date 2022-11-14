@@ -3,10 +3,9 @@ name: Build Python Wheels
 # Only run on new tags starting with `v`
 on:
   push:
-    # tags:
-    #   - "v*"
+    tags:
+      - "v*"
 
-# TODO: restore --release before merging
 jobs:
   build-wheel-manylinux-2-24:
     name: "Build manylinux 2.24 wheels"
@@ -33,7 +32,7 @@ jobs:
         run: |
           source $HOME/.cargo/env
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-          maturin build --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
+          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
 
       - name: List wheels
         run: find ./wheels
@@ -75,58 +74,9 @@ jobs:
 
       - name: Build
         run: |
-          maturin build --strip --interpreter python -o wheels
+          maturin build --release --strip --interpreter python -o wheels
 
       - name: List wheels
-        run: find ./wheels
-
-      # Have to set path from root
-      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
-      - uses: actions/upload-artifact@v2
-        with:
-          path: py-geopolars/wheels/*.whl
-
-
-  build-wheel-windows:
-    runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: py-geopolars
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-          override: true
-
-      - uses: Swatinem/rust-cache@v2
-
-      - name: Setup Conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: "3.8"
-          miniforge-version: latest
-          miniforge-variant: Mambaforge
-          use-mamba: true
-
-      - name: Set LIBCLANG_PATH
-        run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
-
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          python -V
-          pip install wheel
-          pip install --upgrade pip
-          pip install -r build.requirements.txt
-      - name: Build
-        shell: bash
-        run: |
-          maturin build --strip --interpreter python -o wheels
-      - name: List wheels
-        shell: bash
         run: find ./wheels
 
       # Have to set path from root
@@ -169,7 +119,7 @@ jobs:
 
       - name: Build
         run: |
-          maturin build --target aarch64-apple-darwin --strip --interpreter python -o wheels
+          maturin build --release --target aarch64-apple-darwin --strip --interpreter python -o wheels
 
       - name: List wheels
         run: find ./wheels
@@ -180,39 +130,53 @@ jobs:
         with:
           path: py-geopolars/wheels/*.whl
 
-  # build_wheels:
-  #   name: Build wheel on ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest, windows-latest, macos-latest]
+  build-wheel-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: py-geopolars
+    steps:
+      - uses: actions/checkout@v3
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          override: true
 
-  #     - name: Build wheels
-  #       uses: pypa/cibuildwheel@v2.3.0
-  #       env:
-  #         CIBW_SKIP: "cp2* cp35* cp36* pp* *win32 *i686 *musllinux*"
-  #         CIBW_ARCHS_MACOS: x86_64 arm64
-  #         CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
-  #         CIBW_BEFORE_ALL: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
-  #         CIBW_BEFORE_ALL_MACOS: "rustup target add aarch64-apple-darwin"
-  #       with:
-  #         package-dir: py-geopolars
+      - uses: Swatinem/rust-cache@v2
 
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: ./wheelhouse/*.whl
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.8"
+          miniforge-version: latest
+          miniforge-variant: Mambaforge
+          use-mamba: true
 
-  #   # Revisit if we want to have aarch linux wheels
-  #   #   - if: runner.os == 'Linux'
-  #   #     name: Set up QEMU
-  #   #     id: qemu
-  #   #     uses: docker/setup-qemu-action@v1
-  #   #     with:
-  #   #       image: tonistiigi/binfmt:latest
-  #   #       platforms: arm64
+      - name: Set LIBCLANG_PATH
+        run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python -V
+          pip install wheel
+          pip install --upgrade pip
+          pip install -r build.requirements.txt
+      - name: Build
+        shell: bash
+        run: |
+          maturin build --release --strip --interpreter python -o wheels
+      - name: List wheels
+        shell: bash
+        run: find ./wheels
+
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
 
   build_sdist:
     name: Build source distribution
@@ -241,19 +205,19 @@ jobs:
         with:
           path: py-geopolars/dist/*.tar.gz
 
-  # upload_pypi:
-  #   needs: [build_wheels, build_sdist]
-  #   runs-on: ubuntu-latest
-  #   # Make sure we only run this on new tags/release
-  #   if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
-  #   steps:
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: artifact
-  #         path: dist
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # Make sure we only run this on new tags/release
+    if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
 
-  #     - uses: pypa/gh-action-pypi-publish@master
-  #       with:
-  #         user: __token__
-  #         password: ${{ secrets.PYPI_PASSWORD }}
-  #         # To test: repository_url: https://test.pypi.org/legacy/
+      - uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
+          # To test: repository_url: https://test.pypi.org/legacy/
