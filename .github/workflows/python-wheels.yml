@@ -3,144 +3,144 @@ name: Build Python Wheels
 # Only run on new tags starting with `v`
 on:
   push:
-    # tags:
-    #   - "v*"
+    tags:
+      - "v*"
 
 jobs:
-  # build-wheel-manylinux-2-24:
-  #   name: "Build manylinux 2.24 wheels"
-  #   runs-on: ubuntu-latest
-  #   container: quay.io/pypa/manylinux_2_24_x86_64
-  #   defaults:
-  #     run:
-  #       working-directory: py-geopolars
+  build-wheel-manylinux-2-24:
+    name: "Build manylinux 2.24 wheels"
+    runs-on: ubuntu-latest
+    container: quay.io/pypa/manylinux_2_24_x86_64
+    defaults:
+      run:
+        working-directory: py-geopolars
 
-  #   # NOTE: We abstain from most reusable github actions given that this is running in a docker
-  #   # image
-  #   steps:
-  #     - uses: actions/checkout@v3
+    # NOTE: We abstain from most reusable github actions given that this is running in a docker
+    # image
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Install latest stable rust
-  #       run: |
-  #         curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
+      - name: Install latest stable rust
+        run: |
+          curl --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --default-toolchain stable -y
 
-  #     - name: Install dependencies
-  #       run: |
-  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-  #         pip install -r build.requirements.txt
+      - name: Install dependencies
+        run: |
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          pip install -r build.requirements.txt
 
-  #     - name: Build Python wheel
-  #       shell: bash
-  #       run: |
-  #         source $HOME/.cargo/env
-  #         export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-  #         maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
+      - name: Build Python wheel
+        shell: bash
+        run: |
+          source $HOME/.cargo/env
+          export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
 
-  #     - name: List wheels
-  #       run: find ./wheels
+      - name: List wheels
+        run: find ./wheels
 
-  #     # Have to set path from root
-  #     # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: py-geopolars/wheels/*.whl
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
 
-  # build-wheel-mac-x86_64:
-  #   runs-on: macos-latest
-  #   defaults:
-  #     run:
-  #       working-directory: py-geopolars
-  #   steps:
-  #     - uses: actions/checkout@v3
+  build-wheel-mac-x86_64:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: py-geopolars
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Install Rust
-  #       uses: dtolnay/rust-toolchain@master
-  #       with:
-  #         toolchain: stable
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
 
-  #     - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2
 
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: "3.8"
-  #         cache: "pip"
-  #         cache-dependency-path: "py-geopolars/build.requirements.txt"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          cache: "pip"
+          cache-dependency-path: "py-geopolars/build.requirements.txt"
 
-  #     - name: Install system dependencies
-  #       run: |
-  #         brew install proj
-  #         brew info proj
+      - name: Install system dependencies
+        run: |
+          brew install proj
+          brew info proj
 
-  #     - name: Copy PROJ_DATA into current tree
-  #       run: |
-  #         python scripts/copy-proj-data.py
-  #         find python/geopolars/proj_data/
+      - name: Copy PROJ_DATA into current tree
+        run: |
+          python scripts/copy-proj-data.py
+          find python/geopolars/proj_data/
 
-  #     - name: Install Python dependencies
-  #       run: |
-  #         python -V
-  #         pip install wheel
-  #         pip install --upgrade pip
-  #         pip install -r build.requirements.txt
+      - name: Install Python dependencies
+        run: |
+          python -V
+          pip install wheel
+          pip install --upgrade pip
+          pip install -r build.requirements.txt
 
-  #     - name: Build
-  #       run: |
-  #         maturin build --release --strip --interpreter python -o wheels --features proj
+      - name: Build
+        run: |
+          maturin build --release --strip --interpreter python -o wheels --features proj
 
-  #     - name: List wheels
-  #       run: find ./wheels
+      - name: List wheels
+        run: find ./wheels
 
-  #     # Have to set path from root
-  #     # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: py-geopolars/wheels/*.whl
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
 
-  # build-wheel-mac-aarch64:
-  #   runs-on: macos-latest
-  #   defaults:
-  #     run:
-  #       working-directory: py-geopolars
-  #   steps:
-  #     - uses: actions/checkout@v3
+  build-wheel-mac-aarch64:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: py-geopolars
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Install Rust
-  #       uses: dtolnay/rust-toolchain@master
-  #       with:
-  #         toolchain: stable
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
 
-  #     - name: Set up Rust targets
-  #       run: rustup target add aarch64-apple-darwin
+      - name: Set up Rust targets
+        run: rustup target add aarch64-apple-darwin
 
-  #     - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2
 
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: "3.8"
-  #         cache: "pip"
-  #         cache-dependency-path: "py-geopolars/build.requirements.txt"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          cache: "pip"
+          cache-dependency-path: "py-geopolars/build.requirements.txt"
 
-  #     - name: Install Python dependencies
-  #       run: |
-  #         python -V
-  #         pip install wheel
-  #         pip install --upgrade pip
-  #         pip install -r build.requirements.txt
+      - name: Install Python dependencies
+        run: |
+          python -V
+          pip install wheel
+          pip install --upgrade pip
+          pip install -r build.requirements.txt
 
-  #     - name: Build
-  #       run: |
-  #         maturin build --release --target aarch64-apple-darwin --strip --interpreter python -o wheels
+      - name: Build
+        run: |
+          maturin build --release --target aarch64-apple-darwin --strip --interpreter python -o wheels
 
-  #     - name: List wheels
-  #       run: find ./wheels
+      - name: List wheels
+        run: find ./wheels
 
-  #     # Have to set path from root
-  #     # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: py-geopolars/wheels/*.whl
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
 
   build-wheel-windows:
     runs-on: windows-latest
@@ -234,46 +234,46 @@ jobs:
         with:
           path: py-geopolars/wheels/*.whl
 
-  # build_sdist:
-  #   name: Build source distribution
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - uses: actions/setup-python@v2
-  #       name: Install Python
-  #       with:
-  #         python-version: "3.8"
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: "3.8"
 
-  #     - name: Install Rust
-  #       uses: actions-rs/toolchain@v1
-  #       with:
-  #         toolchain: stable
-  #         profile: minimal
-  #         override: true
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
 
-  #     - name: Build sdist
-  #       run: |
-  #         pip install -U build
-  #         cd py-geopolars && python -m build --sdist
+      - name: Build sdist
+        run: |
+          pip install -U build
+          cd py-geopolars && python -m build --sdist
 
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: py-geopolars/dist/*.tar.gz
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/dist/*.tar.gz
 
-  # upload_pypi:
-  #   needs: [build_wheels, build_sdist]
-  #   runs-on: ubuntu-latest
-  #   # Make sure we only run this on new tags/release
-  #   if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
-  #   steps:
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: artifact
-  #         path: dist
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # Make sure we only run this on new tags/release
+    if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
 
-  #     - uses: pypa/gh-action-pypi-publish@master
-  #       with:
-  #         user: __token__
-  #         password: ${{ secrets.PYPI_PASSWORD }}
-  #         # To test: repository_url: https://test.pypi.org/legacy/
+      - uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
+          # To test: repository_url: https://test.pypi.org/legacy/
