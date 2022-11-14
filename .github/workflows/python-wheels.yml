@@ -216,6 +216,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          export PKG_CONFIG_PATH="$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/lib/pkgconfig"
           maturin build --strip --interpreter python -o wheels --features proj
 
       - name: List wheels
