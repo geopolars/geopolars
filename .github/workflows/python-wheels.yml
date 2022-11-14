@@ -49,7 +49,7 @@ jobs:
 
       - name: Copy PROJ_DATA into current tree
         run: |
-          python copy-proj-data.py
+          /opt/python/cp38-cp38/bin/python copy-proj-data.py
           ls python/geopolars/proj_data/
 
       - name: Build Python wheel
