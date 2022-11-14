@@ -126,15 +126,16 @@ Serialization / IO / conversion
 ..    GeoSeries.to_wkb
 ..    GeoSeries.to_wkt
 
-.. Projection handling
-.. -------------------
+Projection handling
+-------------------
 
-.. .. autosummary::
-..    :toctree: api/
+.. autosummary::
+   :toctree: api/
+
+   GeoSeries.to_crs
 
    .. GeoSeries.crs
    .. GeoSeries.set_crs
-   .. GeoSeries.to_crs
    .. GeoSeries.estimate_utm_crs
 
 .. Missing values

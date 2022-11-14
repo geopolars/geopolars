@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import polars as pl
 
 from geopolars import geopolars as core
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
+from geopolars.proj import PROJ_DATA_PATH
 
 try:
     import geopandas
@@ -14,6 +17,9 @@ try:
     import pyarrow
 except ImportError:
     pyarrow = None
+
+if TYPE_CHECKING:
+    import pyproj
 
 
 class GeoSeries(pl.Series):
@@ -289,12 +295,53 @@ class GeoSeries(pl.Series):
 
         return core.distance(self, other)
 
-    def to_crs(self, from_crs: str, to_crs: str) -> GeoSeries:
+    def to_crs(self, from_crs: str | pyproj.CRS, to_crs: str | pyproj.CRS) -> GeoSeries:
+        """Returns a ``GeoSeries`` with all geometries transformed to a new
+        coordinate reference system.
+
+        Transform all geometries in a GeoSeries to a different coordinate
+        reference system.
+
+        For now, you must pass in both ``from_crs`` and ``to_crs``. In the future, we'll
+        handle the current CRS automatically.
+
+        This method will transform all points in all objects.  It has no notion
+        or projecting entire geometries.  All segments joining points are
+        assumed to be lines in the current projection, not geodesics.  Objects
+        crossing the dateline (or other projection boundary) will have
+        undesirable behavior.
+
+        Parameters
+        ----------
+        from_crs : :class:`pyproj.CRS <pyproj.crs.CRS>` or str
+            Origin coordinate system. The value can be anything accepted
+            by :meth:`pyproj.CRS.from_user_input() <pyproj.crs.CRS.from_user_input>`,
+            such as an authority string (eg "EPSG:4326") or a WKT string.
+        to_crs : :class:`pyproj.CRS <pyproj.crs.CRS>` or str
+            Destination coordinate system. The value can be anything accepted
+            by :meth:`pyproj.CRS.from_user_input() <pyproj.crs.CRS.from_user_input>`,
+            such as an authority string (eg "EPSG:4326") or a WKT string.
+
+        Returns
+        -------
+        GeoSeries
+        """
+
         if not hasattr(core, "to_crs"):
             # TODO: use a custom geopolars exception class here
             raise ValueError("Geopolars not built with proj support")
 
-        return core.to_crs(self, from_crs, to_crs)
+        if not PROJ_DATA_PATH:
+            raise ValueError("PROJ_DATA could not be found.")
+
+        # If pyproj.CRS objects are passed in, serialize them to PROJJSON
+        if not isinstance(from_crs, str) and hasattr(from_crs, "to_json"):
+            from_crs = from_crs.to_json()
+
+        if not isinstance(to_crs, str) and hasattr(to_crs, "to_json"):
+            to_crs = to_crs.to_json()
+
+        return core.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
 
     def translate(self, xoff: float = 0.0, yoff: float = 0.0) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.
