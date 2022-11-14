@@ -228,9 +228,11 @@ jobs:
             ${{ matrix.vcpkg_cache }}
           key: ${{ matrix.os }}-${{ matrix.triplet }}-vcpkg-proj${{ env.PROJ_VERSION }}-cache
 
+      # We manually pass in a checksum because it appears to be flaky on CI, occasionally
+      # downloading from sourceforge via insecure http without a checksum
       - name: Install pkg-config
         run: |
-          choco install pkgconfiglite -y
+          choco install pkgconfiglite -y --checksum 6004df17818f5a6dbf19cb335cc92702
 
       - name: Install PROJ with vcpkg
         env:
