@@ -44,4 +44,5 @@ def copy_proj_data():
     shutil.copytree(get_data_dir(), proj_data_dir)
 
 
-copy_proj_data()
+if __name__ == "__main__":
+    copy_proj_data()

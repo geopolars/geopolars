@@ -3,6 +3,10 @@ use crate::ffi;
 use crate::utils::PythonTransformOrigin;
 use geopolars::geoseries::{GeoSeries, GeodesicLengthMethod};
 use pyo3::prelude::*;
+use std::path::PathBuf;
+
+#[cfg(feature = "proj")]
+use geopolars::proj::ProjOptions;
 
 /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
 #[pyfunction]
@@ -155,17 +159,14 @@ pub(crate) fn to_crs(
     to: &str,
     proj_data_dir: &str,
 ) -> PyResult<PyObject> {
-    use geopolars::export::proj::ProjBuilder;
+    let proj_options = ProjOptions {
+        search_paths: Some(vec![PathBuf::from(proj_data_dir)]),
+    };
 
     let series = ffi::py_series_to_rust_series(series)?;
 
-    let mut proj_builder = ProjBuilder::new();
-    proj_builder.set_search_paths(proj_data_dir).map_err(|e| {
-        PyGeopolarsError::GeopolarsError(geopolars::error::GeopolarsError::ProjError(Box::new(e)))
-    })?;
-
     let out = series
-        .to_crs_with_builder(from, to, proj_builder)
+        .to_crs_with_options(from, to, proj_options)
         .map_err(PyGeopolarsError::from)?;
     ffi::rust_series_to_py_geoseries(&out)
 }

@@ -1,4 +1,6 @@
 use crate::error::{inner_type_name, GeopolarsError, Result};
+#[cfg(feature = "proj")]
+use crate::proj::ProjOptions;
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{map_coords::MapCoords, Geometry, Point};
@@ -9,8 +11,6 @@ use polars::export::arrow::array::{
     MutablePrimitiveArray, PrimitiveArray,
 };
 use polars::prelude::{PolarsError, Series};
-#[cfg(feature = "proj")]
-use proj::ProjBuilder;
 use std::convert::Into;
 
 pub type ArrayRef = Box<dyn Array>;
@@ -183,11 +183,11 @@ pub trait GeoSeries {
     // Note: Ideally we wouldn't have both `from` and `to` here, where the series would include the
     // current CRS, but that would require polars to support extension types.
     #[cfg(feature = "proj")]
-    fn to_crs_with_builder(
+    fn to_crs_with_options(
         &self,
         from: &str,
         to: &str,
-        proj_builder: ProjBuilder,
+        proj_options: ProjOptions,
     ) -> Result<Series>;
 
     /// Returns a GeoSeries with each of the geometries translated by a fixed x and y amount
@@ -780,19 +780,21 @@ impl GeoSeries for Series {
 
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
-        self.to_crs_with_builder(from, to, ProjBuilder::new())
+        self.to_crs_with_options(from, to, ProjOptions::default())
     }
 
     #[cfg(feature = "proj")]
-    fn to_crs_with_builder(
+    fn to_crs_with_options(
         &self,
         from: &str,
         to: &str,
-        proj_builder: ProjBuilder,
+        proj_options: ProjOptions,
     ) -> Result<Series> {
         use proj::Transform;
 
-        let proj = proj_builder.proj_known_crs(from, to, None)?;
+        let proj = proj_options
+            .to_proj_builder()?
+            .proj_known_crs(from, to, None)?;
 
         // Specify literal Result<> to propagate error from within closure
         // https://stackoverflow.com/a/26370894

@@ -1,9 +1,11 @@
 pub mod error;
-pub mod export;
 pub mod geodataframe;
 pub mod geoseries;
 pub mod spatial_index;
 mod util;
+
+#[cfg(feature = "proj")]
+pub mod proj;
 
 #[cfg(test)]
 mod tests {
