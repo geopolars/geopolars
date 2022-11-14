@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import polars as pl
 
 from geopolars import geopolars as core
@@ -15,6 +17,9 @@ try:
     import pyarrow
 except ImportError:
     pyarrow = None
+
+if TYPE_CHECKING:
+    import pyproj
 
 
 class GeoSeries(pl.Series):
@@ -290,13 +295,15 @@ class GeoSeries(pl.Series):
 
         return core.distance(self, other)
 
-    def to_crs(self, from_crs: str, to_crs: str) -> GeoSeries:
+    def to_crs(self, from_crs: str | pyproj.CRS, to_crs: str | pyproj.CRS) -> GeoSeries:
         """Returns a ``GeoSeries`` with all geometries transformed to a new
         coordinate reference system.
 
         Transform all geometries in a GeoSeries to a different coordinate
-        reference system.  The ``crs`` attribute on the current GeoSeries must
-        be set.  Either ``crs`` or ``epsg`` may be specified for output.
+        reference system.
+
+        For now, you must pass in both ``from_crs`` and ``to_crs``. In the future, we'll
+        handle the current CRS automatically.
 
         This method will transform all points in all objects.  It has no notion
         or projecting entire geometries.  All segments joining points are
@@ -306,11 +313,11 @@ class GeoSeries(pl.Series):
 
         Parameters
         ----------
-        from_crs : pyproj.CRS or str
+        from_crs : :class:`pyproj.CRS <pyproj.crs.CRS>` or str
             Origin coordinate system. The value can be anything accepted
             by :meth:`pyproj.CRS.from_user_input() <pyproj.crs.CRS.from_user_input>`,
             such as an authority string (eg "EPSG:4326") or a WKT string.
-        to_crs : pyproj.CRS or str
+        to_crs : :class:`pyproj.CRS <pyproj.crs.CRS>` or str
             Destination coordinate system. The value can be anything accepted
             by :meth:`pyproj.CRS.from_user_input() <pyproj.crs.CRS.from_user_input>`,
             such as an authority string (eg "EPSG:4326") or a WKT string.
@@ -328,10 +335,10 @@ class GeoSeries(pl.Series):
             raise ValueError("PROJ_DATA could not be found.")
 
         # If pyproj.CRS objects are passed in, serialize them to PROJJSON
-        if hasattr(from_crs, "to_json"):
+        if not isinstance(from_crs, str) and hasattr(from_crs, "to_json"):
             from_crs = from_crs.to_json()
 
-        if hasattr(to_crs, "to_json"):
+        if not isinstance(from_crs, str) and hasattr(to_crs, "to_json"):
             to_crs = to_crs.to_json()
 
         return core.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
