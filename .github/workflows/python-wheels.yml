@@ -6,6 +6,9 @@ on:
     tags:
       - "v*"
 
+env:
+  PROJ_VERSION: "9.1.0"
+
 jobs:
   build-wheel-manylinux-2-24:
     name: "Build manylinux 2.24 wheels"
@@ -28,13 +31,33 @@ jobs:
         run: |
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
           pip install -r build.requirements.txt
+          apt update
+          apt install -y libgdal-dev clang-7
+
+      - name: Compile PROJ
+        run: |
+          export PROJ_WHEEL=true
+          export PROJ_NETWORK=ON
+          export PROJ_VERSION=${{ env.PROJ_VERSION }}
+          export PKG_CONFIG_PATH="/project/pyproj/proj_dir/lib/pkgconfig/:$PKG_CONFIG_PATH"
+          export PROJ_DIR=/project/pyproj/proj_dir
+          export MB_ML_VER=_2_24
+
+          bash ./ci/proj-compile-wheels.sh
+          find /project/pyproj/proj_dir
+
+      - name: Copy PROJ_DATA into current tree
+        run: |
+          export PROJ_DIR=/project/pyproj/proj_dir
+          /opt/python/cp38-cp38/bin/python scripts/copy-proj-data.py
+          ls python/geopolars/proj_data/
 
       - name: Build Python wheel
         shell: bash
         run: |
           source $HOME/.cargo/env
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels
+          maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels --features proj
 
       - name: List wheels
         run: find ./wheels
