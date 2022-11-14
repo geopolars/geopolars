@@ -183,10 +183,10 @@ jobs:
         shell: bash
         run: |
           python -V
-          pip install wheel
-          pip install --upgrade pip
-          pip install -r build.requirements.txt
-          pip install delvewheel
+          python -m pip install wheel
+          python -m pip install --upgrade pip
+          python -m pip install -r build.requirements.txt
+          python -m pip install delvewheel
 
       - name: Cache vcpkg
         uses: actions/cache@v3
