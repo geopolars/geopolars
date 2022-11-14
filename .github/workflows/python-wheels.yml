@@ -47,6 +47,11 @@ jobs:
           bash ./ci/proj-compile-wheels.sh
           ls /project/pyproj/proj_dir
 
+      - name: Copy PROJ_DATA into current tree
+        run: |
+          python copy-proj-data.py
+          ls python/geopolars/proj_data/
+
       - name: Build Python wheel
         shell: bash
         run: |
