@@ -73,6 +73,10 @@ jobs:
           brew install proj
           brew info proj
 
+      - name: Copy PROJ_DATA into current tree
+        run: |
+          python copy-proj-data.py
+
       - name: Install Python dependencies
         run: |
           python -V
