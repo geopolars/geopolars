@@ -338,7 +338,7 @@ class GeoSeries(pl.Series):
         if not isinstance(from_crs, str) and hasattr(from_crs, "to_json"):
             from_crs = from_crs.to_json()
 
-        if not isinstance(from_crs, str) and hasattr(to_crs, "to_json"):
+        if not isinstance(to_crs, str) and hasattr(to_crs, "to_json"):
             to_crs = to_crs.to_json()
 
         return core.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
