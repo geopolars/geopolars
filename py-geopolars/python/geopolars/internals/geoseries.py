@@ -298,6 +298,13 @@ class GeoSeries(pl.Series):
         if not PROJ_DATA_PATH:
             raise ValueError("PROJ_DATA could not be found.")
 
+        # If pyproj.CRS objects are passed in, serialize them to PROJJSON
+        if hasattr(from_crs, "to_json"):
+            from_crs = from_crs.to_json()
+
+        if hasattr(to_crs, "to_json"):
+            to_crs = to_crs.to_json()
+
         return core.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
 
     def translate(self, xoff: float = 0.0, yoff: float = 0.0) -> GeoSeries:
