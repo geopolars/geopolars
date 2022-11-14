@@ -135,6 +135,51 @@ jobs:
         with:
           path: py-geopolars/wheels/*.whl
 
+  build-wheel-mac-aarch64:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: py-geopolars
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Set up Rust targets
+        run: rustup target add aarch64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          cache: "pip"
+          cache-dependency-path: "py-geopolars/build.requirements.txt"
+
+      - name: Install Python dependencies
+        run: |
+          python -V
+          pip install wheel
+          pip install --upgrade pip
+          pip install -r build.requirements.txt
+
+      - name: Build
+        run: |
+          maturin build --target aarch64-apple-darwin --strip --interpreter python -o wheels
+
+      - name: List wheels
+        run: find ./wheels
+
+      # Have to set path from root
+      # https://github.com/actions/upload-artifact/issues/232#issuecomment-964235360
+      - uses: actions/upload-artifact@v2
+        with:
+          path: py-geopolars/wheels/*.whl
+
   # build_wheels:
   #   name: Build wheel on ${{ matrix.os }}
   #   runs-on: ${{ matrix.os }}
