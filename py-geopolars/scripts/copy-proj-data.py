@@ -96,36 +96,14 @@ def get_proj_dir() -> Path:
     return proj_dir
 
 
-def valid_data_dir(potential_data_dir: Path):
-    return (potential_data_dir / "proj.db").exists()
-
-
-def get_data_dir() -> str:
-    """
-    Taken and adapted from pyproj
-    """
-
-    proj_exe = shutil.which("proj", path=sys.prefix)
-    if proj_exe is None:
-        proj_exe = shutil.which("proj")
-    if proj_exe is not None:
-        system_proj_dir = Path(proj_exe).parent.parent / "share" / "proj"
-        if valid_data_dir(system_proj_dir):
-            _VALIDATED_PROJ_DATA = str(system_proj_dir)
-
-    if _VALIDATED_PROJ_DATA is None:
-        raise Exception(
-            "Valid PROJ data directory not found. "
-            "Either set the path using the environmental variable "
-            "PROJ_DATA (PROJ 9.1+) | PROJ_LIB (PROJ<9.1) or "
-            "with `pyproj.datadir.set_data_dir`."
-        )
-    return _VALIDATED_PROJ_DATA
-
-
 def copy_proj_data(proj_dir: Path):
     source_data_dir = proj_dir / "share" / "proj"
-    assert valid_data_dir(source_data_dir)
+    if not (source_data_dir / "proj.db").exists():
+        msg = (
+            f"Expected to find proj.db at {source_data_dir}."
+            f"Found: {list(source_data_dir.iterdir())}"
+        )
+        raise ValueError(msg)
 
     if INTERNAL_PROJ_DATA_DIR.exists():
         shutil.rmtree(INTERNAL_PROJ_DATA_DIR)
