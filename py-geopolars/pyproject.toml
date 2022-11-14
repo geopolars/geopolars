@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "geopolars"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 dependencies = [
   # Minimum version with binary dtype
   "polars>=0.14.19",

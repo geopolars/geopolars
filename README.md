@@ -55,15 +55,13 @@ Documentation is available at [docs.rs/geopolars](https://docs.rs/geopolars).
 
 ### Python
 
-An early alpha (`v0.1.0-alpha.3`) is published to PyPI:
+An early alpha (`v0.1.0-alpha.4`) is published to PyPI:
 
 ```
 pip install --pre geopolars
 ```
 
 The publishing processs includes binary wheels for many platforms, so it should be easy to install, without needing to compile the underlying Rust code from source.
-
-A documentation website has been started but is not yet hosted online.
 
 ### WebAssembly
 
