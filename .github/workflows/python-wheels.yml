@@ -37,12 +37,12 @@ jobs:
 
       - name: Compile PROJ
         run: |
-          PROJ_WHEEL=true
-          PROJ_NETWORK=ON
-          PROJ_VERSION=${{ env.PROJ_VERSION }}
-          PKG_CONFIG_PATH="/project/pyproj/proj_dir/lib/pkgconfig/:$PKG_CONFIG_PATH"
-          PROJ_DIR=/project/pyproj/proj_dir
-          MB_ML_VER=_2_24
+          export PROJ_WHEEL=true
+          export PROJ_NETWORK=ON
+          export PROJ_VERSION=${{ env.PROJ_VERSION }}
+          export PKG_CONFIG_PATH="/project/pyproj/proj_dir/lib/pkgconfig/:$PKG_CONFIG_PATH"
+          export PROJ_DIR=/project/pyproj/proj_dir
+          export MB_ML_VER=_2_24
 
           bash ./ci/proj-compile-wheels.sh
           ls /project/pyproj/proj_dir
