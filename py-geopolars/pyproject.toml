@@ -10,8 +10,7 @@ dependencies = [
   "polars>=0.14.19",
   "pyarrow>=4.0.*",
   "numpy >= 1.16.0",
-  # TODO: only for pre 3.11
-  "importlib_resources"
+  "importlib_resources; python_version < '3.11'",
 ]
 requires-python = ">=3.8"
 description = "Geospatial extensions for Polars"
@@ -19,10 +18,7 @@ readme = "README.md"
 # Specify SPDX expression in Cargo.toml instead of here
 # https://maturin.rs/metadata.html#add-spdx-license-expressions
 # license = "MIT"
-authors = [
-  { name = "Kyle Barron" },
-  { name = "Stuart Lynn" }
-]
+authors = [{ name = "Kyle Barron" }, { name = "Stuart Lynn" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Topic :: Scientific/Engineering :: GIS",
