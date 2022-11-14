@@ -3,8 +3,8 @@ name: Build Python Wheels
 # Only run on new tags starting with `v`
 on:
   push:
-    tags:
-      - "v*"
+    # tags:
+    #   - "v*"
 
 jobs:
   build-wheel-manylinux-2-24:
@@ -217,7 +217,12 @@ jobs:
         shell: bash
         run: |
           export PKG_CONFIG_PATH="$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/lib/pkgconfig"
-          maturin build --release --strip --interpreter python -o wheels --features proj
+          maturin build --release --strip --interpreter python -o wheels-pre-repair --features proj
+
+      - name: Repair wheel
+        shell: bash
+        run: |
+          python -m delvewheel repair --add-path C:/vcpkg/installed/${{ matrix.triplet }}/bin -w wheels wheels-pre-repair/*
 
       - name: List wheels
         shell: bash
