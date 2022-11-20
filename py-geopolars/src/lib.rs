@@ -4,4 +4,4 @@ mod ffi;
 mod geoseries;
 mod utils;
 
-pub use api::geopolars;
+pub use api::_geopolars;

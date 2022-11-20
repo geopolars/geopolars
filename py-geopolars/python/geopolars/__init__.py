@@ -1,5 +1,5 @@
+from geopolars._geopolars import version  # type: ignore
 from geopolars.convert import from_arrow, from_geopandas
-from geopolars.geopolars import version  # type: ignore
 from geopolars.internals.geodataframe import GeoDataFrame
 from geopolars.internals.geoseries import GeoSeries
 from geopolars.io.file import read_file
