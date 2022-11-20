@@ -9,7 +9,7 @@ fn version() -> &'static str {
 }
 
 #[pymodule]
-pub fn geopolars(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn _geopolars(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(geoseries::affine_transform))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::area))?;
     m.add_wrapped(wrap_pyfunction!(geoseries::centroid))?;

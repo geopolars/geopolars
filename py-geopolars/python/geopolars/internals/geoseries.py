@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
-from geopolars import geopolars as core
+from geopolars import _geopolars as core
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
 from geopolars.proj import PROJ_DATA_PATH
 
