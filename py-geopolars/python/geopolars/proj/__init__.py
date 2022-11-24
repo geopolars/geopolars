@@ -9,7 +9,7 @@ else:
 
 
 def get_proj_data_path() -> Optional[Path]:
-    local_proj_data = Path(files("geopolars") / "proj_data")
+    local_proj_data = Path(str(files("geopolars") / "proj_data"))
     if local_proj_data.exists():
         return local_proj_data
 
