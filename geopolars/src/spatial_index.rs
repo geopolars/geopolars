@@ -5,7 +5,9 @@ use geo::{
     Point, Polygon,
 };
 use polars::error::ErrString;
-use polars::prelude::{DataFrame, JoinType, NamedFrom, PolarsError, PolarsResult, Series};
+use polars::prelude::{
+    DataFrame, DataFrameJoinOps, JoinType, NamedFrom, PolarsError, PolarsResult, Series,
+};
 use rstar::{RTree, RTreeObject, AABB};
 
 use crate::util::{geom_at_index, iter_geom, Predicate};

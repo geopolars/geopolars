@@ -21,7 +21,7 @@ pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> 
 /// Access to a geometry at a specified index
 pub(crate) fn geom_at_index(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
     let buffer = match series.get(index) {
-        AnyValue::Binary(buf) => buf,
+        Ok(AnyValue::Binary(buf)) => buf,
         _ => return Err(PolarsError::SchemaMisMatch("".into())),
     };
 
