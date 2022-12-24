@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 proj = ["geopolars/proj"]
 
 [dependencies]
-polars = "0.25"
+polars = "0.26"
 pyo3 = { version = "0.17.3", features = ["abi3-py38", "extension-module"] }
 geopolars = { path = "../geopolars" }
 thiserror = "1.0"
