@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import polars as pl
 
 from geopolars import _geopolars as core
+from geopolars.enums import GeometryType
 from geopolars.internals.types import GeodesicMethod, TransformOrigin
 from geopolars.proj import PROJ_DATA_PATH
 
@@ -18,6 +19,11 @@ try:
 except ImportError:
     pyarrow = None
 
+try:
+    import shapely
+except ImportError:
+    shapely = None
+
 if TYPE_CHECKING:
     import pyproj
 
@@ -25,26 +31,16 @@ if TYPE_CHECKING:
 class GeoSeries(pl.Series):
     """Extension of :class:`polars.Series` to handle geospatial vector data."""
 
-    def __init__(self, *args, **kwargs):
+    _geom_type: GeometryType | None
+
+    def __init__(self, *args, _geom_type: GeometryType | None = None, **kwargs):
+        self._geom_type = _geom_type
+
         if isinstance(args[0], pl.Series):
             self._s = args[0]._s
             return
 
         super().__init__(*args, **kwargs)
-
-    @classmethod
-    def _from_geopandas(cls, geoseries: geopandas.GeoSeries):
-        if geopandas is None:
-            raise ImportError("Geopandas is required when using from_geopandas().")
-
-        if pyarrow is None:
-            raise ImportError("Pyarrow is required when using from_geopandas().")
-
-        wkb_arrow_array = pyarrow.Array.from_pandas(geoseries.to_wkb())
-        polars_series = pl.Series._from_arrow(
-            geoseries.name or "geometry", wkb_arrow_array
-        )
-        return cls(polars_series)
 
     def to_geopandas(self) -> geopandas.GeoSeries:
         """Converts this ``GeoSeries`` to a :class:`geopandas.GeoSeries`.

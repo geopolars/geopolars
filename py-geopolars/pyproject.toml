@@ -11,6 +11,8 @@ dependencies = [
   "pyarrow>=4.0.*",
   "numpy >= 1.16.0",
   "importlib_resources; python_version < '3.11'",
+  # For easy interop with geoarrow
+  "shapely >= 2.0",
 ]
 requires-python = ">=3.8"
 description = "Geospatial extensions for Polars"

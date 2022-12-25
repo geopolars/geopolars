@@ -5,6 +5,7 @@ pyarrow>=4.0
 numpy>=1.16.0
 # First version with latest naturalearth sample datasets for tests
 geopandas>=0.12
+shapely>=2.0
 
 # Tooling
 maturin==0.14.2
