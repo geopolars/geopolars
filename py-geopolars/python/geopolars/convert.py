@@ -129,10 +129,11 @@ def geopandas_geoseries_to_geopolars(geoseries: geopandas.GeoSeries):
         return GeoSeries(parr, _geom_type=geom_type)
 
     elif geom_type == shapely.GeometryType.LINESTRING:
+        offsets1 = offsets[0]
         _parr = pyarrow.StructArray.from_arrays(
             [coords[:, 0], coords[:, 1]], ["x", "y"]
         )
-        parr = pyarrow.ListArray.from_arrays(pyarrow.array(offsets), _parr)
+        parr = pyarrow.ListArray.from_arrays(pyarrow.array(offsets1), _parr)
         return GeoSeries(parr, _geom_type=geom_type)
 
     elif geom_type == shapely.GeometryType.POLYGON:
