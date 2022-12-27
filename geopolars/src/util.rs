@@ -1,4 +1,4 @@
-use geo::{Coord, Geometry, LineString, Point};
+use geo::{Coord, Geometry, LineString, Point, Polygon};
 use geozero::{wkb::Wkb, ToGeo};
 use polars::datatypes::{AnyValue, DataType};
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
@@ -71,6 +71,7 @@ fn geom_at_index_point(series: &Series, index: usize) -> PolarsResult<Geometry<f
     Ok(Geometry::Point(p))
 }
 
+/// Access a single LineString out of a GeoArrow LineString column
 fn geom_at_index_linestring(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
     let (chunk, local_index) = get_chunk_and_local_index(series, index);
 
@@ -82,7 +83,14 @@ fn geom_at_index_linestring(series: &Series, index: usize) -> PolarsResult<Geome
         .downcast_ref::<StructArray>()
         .unwrap();
 
-    let struct_array_values = struct_array.values();
+    let l = parse_linestring(struct_array)?;
+    Ok(Geometry::LineString(l))
+}
+
+/// Parse a slice of a list array into a geo LineString
+/// The slice is expected to be a StructArray with two children, x and y
+fn parse_linestring(linestring: &StructArray) -> PolarsResult<LineString<f64>> {
+    let struct_array_values = linestring.values();
     let x_arrow_array = &struct_array_values[0];
     let y_arrow_array = &struct_array_values[1];
 
@@ -103,12 +111,43 @@ fn geom_at_index_linestring(series: &Series, index: usize) -> PolarsResult<Geome
         })
     }
 
-    let l = LineString::new(coords);
-    Ok(Geometry::LineString(l))
+    Ok(LineString::new(coords))
 }
 
 fn geom_at_index_polygon(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
-    todo!()
+    let (geometry_dyn_array, local_index) = get_chunk_and_local_index(series, index);
+
+    let geometry_array = geometry_dyn_array
+        .as_any()
+        .downcast_ref::<ListArray<i64>>()
+        .unwrap();
+
+    let ring_dyn_array = geometry_array.value(local_index);
+    let ring_array = ring_dyn_array
+        .as_any()
+        .downcast_ref::<ListArray<i64>>()
+        .unwrap();
+
+    let exterior_ring_dyn = ring_array.value(0);
+    let exterior_ring = exterior_ring_dyn
+        .as_any()
+        .downcast_ref::<StructArray>()
+        .unwrap();
+
+    let exterior_linestring = parse_linestring(exterior_ring)?;
+
+    let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(ring_array.len() - 1);
+    for ring_index in 1..ring_array.len() {
+        let interior_ring_dyn = ring_array.value(ring_index);
+        let interior_ring = interior_ring_dyn
+            .as_any()
+            .downcast_ref::<StructArray>()
+            .unwrap();
+        interior_rings.push(parse_linestring(interior_ring)?);
+    }
+
+    let p = Polygon::new(exterior_linestring, interior_rings);
+    Ok(Geometry::Polygon(p))
 }
 
 /// Returns underlying arrow2 array containing the current item plus the local index within that
