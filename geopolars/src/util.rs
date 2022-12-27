@@ -151,28 +151,6 @@ fn geom_at_index_polygon(series: &Series, index: usize) -> PolarsResult<Geometry
     Ok(Geometry::Polygon(p))
 }
 
-/// Returns underlying arrow2 array containing the current item plus the local index within that
-/// array
-fn get_chunk_and_local_index(series: &Series, global_index: usize) -> (Box<dyn Array>, usize) {
-    // Index of underlying chunk in Series
-    let mut chunk_index: usize = 0;
-
-    // Counter for sum of sizes of previous chunks
-    let mut acc: usize = 0;
-
-    for chunk_len in series.chunk_lengths() {
-        if global_index < acc + chunk_len {
-            continue;
-        }
-        chunk_index += 1;
-        acc += chunk_len;
-    }
-
-    // I _think_ this clone is light because it's behind a box?
-    let chunk = series.chunks()[chunk_index].clone();
-    (chunk, global_index - acc)
-}
-
 pub enum Predicate {
     Intersects,
     Contains,
