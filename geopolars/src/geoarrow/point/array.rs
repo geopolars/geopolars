@@ -1,5 +1,5 @@
 use geo::Point;
-use polars::export::arrow::array::{Array, MutableArray, PrimitiveArray, StructArray};
+use polars::export::arrow::array::{Array, PrimitiveArray, StructArray};
 use polars::prelude::Series;
 
 use crate::util::index_to_chunked_index;
@@ -38,7 +38,13 @@ impl PointSeries {
         let (chunk_idx, local_idx) = index_to_chunked_index(&self.0, i);
         let chunk = self.0.chunks()[chunk_idx];
 
-        let pa = PointArray(chunk.as_any().downcast_ref::<StructArray>().unwrap());
+        let pa = PointArray(
+            chunk
+                .as_any()
+                .downcast_ref::<StructArray>()
+                .unwrap()
+                .clone(),
+        );
         pa.get_as_geo(local_idx)
     }
 }

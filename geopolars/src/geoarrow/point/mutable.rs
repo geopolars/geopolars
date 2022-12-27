@@ -1,5 +1,5 @@
-use polars::export::arrow::array::{Array, MutableArray, StructArray};
-use polars::export::arrow::bitmap::MutableBitmap;
+use polars::export::arrow::array::{Array, PrimitiveArray, StructArray};
+use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use polars::export::arrow::datatypes::DataType;
 use polars::prelude::ArrowField;
 
@@ -14,9 +14,19 @@ impl MutablePointArray {
     pub fn into_arrow(self) -> StructArray {
         let field_x = ArrowField::new("x", DataType::Float64, false);
         let field_y = ArrowField::new("y", DataType::Float64, false);
-        let struct_data_type = DataType::Struct(vec![field_x, field_y]);
-        let struct_values: Vec<Box<dyn Array>> = vec![self.x.into(), self.y.into()];
 
-        StructArray::new(struct_data_type, struct_values, self.validity.into())
+        let array_x = Box::new(PrimitiveArray::<f64>::from_values(self.x)) as Box<dyn Array>;
+        let array_y = Box::new(PrimitiveArray::<f64>::from_values(self.y)) as Box<dyn Array>;
+
+        let struct_data_type = DataType::Struct(vec![field_x, field_y]);
+        let struct_values = vec![array_x, array_y];
+
+        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        StructArray::new(struct_data_type, struct_values, validity)
     }
 }
