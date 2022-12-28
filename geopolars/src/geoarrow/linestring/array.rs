@@ -1,4 +1,3 @@
-// use crate::traits::line_string::LineStringTrait;
 use geo::{Coord, LineString};
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::prelude::Series;
@@ -7,7 +6,7 @@ use crate::util::index_to_chunked_index;
 
 /// A struct representing a non-null single LineString geometry
 #[derive(Debug, Clone)]
-pub struct LineStringScalar(StructArray);
+pub struct LineStringScalar(pub StructArray);
 
 impl LineStringScalar {
     pub fn into_geo(self) -> LineString {
