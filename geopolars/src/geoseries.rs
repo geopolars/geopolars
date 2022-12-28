@@ -9,7 +9,7 @@ use geozero::{CoordDimensions, ToWkb};
 use polars::error::ErrString;
 use polars::export::arrow::array::{
     Array, BinaryArray, BooleanArray, MutableBinaryArray, MutableBooleanArray,
-    MutablePrimitiveArray, PrimitiveArray,
+    MutablePrimitiveArray, PrimitiveArray, StructArray,
 };
 use polars::prelude::{PolarsError, Series};
 use std::convert::Into;
@@ -823,10 +823,14 @@ impl GeoSeries for Series {
 
         match get_geoarrow_type(self) {
             GeoArrowType::Point => {
-                for ps_chunk in PointSeries(self).chunks().into_iter() {
-                    let point_array_parts = ps_chunk.parts();
-                    for i in 0..point_array_parts.len() {
-                        result.push(point_array_parts.get_as_geo(i).map(|pt| pt.x()));
+                for chunk in self.chunks().iter() {
+                    let struct_chunk = chunk.as_any().downcast_ref::<StructArray>().unwrap();
+                    let x_array = struct_chunk.values()[0]
+                        .as_any()
+                        .downcast_ref::<PrimitiveArray<f64>>()
+                        .unwrap();
+                    for x in x_array {
+                        result.push(x.cloned())
                     }
                 }
             }
@@ -860,17 +864,39 @@ impl GeoSeries for Series {
     fn y(&self) -> Result<Series> {
         let mut result = MutablePrimitiveArray::<f64>::with_capacity(self.len());
 
-        for geom in iter_geom(self) {
-            let point: Point<f64> = match geom {
-                Geometry::Point(point) => point,
-                geom => {
-                    return Err(GeopolarsError::MismatchedGeometry {
-                        expected: "Point",
-                        found: inner_type_name(&geom),
-                    })
+        match get_geoarrow_type(self) {
+            GeoArrowType::Point => {
+                for chunk in self.chunks().iter() {
+                    let struct_chunk = chunk.as_any().downcast_ref::<StructArray>().unwrap();
+                    let x_array = struct_chunk.values()[1]
+                        .as_any()
+                        .downcast_ref::<PrimitiveArray<f64>>()
+                        .unwrap();
+                    for x in x_array {
+                        result.push(x.cloned())
+                    }
                 }
-            };
-            result.push(Some(point.y()));
+            }
+            GeoArrowType::WKB => {
+                for geom in iter_geom(self) {
+                    let point: Point<f64> = match geom {
+                        Geometry::Point(point) => point,
+                        geom => {
+                            return Err(GeopolarsError::MismatchedGeometry {
+                                expected: "Point",
+                                found: inner_type_name(&geom),
+                            })
+                        }
+                    };
+                    result.push(Some(point.x()));
+                }
+            }
+            _ => {
+                return Err(GeopolarsError::MismatchedGeometry {
+                    expected: "Point",
+                    found: "todo",
+                })
+            }
         }
 
         let result: PrimitiveArray<f64> = result.into();
