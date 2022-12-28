@@ -1,9 +1,30 @@
 use geo::{Coord, Geometry, LineString, Point, Polygon};
 use geozero::{wkb::Wkb, ToGeo};
 use polars::datatypes::{AnyValue, DataType};
-use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
+use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::num;
 use polars::prelude::{PolarsError, PolarsResult, Series};
+
+pub enum GeoArrowType {
+    Point,
+    LineString,
+    Polygon,
+    WKB,
+}
+
+pub fn get_geoarrow_type(series: &Series) -> GeoArrowType {
+    match series.dtype() {
+        DataType::Binary => GeoArrowType::WKB,
+        DataType::Struct(_) => GeoArrowType::Point,
+        DataType::List(dt) => match *dt.clone() {
+            DataType::Struct(_) => GeoArrowType::LineString,
+            DataType::List(_) => GeoArrowType::Polygon,
+            _ => panic!("Unexpected inner list type: {}", dt),
+        },
+
+        dt => panic!("Unexpected geoarrow type: {}", dt),
+    }
+}
 
 /// Helper function to iterate over geometries from polars Series
 pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
@@ -48,9 +69,12 @@ fn geom_at_index_wkb(series: &Series, index: usize) -> PolarsResult<Geometry<f64
 
 /// Access geo point out of geoarrow point column at given index
 fn geom_at_index_point(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
-    let (chunk, local_index) = get_chunk_and_local_index(series, index);
+    let (chunk_idx, local_idx) = index_to_chunked_index(series, index);
 
-    let struct_array = chunk.as_any().downcast_ref::<StructArray>().unwrap();
+    let struct_array = series.chunks()[chunk_idx]
+        .as_any()
+        .downcast_ref::<StructArray>()
+        .unwrap();
 
     let struct_array_values = struct_array.values();
     let x_arrow_array = &struct_array_values[0];
@@ -66,18 +90,21 @@ fn geom_at_index_point(series: &Series, index: usize) -> PolarsResult<Geometry<f
         .unwrap();
 
     let p = Point::new(
-        x_array_values.value(local_index),
-        y_array_values.value(local_index),
+        x_array_values.value(local_idx),
+        y_array_values.value(local_idx),
     );
     Ok(Geometry::Point(p))
 }
 
 /// Access a single LineString out of a GeoArrow LineString column
 fn geom_at_index_linestring(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
-    let (chunk, local_index) = get_chunk_and_local_index(series, index);
+    let (chunk_idx, local_idx) = index_to_chunked_index(series, index);
 
-    let list_array = chunk.as_any().downcast_ref::<ListArray<i64>>().unwrap();
-    let inner_dyn_array = list_array.value(local_index);
+    let list_array = series.chunks()[chunk_idx]
+        .as_any()
+        .downcast_ref::<ListArray<i64>>()
+        .unwrap();
+    let inner_dyn_array = list_array.value(local_idx);
 
     let struct_array = inner_dyn_array
         .as_any()
@@ -116,14 +143,15 @@ fn parse_linestring(linestring: &StructArray) -> PolarsResult<LineString<f64>> {
 }
 
 fn geom_at_index_polygon(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
-    let (geometry_dyn_array, local_index) = get_chunk_and_local_index(series, index);
+    let (chunk_idx, local_idx) = index_to_chunked_index(series, index);
+    let geometry_dyn_array = &series.chunks()[chunk_idx];
 
     let geometry_array = geometry_dyn_array
         .as_any()
         .downcast_ref::<ListArray<i64>>()
         .unwrap();
 
-    let ring_dyn_array = geometry_array.value(local_index);
+    let ring_dyn_array = geometry_array.value(local_idx);
     let ring_array = ring_dyn_array
         .as_any()
         .downcast_ref::<ListArray<i64>>()

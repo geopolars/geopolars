@@ -22,7 +22,7 @@ impl MutableLineStringArray {
         let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
         let list_data_type = DataType::LargeList(Box::new(ArrowField::new(
             "vertices",
-            struct_data_type,
+            struct_data_type.clone(),
             false,
         )));
 

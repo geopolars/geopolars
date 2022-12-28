@@ -1,9 +1,9 @@
 pub mod error;
+pub mod geoarrow;
 pub mod geodataframe;
 pub mod geoseries;
 pub mod spatial_index;
 pub mod util;
-pub mod geoarrow;
 
 #[cfg(feature = "proj")]
 pub mod proj;

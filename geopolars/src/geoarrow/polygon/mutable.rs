@@ -23,12 +23,12 @@ impl MutablePolygonArray {
         let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
         let inner_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
             "vertices",
-            struct_data_type,
+            struct_data_type.clone(),
             false,
         )));
         let outer_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
             "rings",
-            inner_list_data_type,
+            inner_list_data_type.clone(),
             false,
         )));
 

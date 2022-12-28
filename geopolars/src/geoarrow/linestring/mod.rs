@@ -1,2 +1,2 @@
-pub mod mutable;
 pub mod array;
+pub mod mutable;

@@ -36,59 +36,40 @@ impl LineStringScalar {
 }
 
 #[derive(Debug, Clone)]
-pub struct LineStringArray(ListArray<i64>);
+pub struct LineStringArray<'a>(&'a ListArray<i64>);
 
-impl LineStringArray {
+impl LineStringArray<'_> {
     pub fn get(&self, i: usize) -> Option<LineStringScalar> {
         if self.0.is_null(i) {
             return None;
         }
 
-        let line_string_item = self
-            .0
-            .value(i)
-            .as_any()
-            .downcast_ref::<StructArray>()
-            .unwrap();
+        let value = self.0.value(i);
+        let line_string_item = value.as_any().downcast_ref::<StructArray>().unwrap();
         Some(LineStringScalar(line_string_item.clone()))
     }
 
     pub fn get_as_geo(&self, i: usize) -> Option<LineString> {
         let line_string_item = self.get(i);
-
-        if let Some(line_string_item) = line_string_item {
-            Some(line_string_item.into_geo())
-        } else {
-            return None;
-        }
+        line_string_item.map(|ls| ls.into_geo())
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct LineStringSeries(Series);
+pub struct LineStringSeries<'a>(&'a Series);
 
-impl LineStringSeries {
+impl LineStringSeries<'_> {
     pub fn get(&self, i: usize) -> Option<LineStringScalar> {
-        let (chunk_idx, local_idx) = index_to_chunked_index(&self.0, i);
-        let chunk = self.0.chunks()[chunk_idx];
+        let (chunk_idx, local_idx) = index_to_chunked_index(self.0, i);
+        let chunk = &self.0.chunks()[chunk_idx];
 
-        let linestring_array = LineStringArray(
-            chunk
-                .as_any()
-                .downcast_ref::<ListArray<i64>>()
-                .unwrap()
-                .clone(),
-        );
+        let linestring_array =
+            LineStringArray(chunk.as_any().downcast_ref::<ListArray<i64>>().unwrap());
         linestring_array.get(local_idx)
     }
 
     pub fn get_as_geo(&self, i: usize) -> Option<LineString> {
         let line_string_item = self.get(i);
-
-        if let Some(line_string_item) = line_string_item {
-            Some(line_string_item.into_geo())
-        } else {
-            return None;
-        }
+        line_string_item.map(|ls| ls.into_geo())
     }
 }
