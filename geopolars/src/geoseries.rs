@@ -386,23 +386,7 @@ impl GeoSeries for Series {
     }
 
     fn exterior(&self) -> Result<Series> {
-        let mut output_array = MutableBinaryArray::<i32>::with_capacity(self.len());
-
-        for geom in iter_geom(self) {
-            let maybe_exterior = match geom {
-                Geometry::Polygon(polygon) => {
-                    let exterior: Geometry<f64> = polygon.exterior().clone().into();
-                    Some(exterior.to_wkb(CoordDimensions::xy()).unwrap())
-                }
-                _ => None,
-            };
-            output_array.push(maybe_exterior);
-        }
-
-        let result: BinaryArray<i32> = output_array.into();
-
-        let series = Series::try_from(("geometry", Box::new(result) as ArrayRef))?;
-        Ok(series)
+        crate::ops::exterior::exterior(self)
     }
 
     fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Self> {
