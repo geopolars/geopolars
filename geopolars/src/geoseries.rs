@@ -1,10 +1,11 @@
 use crate::error::{inner_type_name, GeopolarsError, Result};
+use crate::ops::affine::TransformOrigin;
 use crate::ops::length::GeodesicLengthMethod;
 #[cfg(feature = "proj")]
 use crate::proj::ProjOptions;
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
-use geo::{map_coords::MapCoords, Geometry, Point};
+use geo::{Geometry, Point};
 use geozero::{CoordDimensions, ToWkb};
 use polars::error::ErrString;
 use polars::export::arrow::array::{
@@ -15,19 +16,6 @@ use polars::prelude::{PolarsError, Series};
 use std::convert::Into;
 
 pub type ArrayRef = Box<dyn Array>;
-
-/// Used to express the origin for a given transform. Can be specified either be with reference to
-/// the geometry being transformed (Centroid, Center) or some arbitrary point.
-///
-/// - Centroid: Use the centriod of each geometry in the series as the transform origin.
-/// - Center: Use the center of each geometry in the series as the transform origin. The center is
-///   defined as the center of the bounding box of the geometry
-/// - Point: Define a single point to transform each geometry in the series about.
-pub enum TransformOrigin {
-    Centroid,
-    Center,
-    Point(Point),
-}
 
 pub trait GeoSeries {
     /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
@@ -207,12 +195,7 @@ pub trait GeoSeries {
 
 impl GeoSeries for Series {
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series> {
-        let transform: AffineTransform<f64> = matrix.into();
-        let output_vec: Vec<Geometry> = iter_geom(self)
-            .map(|geom| geom.map_coords(|c| transform.apply(c)))
-            .collect();
-
-        Series::from_geom_vec(&output_vec)
+        crate::ops::affine::affine_transform(self, matrix)
     }
 
     fn area(&self) -> Result<Series> {
@@ -431,65 +414,11 @@ impl GeoSeries for Series {
     }
 
     fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series> {
-        use geo::algorithm::bounding_rect::BoundingRect;
-        use geo::algorithm::centroid::Centroid;
-        match origin {
-            TransformOrigin::Centroid => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let centroid = geom.centroid().unwrap();
-                        let transform = AffineTransform::rotate(angle, centroid);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Center => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let center = geom.bounding_rect().unwrap().center();
-                        let transform = AffineTransform::rotate(angle, center);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Point(point) => {
-                let transform = AffineTransform::rotate(angle, point);
-                self.affine_transform(transform)
-            }
-        }
+        crate::ops::affine::rotate(self, angle, origin)
     }
 
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series> {
-        use geo::algorithm::bounding_rect::BoundingRect;
-        use geo::algorithm::centroid::Centroid;
-        match origin {
-            TransformOrigin::Centroid => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let centroid = geom.centroid().unwrap();
-                        let transform = AffineTransform::scale(xfact, yfact, centroid);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Center => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let center = geom.bounding_rect().unwrap().center();
-                        let transform = AffineTransform::scale(xfact, yfact, center);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Point(point) => {
-                let transform = AffineTransform::scale(xfact, yfact, point);
-                self.affine_transform(transform)
-            }
-        }
+        crate::ops::affine::scale(self, xfact, yfact, origin)
     }
 
     fn simplify(&self, tolerance: f64) -> Result<Series> {
@@ -522,34 +451,7 @@ impl GeoSeries for Series {
     }
 
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series> {
-        use geo::algorithm::bounding_rect::BoundingRect;
-        use geo::algorithm::centroid::Centroid;
-        match origin {
-            TransformOrigin::Centroid => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let centroid = geom.centroid().unwrap();
-                        let transform = AffineTransform::skew(xs, ys, centroid);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Center => {
-                let rotated_geoms: Vec<Geometry<f64>> = iter_geom(self)
-                    .map(|geom| {
-                        let center = geom.bounding_rect().unwrap().center();
-                        let transform = AffineTransform::skew(xs, ys, center);
-                        geom.map_coords(|c| transform.apply(c))
-                    })
-                    .collect();
-                Series::from_geom_vec(&rotated_geoms)
-            }
-            TransformOrigin::Point(point) => {
-                let transform = AffineTransform::skew(xs, ys, point);
-                self.affine_transform(transform)
-            }
-        }
+        crate::ops::affine::skew(self, xs, ys, origin)
     }
 
     fn distance(&self, other: &Series) -> Result<Series> {

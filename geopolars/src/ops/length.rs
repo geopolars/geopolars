@@ -10,18 +10,18 @@ use polars::prelude::{PolarsError, Series};
 
 use crate::util::iter_geom;
 
+pub enum GeodesicLengthMethod {
+    Haversine,
+    Geodesic,
+    Vincenty,
+}
+
 pub(crate) fn euclidean_length(series: &Series) -> Result<Series> {
     euclidean_length_wkb(series)
 }
 
 pub(crate) fn geodesic_length(series: &Series, method: GeodesicLengthMethod) -> Result<Series> {
     geodesic_length_wkb(series, method)
-}
-
-pub enum GeodesicLengthMethod {
-    Haversine,
-    Geodesic,
-    Vincenty,
 }
 
 fn euclidean_length_wkb(series: &Series) -> Result<Series> {
