@@ -2,7 +2,7 @@ use crate::error::{inner_type_name, GeopolarsError, Result};
 use crate::ops::affine::TransformOrigin;
 use crate::ops::length::GeodesicLengthMethod;
 #[cfg(feature = "proj")]
-use crate::proj::ProjOptions;
+use crate::ops::proj::ProjOptions;
 use crate::util::iter_geom;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::{Geometry, Point};
@@ -522,7 +522,7 @@ impl GeoSeries for Series {
 
     #[cfg(feature = "proj")]
     fn to_crs(&self, from: &str, to: &str) -> Result<Series> {
-        self.to_crs_with_options(from, to, ProjOptions::default())
+        crate::ops::proj::to_crs(self, from, to)
     }
 
     #[cfg(feature = "proj")]
@@ -532,26 +532,7 @@ impl GeoSeries for Series {
         to: &str,
         proj_options: ProjOptions,
     ) -> Result<Series> {
-        use proj::Transform;
-
-        let proj = proj_options
-            .to_proj_builder()?
-            .proj_known_crs(from, to, None)?;
-
-        // Specify literal Result<> to propagate error from within closure
-        // https://stackoverflow.com/a/26370894
-        let output_vec: Result<Vec<Geometry>> = iter_geom(self)
-            .map(|mut geom| {
-                // geom.tranform modifies `geom` in place.
-                // Note that this doesn't modify the _original series_ because iter_geom makes a
-                // copy
-                // https://docs.rs/proj/latest/proj/#integration-with-geo-types
-                geom.transform(&proj)?;
-                Ok(geom)
-            })
-            .collect();
-
-        Series::from_geom_vec(&output_vec?)
+        crate::ops::proj::to_crs_with_options(self, from, to, proj_options)
     }
 
     fn translate(&self, x: f64, y: f64) -> Result<Series> {
