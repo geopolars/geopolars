@@ -1,6 +1,7 @@
 pub mod error;
 pub mod geodataframe;
 pub mod geoseries;
+pub mod ops;
 pub mod spatial_index;
 mod util;
 
