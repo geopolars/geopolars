@@ -1,5 +1,7 @@
 use geo::{LineString, Polygon};
-use polars::export::arrow::array::{Array, ListArray, StructArray};
+use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
+use polars::export::arrow::bitmap::Bitmap;
+use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::Series;
 
 use crate::geoarrow::linestring::array::LineStringScalar;
@@ -33,10 +35,18 @@ impl PolygonScalar {
     }
 }
 
+pub struct PolygonArrayParts<'a> {
+    pub x: &'a PrimitiveArray<f64>,
+    pub y: &'a PrimitiveArray<f64>,
+    pub ring_offsets: &'a OffsetsBuffer<i64>,
+    pub geom_offsets: &'a OffsetsBuffer<i64>,
+    pub validity: Option<&'a Bitmap>,
+}
+
 #[derive(Debug, Clone)]
 pub struct PolygonArray<'a>(&'a ListArray<i64>);
 
-impl PolygonArray<'_> {
+impl<'a> PolygonArray<'a> {
     pub fn get(&self, i: usize) -> Option<PolygonScalar> {
         if self.0.is_null(i) {
             return None;
@@ -54,10 +64,19 @@ impl PolygonArray<'_> {
         let polygon_item = self.get(i);
         polygon_item.map(|p| p.into_geo())
     }
+
+    pub fn parts(&self) -> PolygonArrayParts<'a> {
+        let geom_offsets = self.0.offsets();
+
+        let inner_values = self.0.values();
+
+        // PolygonArrayParts { x: (), y: (), ring_offsets: (), geom_offsets: (), validity: () }
+        todo!()
+    }
 }
 
 #[derive(Debug, Clone)]
-pub struct PolygonSeries<'a>(&'a Series);
+pub struct PolygonSeries<'a>(pub &'a Series);
 
 impl PolygonSeries<'_> {
     pub fn get(&self, i: usize) -> Option<PolygonScalar> {
@@ -71,5 +90,13 @@ impl PolygonSeries<'_> {
     pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
         let polygon_item = self.get(i);
         polygon_item.map(|p| p.into_geo())
+    }
+
+    pub fn chunks(&self) -> Vec<PolygonArray> {
+        self.0
+            .chunks()
+            .iter()
+            .map(|chunk| PolygonArray(chunk.as_any().downcast_ref::<ListArray<i64>>().unwrap()))
+            .collect()
     }
 }
