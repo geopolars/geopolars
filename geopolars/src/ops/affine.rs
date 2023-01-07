@@ -46,6 +46,10 @@ pub(crate) fn skew(series: &Series, xs: f64, ys: f64, origin: TransformOrigin) -
     skew_wkb(series, xs, ys, origin)
 }
 
+pub(crate) fn translate(series: &Series, x: f64, y: f64) -> Result<Series> {
+    translate_wkb(series, x, y)
+}
+
 fn affine_transform_wkb(
     series: &Series,
     matrix: impl Into<AffineTransform<f64>>,
@@ -143,4 +147,9 @@ fn skew_wkb(series: &Series, xs: f64, ys: f64, origin: TransformOrigin) -> Resul
             affine_transform_wkb(series, transform)
         }
     }
+}
+
+fn translate_wkb(series: &Series, x: f64, y: f64) -> Result<Series> {
+    let transform = AffineTransform::translate(x, y);
+    affine_transform_wkb(series, transform)
 }

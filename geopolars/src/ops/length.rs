@@ -1,4 +1,5 @@
 use crate::error::Result;
+use crate::util::iter_geom;
 use geo::algorithm::euclidean_length::EuclideanLength;
 use geo::algorithm::geodesic_length::GeodesicLength;
 use geo::algorithm::haversine_length::HaversineLength;
@@ -7,8 +8,6 @@ use geo::Geometry;
 use polars::error::ErrString;
 use polars::export::arrow::array::{Array, MutablePrimitiveArray, PrimitiveArray};
 use polars::prelude::{PolarsError, Series};
-
-use crate::util::iter_geom;
 
 pub enum GeodesicLengthMethod {
     Haversine,
