@@ -1,15 +1,13 @@
+use crate::error::Result;
 use geo::{Coord, Geometry, LineString, Point, Polygon};
 use geozero::{wkb::Wkb, ToGeo};
+use geozero::{CoordDimensions, ToWkb};
 use polars::datatypes::{AnyValue, DataType};
+use polars::error::ErrString;
+use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
 use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::num;
 use polars::prelude::{PolarsError, PolarsResult, Series};
-use geozero::{CoordDimensions, ToWkb};
-use polars::datatypes::AnyValue;
-use polars::prelude::{PolarsError, PolarsResult, Series};
-use crate::error::Result;
-use polars::error::ErrString;
-use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
 use std::convert::Into;
 
 pub enum GeoArrowType {
@@ -31,6 +29,8 @@ pub fn get_geoarrow_type(series: &Series) -> GeoArrowType {
 
         dt => panic!("Unexpected geoarrow type: {}", dt),
     }
+}
+
 pub fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series> {
     let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
 
