@@ -60,3 +60,40 @@ fn euclidean_distance_wkb(series: &Series, other: &Series) -> Result<Series> {
     let series = Series::try_from(("distance", Box::new(result) as Box<dyn Array>))?;
     Ok(series)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::geoseries::GeoSeries;
+    use geo::{Geometry, LineString, Point};
+    use polars::prelude::Series;
+
+    #[test]
+    fn euclidean_distance() {
+        let geo_series = Series::from_geom_vec(&[
+            Geometry::Point(Point::new(0.0, 0.0)),
+            Geometry::Point(Point::new(0.0, 0.0)),
+            Geometry::Point(Point::new(1.0, 1.0)),
+            Geometry::LineString(LineString::<f64>::from(vec![(0.0, 0.0), (0.0, 4.0)])),
+        ])
+        .unwrap();
+
+        let other_geo_series = Series::from_geom_vec(&[
+            Geometry::Point(Point::new(0.0, 1.0)),
+            Geometry::Point(Point::new(1.0, 1.0)),
+            Geometry::Point(Point::new(4.0, 5.0)),
+            Geometry::Point(Point::new(2.0, 2.0)),
+        ])
+        .unwrap();
+        let results = vec![1.0_f64, 2.0_f64.sqrt(), 5.0_f64, 2.0_f64];
+
+        let distance_series = geo_series.distance(&other_geo_series);
+        assert!(distance_series.is_ok(), "To get a series back");
+
+        let distance_series = distance_series.unwrap();
+        let distance_vec: Vec<f64> = distance_series.f64().unwrap().into_no_null_iter().collect();
+
+        for (d1, d2) in distance_vec.iter().zip(results.iter()) {
+            assert_eq!(d1, d2, "Distances differ, should be the same");
+        }
+    }
+}

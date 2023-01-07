@@ -158,3 +158,131 @@ fn geodesic_length_wkb(series: &Series, method: GeodesicLengthMethod) -> Result<
     let series = Series::try_from(("result", Box::new(result) as Box<dyn Array>))?;
     Ok(series)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::GeodesicLengthMethod;
+    use crate::geoseries::GeoSeries;
+    use geo::{line_string, Geometry, LineString};
+    use geozero::{CoordDimensions, ToWkb};
+    use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
+    use polars::prelude::Series;
+
+    #[test]
+    fn euclidean_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string: Geometry<f64> = line_string![
+            (x: 1., y: 1.),
+            (x: 7., y: 1.),
+            (x: 8., y: 1.),
+            (x: 9., y: 1.),
+            (x: 10., y: 1.),
+            (x: 11., y: 1.)
+        ]
+        .into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series =
+            Series::try_from(("geometry", Box::new(test_array) as Box<dyn Array>)).unwrap();
+        let lengths = series.euclidean_length().unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(10.0_f64, as_vec[0]);
+    }
+
+    #[test]
+    fn haversine_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string: Geometry<f64> = LineString::<f64>::from(vec![
+            // New York City
+            (-74.006, 40.7128),
+            // London
+            (-0.1278, 51.5074),
+        ])
+        .into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series =
+            Series::try_from(("geometry", Box::new(test_array) as Box<dyn Array>)).unwrap();
+        let lengths = series
+            .geodesic_length(GeodesicLengthMethod::Haversine)
+            .unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(
+            5_570_230., // meters
+            as_vec[0].round()
+        );
+    }
+    #[test]
+    fn vincenty_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string: Geometry<f64> = LineString::<f64>::from(vec![
+            // New York City
+            (-74.006, 40.7128),
+            // London
+            (-0.1278, 51.5074),
+        ])
+        .into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series =
+            Series::try_from(("geometry", Box::new(test_array) as Box<dyn Array>)).unwrap();
+        let lengths = series
+            .geodesic_length(GeodesicLengthMethod::Vincenty)
+            .unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(
+            5585234., // meters
+            as_vec[0].round()
+        );
+    }
+
+    #[test]
+    fn geodesic_length() {
+        let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
+
+        let line_string: Geometry<f64> = LineString::<f64>::from(vec![
+            // New York City
+            (-74.006, 40.7128),
+            // London
+            (-0.1278, 51.5074),
+            // Osaka
+            (135.5244559, 34.687455),
+        ])
+        .into();
+
+        let test_wkb = line_string.to_wkb(CoordDimensions::xy()).unwrap();
+        test_data.push(Some(test_wkb));
+
+        let test_array: BinaryArray<i32> = test_data.into();
+
+        let series =
+            Series::try_from(("geometry", Box::new(test_array) as Box<dyn Array>)).unwrap();
+        let lengths = series
+            .geodesic_length(GeodesicLengthMethod::Geodesic)
+            .unwrap();
+        let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
+
+        assert_eq!(
+            15_109_158., // meters
+            as_vec[0].round()
+        );
+    }
+}
