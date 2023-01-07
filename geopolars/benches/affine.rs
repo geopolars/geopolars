@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use geopolars::geoseries::GeoSeries;
-use geopolars::geoseries::TransformOrigin;
+use geopolars::ops::affine::TransformOrigin;
 use polars::prelude::*;
 use polars::prelude::{IpcReader, PolarsResult, SerReader};
 use std::fs::File;

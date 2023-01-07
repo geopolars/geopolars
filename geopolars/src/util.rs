@@ -4,6 +4,13 @@ use polars::datatypes::{AnyValue, DataType};
 use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::num;
 use polars::prelude::{PolarsError, PolarsResult, Series};
+use geozero::{CoordDimensions, ToWkb};
+use polars::datatypes::AnyValue;
+use polars::prelude::{PolarsError, PolarsResult, Series};
+use crate::error::Result;
+use polars::error::ErrString;
+use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
+use std::convert::Into;
 
 pub enum GeoArrowType {
     Point,
@@ -24,6 +31,19 @@ pub fn get_geoarrow_type(series: &Series) -> GeoArrowType {
 
         dt => panic!("Unexpected geoarrow type: {}", dt),
     }
+pub fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series> {
+    let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
+
+    for geom in geoms {
+        let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
+            PolarsError::ComputeError(ErrString::from("Failed to convert geom vec to GeoSeries"))
+        })?;
+        wkb_array.push(Some(wkb));
+    }
+    let array: BinaryArray<i32> = wkb_array.into();
+
+    let series = Series::try_from(("geometry", Box::new(array) as Box<dyn Array>))?;
+    Ok(series)
 }
 
 /// Helper function to iterate over geometries from polars Series

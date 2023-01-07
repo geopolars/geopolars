@@ -6,9 +6,6 @@ pub mod ops;
 pub mod spatial_index;
 pub mod util;
 
-#[cfg(feature = "proj")]
-pub mod proj;
-
 #[cfg(test)]
 mod tests {
     #[test]

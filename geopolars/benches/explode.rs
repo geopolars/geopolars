@@ -4,6 +4,7 @@ use geo::MultiPoint;
 use geo::Point;
 use geopolars::error::Result;
 use geopolars::geoseries::GeoSeries;
+use geopolars::util::from_geom_vec;
 use polars::prelude::*;
 
 fn generate_multipoint_series() -> Result<Series> {
@@ -13,7 +14,7 @@ fn generate_multipoint_series() -> Result<Series> {
         .map(|points| MultiPoint::new(points.to_vec()))
         .map(Geometry::MultiPoint)
         .collect();
-    let series = Series::from_geom_vec(&multipoints).unwrap();
+    let series = from_geom_vec(&multipoints).unwrap();
     Ok(series)
 }
 

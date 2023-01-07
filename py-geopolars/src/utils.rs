@@ -1,5 +1,5 @@
 use crate::error::PyGeopolarsError;
-use geopolars::geoseries::TransformOrigin;
+use geopolars::ops::affine::TransformOrigin;
 use pyo3::prelude::*;
 
 #[derive(FromPyObject, Debug)]

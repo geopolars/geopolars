@@ -1,12 +1,13 @@
 use crate::error::PyGeopolarsError;
 use crate::ffi;
 use crate::utils::PythonTransformOrigin;
-use geopolars::geoseries::{GeoSeries, GeodesicLengthMethod};
+use geopolars::geoseries::GeoSeries;
+use geopolars::ops::length::GeodesicLengthMethod;
 use pyo3::prelude::*;
 use std::path::PathBuf;
 
 #[cfg(feature = "proj")]
-use geopolars::proj::ProjOptions;
+use geopolars::ops::proj::ProjOptions;
 
 /// Apply an affine transform to the geoseries and return a geoseries of the tranformed geometries;
 #[pyfunction]

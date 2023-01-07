@@ -7,12 +7,24 @@ use polars::prelude::Series;
 
 use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
 
+
+use geo::Geometry;
+use geozero::{CoordDimensions, ToWkb};
+use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
+use polars::prelude::Series;
+
+use crate::util::iter_geom;
+
 pub(crate) fn exterior(series: &Series) -> Result<Series> {
     match get_geoarrow_type(series) {
         GeoArrowType::WKB => exterior_wkb(series),
         GeoArrowType::Polygon => exterior_geoarrow_polygon(series),
         _ => panic!("Unexpected geometry type for operation exterior"),
     }
+}
+
+pub(crate) fn exterior(series: &Series) -> Result<Series> {
+    exterior_wkb(series)
 }
 
 fn exterior_wkb(series: &Series) -> Result<Series> {
