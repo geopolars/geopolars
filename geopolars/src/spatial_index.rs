@@ -347,15 +347,12 @@ impl TryFrom<Series> for SpatialIndex {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
-    use crate::{
-        geoseries::GeoSeries,
-        spatial_index::{spatial_join, SpatialIndex, SpatialJoinArgs},
-    };
+    use crate::spatial_index::{spatial_join, SpatialIndex, SpatialJoinArgs};
+    use crate::util::from_geom_vec;
     use geo::{polygon, Geometry, Point, Polygon};
     use polars::prelude::{DataFrame, JoinType, NamedFrom, PolarsError, Series};
     use rstar::AABB;
+    use std::sync::Arc;
 
     #[test]
     fn spatial_index_points() {
@@ -373,7 +370,7 @@ mod tests {
 
         let geoms: Vec<Geometry<f64>> = v.into_iter().map(|p| p.into()).collect();
 
-        let series = Series::from_geom_vec(&geoms).unwrap();
+        let series = from_geom_vec(&geoms).unwrap();
         let spatial_index: Result<SpatialIndex, PolarsError> = series.try_into();
         assert!(
             spatial_index.is_ok(),
@@ -412,7 +409,7 @@ mod tests {
 
         let geoms: Vec<Geometry<f64>> = v.into_iter().map(|p| p.into()).collect();
 
-        let series = Series::from_geom_vec(&geoms).unwrap();
+        let series = from_geom_vec(&geoms).unwrap();
         let spatial_index: Result<SpatialIndex, PolarsError> = series.try_into();
         assert!(
             spatial_index.is_ok(),
@@ -444,7 +441,7 @@ mod tests {
 
         let geoms: Vec<Geometry<f64>> = points.into_iter().map(|p| p.into()).collect();
 
-        let point_series = Series::from_geom_vec(&geoms).unwrap();
+        let point_series = from_geom_vec(&geoms).unwrap();
         let point_value_series = Series::new("point_values", [1., 2., 3., 4., 5., 6., 7., 8., 9.]);
         let point_df: DataFrame = DataFrame::new(vec![point_series, point_value_series]).unwrap();
 
@@ -455,7 +452,7 @@ mod tests {
             (x:0., y: 20.)
         ])];
 
-        let polygon_series = Series::from_geom_vec(&polygons).unwrap();
+        let polygon_series = from_geom_vec(&polygons).unwrap();
         let polygon_label_series = Series::new("string_col", ["test"]);
 
         let polygon_df: DataFrame =
@@ -498,7 +495,7 @@ mod tests {
 
         let geoms: Vec<Geometry<f64>> = points.into_iter().map(|p| p.into()).collect();
 
-        let point_series = Series::from_geom_vec(&geoms).unwrap();
+        let point_series = from_geom_vec(&geoms).unwrap();
         let point_value_series = Series::new("point_values", [1., 2., 3., 4., 5., 6., 7., 8., 9.]);
         let point_df: DataFrame = DataFrame::new(vec![point_series, point_value_series]).unwrap();
 
@@ -509,7 +506,7 @@ mod tests {
             (x:0., y: 20.)
         ])];
 
-        let polygon_series = Series::from_geom_vec(&polygons).unwrap();
+        let polygon_series = from_geom_vec(&polygons).unwrap();
         let polygon_label_series = Series::new("string_col", ["test"]);
 
         let polygon_df: DataFrame =
@@ -570,7 +567,7 @@ mod tests {
 
         let geoms: Vec<Geometry<f64>> = points.into_iter().map(|p| p.into()).collect();
 
-        let point_series = Series::from_geom_vec(&geoms).unwrap();
+        let point_series = from_geom_vec(&geoms).unwrap();
         let point_value_series = Series::new("point_values", [1., 2., 3., 4., 5., 6., 7., 8., 9.]);
         let point_df: DataFrame = DataFrame::new(vec![point_series, point_value_series]).unwrap();
 
@@ -587,7 +584,7 @@ mod tests {
             (x:0., y: 20.)
         ])];
 
-        let polygon_series = Series::from_geom_vec(&polygons).unwrap();
+        let polygon_series = from_geom_vec(&polygons).unwrap();
         let polygon_label_series = Series::new("string_col", ["test"]);
 
         let polygon_df: DataFrame =
