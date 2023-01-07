@@ -4,11 +4,7 @@ use crate::ops::length::GeodesicLengthMethod;
 #[cfg(feature = "proj")]
 use crate::ops::proj::ProjOptions;
 use geo::algorithm::affine_ops::AffineTransform;
-use geo::Geometry;
-use geozero::{CoordDimensions, ToWkb};
-use polars::error::ErrString;
-use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
-use polars::prelude::{PolarsError, Series};
+use polars::prelude::Series;
 use std::convert::Into;
 
 pub trait GeoSeries {
@@ -52,9 +48,6 @@ pub trait GeoSeries {
 
     /// Explodes multi-part geometries into multiple single geometries.
     fn explode(&self) -> Result<Series>;
-
-    /// Create a Series from a vector of geometries
-    fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series>;
 
     /// Returns a Series with the value of the geodesic length of each geometry
     ///
@@ -218,23 +211,6 @@ impl GeoSeries for Series {
 
     fn exterior(&self) -> Result<Series> {
         crate::ops::exterior::exterior(self)
-    }
-
-    fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Self> {
-        let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
-
-        for geom in geoms {
-            let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
-                PolarsError::ComputeError(ErrString::from(
-                    "Failed to convert geom vec to GeoSeries",
-                ))
-            })?;
-            wkb_array.push(Some(wkb));
-        }
-        let array: BinaryArray<i32> = wkb_array.into();
-
-        let series = Series::try_from(("geometry", Box::new(array) as Box<dyn Array>))?;
-        Ok(series)
     }
 
     fn geodesic_length(&self, method: GeodesicLengthMethod) -> Result<Series> {

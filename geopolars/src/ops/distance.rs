@@ -64,12 +64,12 @@ fn euclidean_distance_wkb(series: &Series, other: &Series) -> Result<Series> {
 #[cfg(test)]
 mod tests {
     use crate::geoseries::GeoSeries;
+    use crate::util::from_geom_vec;
     use geo::{Geometry, LineString, Point};
-    use polars::prelude::Series;
 
     #[test]
     fn euclidean_distance() {
-        let geo_series = Series::from_geom_vec(&[
+        let geo_series = from_geom_vec(&[
             Geometry::Point(Point::new(0.0, 0.0)),
             Geometry::Point(Point::new(0.0, 0.0)),
             Geometry::Point(Point::new(1.0, 1.0)),
@@ -77,7 +77,7 @@ mod tests {
         ])
         .unwrap();
 
-        let other_geo_series = Series::from_geom_vec(&[
+        let other_geo_series = from_geom_vec(&[
             Geometry::Point(Point::new(0.0, 1.0)),
             Geometry::Point(Point::new(1.0, 1.0)),
             Geometry::Point(Point::new(4.0, 5.0)),

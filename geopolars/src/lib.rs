@@ -3,7 +3,7 @@ pub mod geodataframe;
 pub mod geoseries;
 pub mod ops;
 pub mod spatial_index;
-mod util;
+pub mod util;
 
 #[cfg(test)]
 mod tests {

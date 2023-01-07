@@ -158,13 +158,13 @@ fn translate_wkb(series: &Series, x: f64, y: f64) -> Result<Series> {
 mod tests {
     use super::TransformOrigin;
     use crate::geoseries::GeoSeries;
+    use crate::util::from_geom_vec;
     use crate::util::iter_geom;
     use geo::{polygon, CoordsIter, Geometry, Point};
-    use polars::prelude::Series;
 
     #[test]
     fn rotate() {
-        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
+        let geo_series = from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn scale() {
-        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
+        let geo_series = from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),
@@ -242,7 +242,7 @@ mod tests {
 
     #[test]
     fn skew() {
-        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
+        let geo_series = from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),
@@ -279,7 +279,7 @@ mod tests {
 
     #[test]
     fn translate() {
-        let geo_series = Series::from_geom_vec(&[Geometry::Polygon(polygon!(
+        let geo_series = from_geom_vec(&[Geometry::Polygon(polygon!(
         (x: 0.0,y:0.0),
         (x: 0.0,y:1.0),
         (x: 1.0,y: 1.0),

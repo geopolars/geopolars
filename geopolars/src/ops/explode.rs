@@ -66,8 +66,8 @@ fn explode_wkb(series: &Series) -> Result<Series> {
 #[cfg(test)]
 mod tests {
     use crate::geoseries::GeoSeries;
+    use crate::util::from_geom_vec;
     use geo::{Geometry, MultiPoint, Point};
-    use polars::prelude::Series;
 
     #[test]
     fn explode() {
@@ -77,7 +77,7 @@ mod tests {
         let point_3 = Point::new(3., 3.);
         let point_4 = Point::new(4., 4.);
 
-        let expected_series = Series::from_geom_vec(&[
+        let expected_series = from_geom_vec(&[
             Geometry::Point(point_0),
             Geometry::Point(point_1),
             Geometry::Point(point_2),
@@ -89,7 +89,7 @@ mod tests {
         let multipoint_0 = MultiPoint::new(vec![point_0, point_1]);
         let multipoint_1 = MultiPoint::new(vec![point_2, point_3, point_4]);
 
-        let input_series = Series::from_geom_vec(&[
+        let input_series = from_geom_vec(&[
             Geometry::MultiPoint(multipoint_0),
             Geometry::MultiPoint(multipoint_1),
         ])
