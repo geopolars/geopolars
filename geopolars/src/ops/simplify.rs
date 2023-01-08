@@ -81,3 +81,39 @@ fn simplify_geoarrow_polygon(series: &Series, tolerance: f64) -> Result<Series> 
     ))?;
     Ok(series)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::geoarrow::linestring::array::LineStringSeries;
+    use crate::geoarrow::linestring::mutable::MutableLineStringArray;
+    use crate::geoseries::GeoSeries;
+    use geo::line_string;
+    use polars::export::arrow::array::{Array, ListArray};
+    use polars::prelude::Series;
+
+    #[test]
+    fn rdp_test() {
+        let line_strings = vec![line_string![
+            (x: 0.0, y: 0.0 ),
+            (x: 5.0, y: 4.0 ),
+            (x: 11.0, y: 5.5 ),
+            (x: 17.3, y: 3.2 ),
+            (x: 27.8, y: 0.1 ),
+        ]];
+        let mut_line_string_arr: MutableLineStringArray = line_strings.into();
+        let line_string_arr: ListArray<i64> = mut_line_string_arr.into();
+        let series =
+            Series::try_from(("geometry", Box::new(line_string_arr) as Box<dyn Array>)).unwrap();
+
+        let actual = series.simplify(1.0).unwrap();
+        let actual_geo = LineStringSeries(&actual).get_as_geo(0).unwrap();
+
+        let expected = line_string![
+            ( x: 0.0, y: 0.0 ),
+            ( x: 5.0, y: 4.0 ),
+            ( x: 11.0, y: 5.5 ),
+            ( x: 27.8, y: 0.1 ),
+        ];
+        assert_eq!(actual_geo, expected);
+    }
+}
