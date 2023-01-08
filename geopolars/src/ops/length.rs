@@ -1,5 +1,7 @@
 use crate::error::Result;
-use crate::geoarrow::linestring::array::LineStringSeries;
+use crate::geoarrow::util::{
+    map_linestring_series_to_float_series, map_polygon_series_to_float_series,
+};
 use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
 use geo::algorithm::euclidean_length::EuclideanLength;
 use geo::algorithm::geodesic_length::GeodesicLength;
@@ -19,14 +21,50 @@ pub enum GeodesicLengthMethod {
 pub(crate) fn euclidean_length(series: &Series) -> Result<Series> {
     match get_geoarrow_type(series) {
         GeoArrowType::WKB => euclidean_length_wkb(series),
-        GeoArrowType::Point => euclidean_length_geoarrow_point(series),
-        GeoArrowType::LineString => euclidean_length_geoarrow_linestring(series),
+        GeoArrowType::Point => length_geoarrow_point(series),
+        GeoArrowType::LineString => {
+            map_linestring_series_to_float_series(series, |ls| ls.euclidean_length())
+        }
         _ => panic!("Unexpected geometry type for operation euclidean_length"),
     }
 }
 
 pub(crate) fn geodesic_length(series: &Series, method: GeodesicLengthMethod) -> Result<Series> {
-    geodesic_length_wkb(series, method)
+    let map_vincenty_error =
+        |_| PolarsError::ComputeError(ErrString::from("Failed to calculate vincenty length"));
+
+    match (&method, get_geoarrow_type(series)) {
+        (_, GeoArrowType::Point) => length_geoarrow_point(series),
+
+        (GeodesicLengthMethod::Geodesic, GeoArrowType::LineString) => {
+            map_linestring_series_to_float_series(series, |ls| ls.geodesic_length())
+        }
+        (GeodesicLengthMethod::Haversine, GeoArrowType::LineString) => {
+            map_linestring_series_to_float_series(series, |ls| ls.haversine_length())
+        }
+        (GeodesicLengthMethod::Vincenty, GeoArrowType::LineString) => {
+            map_linestring_series_to_float_series(series, |ls| {
+                ls.vincenty_length().map_err(map_vincenty_error).unwrap()
+            })
+        }
+
+        (GeodesicLengthMethod::Geodesic, GeoArrowType::Polygon) => {
+            map_polygon_series_to_float_series(series, |p| p.exterior().geodesic_length())
+        }
+        (GeodesicLengthMethod::Haversine, GeoArrowType::Polygon) => {
+            map_polygon_series_to_float_series(series, |p| p.exterior().haversine_length())
+        }
+        (GeodesicLengthMethod::Vincenty, GeoArrowType::Polygon) => {
+            map_polygon_series_to_float_series(series, |p| {
+                p.exterior()
+                    .vincenty_length()
+                    .map_err(map_vincenty_error)
+                    .unwrap()
+            })
+        }
+
+        (_, GeoArrowType::WKB) => geodesic_length_wkb(series, method),
+    }
 }
 
 fn euclidean_length_wkb(series: &Series) -> Result<Series> {
@@ -60,7 +98,7 @@ fn euclidean_length_wkb(series: &Series) -> Result<Series> {
     Ok(series)
 }
 
-fn euclidean_length_geoarrow_point(series: &Series) -> Result<Series> {
+fn length_geoarrow_point(series: &Series) -> Result<Series> {
     // Length of point geometries is always 0
     // TODO: correct validity
     let result: Vec<f64> = vec![0.0; series.len()];
@@ -68,26 +106,6 @@ fn euclidean_length_geoarrow_point(series: &Series) -> Result<Series> {
         "geometry",
         Box::new(PrimitiveArray::from_vec(result)) as Box<dyn Array>,
     ))?;
-    Ok(series)
-}
-
-// TODO: "map" utility for any algorithm that takes LineString -> f64
-// this might also assist in being easier to parallelize that function specifically in the future, rather than having to parallelize every implementation
-fn euclidean_length_geoarrow_linestring(series: &Series) -> Result<Series> {
-    let mut result = MutablePrimitiveArray::<f64>::with_capacity(series.len());
-
-    let series = LineStringSeries(series);
-
-    for line_string_array in series.chunks() {
-        let parts = line_string_array.parts();
-        for i in 0..parts.len() {
-            let line_string = parts.get_as_geo(i);
-            result.push(line_string.map(|ls| ls.euclidean_length()))
-        }
-    }
-
-    let result: PrimitiveArray<f64> = result.into();
-    let series = Series::try_from(("geometry", Box::new(result) as Box<dyn Array>))?;
     Ok(series)
 }
 
@@ -282,6 +300,30 @@ mod tests {
             as_vec[0].round()
         );
     }
+
+    #[test]
+    fn haversine_length_geoarrow() {
+        let line_strings = vec![line_string![
+            // New York City
+            (x: -74.006, y: 40.7128),
+            // London
+            (x: -0.1278, y: 51.5074),
+        ]];
+        let mut_line_string_arr: MutableLineStringArray = line_strings.into();
+        let line_string_arr: ListArray<i64> = mut_line_string_arr.into();
+        let series =
+            Series::try_from(("geometry", Box::new(line_string_arr) as Box<dyn Array>)).unwrap();
+
+        let actual = series
+            .geodesic_length(GeodesicLengthMethod::Haversine)
+            .unwrap();
+        let actual_ca = actual.f64().unwrap();
+        assert_eq!(
+            actual_ca.into_iter().next().unwrap().unwrap().round(),
+            5_570_230.
+        );
+    }
+
     #[test]
     fn vincenty_length() {
         let mut test_data = MutableBinaryArray::<i32>::with_capacity(1);
@@ -309,6 +351,29 @@ mod tests {
         assert_eq!(
             5585234., // meters
             as_vec[0].round()
+        );
+    }
+
+    #[test]
+    fn vincenty_length_geoarrow() {
+        let line_strings = vec![line_string![
+            // New York City
+            (x: -74.006, y: 40.7128),
+            // London
+            (x: -0.1278, y: 51.5074),
+        ]];
+        let mut_line_string_arr: MutableLineStringArray = line_strings.into();
+        let line_string_arr: ListArray<i64> = mut_line_string_arr.into();
+        let series =
+            Series::try_from(("geometry", Box::new(line_string_arr) as Box<dyn Array>)).unwrap();
+
+        let actual = series
+            .geodesic_length(GeodesicLengthMethod::Vincenty)
+            .unwrap();
+        let actual_ca = actual.f64().unwrap();
+        assert_eq!(
+            actual_ca.into_iter().next().unwrap().unwrap().round(),
+            5585234.
         );
     }
 
@@ -341,6 +406,31 @@ mod tests {
         assert_eq!(
             15_109_158., // meters
             as_vec[0].round()
+        );
+    }
+
+    #[test]
+    fn geodesic_length_geoarrow() {
+        let line_strings = vec![line_string![
+            // New York City
+            (x: -74.006, y: 40.7128),
+            // London
+            (x: -0.1278, y: 51.5074),
+            // Osaka
+            (x: 135.5244559, y: 34.687455),
+        ]];
+        let mut_line_string_arr: MutableLineStringArray = line_strings.into();
+        let line_string_arr: ListArray<i64> = mut_line_string_arr.into();
+        let series =
+            Series::try_from(("geometry", Box::new(line_string_arr) as Box<dyn Array>)).unwrap();
+
+        let actual = series
+            .geodesic_length(GeodesicLengthMethod::Geodesic)
+            .unwrap();
+        let actual_ca = actual.f64().unwrap();
+        assert_eq!(
+            actual_ca.into_iter().next().unwrap().unwrap().round(),
+            15_109_158.
         );
     }
 }

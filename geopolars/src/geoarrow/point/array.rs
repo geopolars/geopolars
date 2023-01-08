@@ -7,6 +7,7 @@ use crate::util::index_to_chunked_index;
 
 /// Deconstructed PointArray
 /// We define this as a separate struct so that we don't have to downcast on every row
+#[derive(Debug, Clone)]
 pub struct PointArrayParts<'a> {
     pub x: &'a PrimitiveArray<f64>,
     pub y: &'a PrimitiveArray<f64>,
@@ -32,6 +33,7 @@ impl PointArrayParts<'_> {
     }
 }
 
+#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct PointArray<'a>(pub &'a StructArray);
 
@@ -113,6 +115,7 @@ impl<'a> PointArray<'a> {
     // }
 }
 
+#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct PointSeries<'a>(pub &'a Series);
 

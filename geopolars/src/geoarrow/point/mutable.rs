@@ -37,49 +37,50 @@ impl MutablePointArray {
     }
 }
 
-// /// Setters
-// impl MutablePointArray {
-//     /// Sets position `index` to `value`.
-//     /// Note that if it is the first time a null appears in this array,
-//     /// this initializes the validity bitmap (`O(N)`).
-//     /// # Panic
-//     /// Panics iff index is larger than `self.len()`.
-//     pub fn set(&mut self, index: usize, value: Option<(f64, f64)>) {
-//         self.x.set(index, value.u);
-//         self.y.set(index, value);
-//         assert!(index < self.len());
-//         // Safety:
-//         // we just checked bounds
-//         unsafe { self.set_unchecked(index, value) }
-//     }
+impl From<MutablePointArray> for StructArray {
+    fn from(arr: MutablePointArray) -> Self {
+        arr.into_arrow()
+    }
+}
 
-//     /// Sets position `index` to `value`.
-//     /// Note that if it is the first time a null appears in this array,
-//     /// this initializes the validity bitmap (`O(N)`).
-//     /// # Safety
-//     /// Caller must ensure `index < self.len()`
-//     pub unsafe fn set_unchecked(&mut self, index: usize, value: Option<(f64, f64)>) {
-//         *self.values.get_unchecked_mut(index) = value.unwrap_or_default();
+impl From<Vec<Point>> for MutablePointArray {
+    fn from(geoms: Vec<Point>) -> Self {
+        let mut x_arr = Vec::<f64>::with_capacity(geoms.len());
+        let mut y_arr = Vec::<f64>::with_capacity(geoms.len());
 
-//         if value.is_none() && self.validity.is_none() {
-//             // When the validity is None, all elements so far are valid. When one of the elements is set fo null,
-//             // the validity must be initialized.
-//             let mut validity = MutableBitmap::new();
-//             validity.extend_constant(self.len(), true);
-//             self.validity = Some(validity);
-//         }
-//         if let Some(x) = self.validity.as_mut() {
-//             x.set_unchecked(index, value.is_some())
-//         }
-//     }
+        for geom in geoms {
+            x_arr.push(geom.x());
+            y_arr.push(geom.y());
+        }
 
-//     /// Sets the validity.
-//     /// # Panic
-//     /// Panics iff the validity's len is not equal to the existing values' length.
-//     pub fn set_validity(&mut self, validity: Option<MutableBitmap>) {
-//         if let Some(validity) = &validity {
-//             assert_eq!(self.values.len(), validity.len())
-//         }
-//         self.validity = validity;
-//     }
-// }
+        MutablePointArray {
+            x: x_arr,
+            y: y_arr,
+            validity: None,
+        }
+    }
+}
+
+impl From<Vec<Option<Point>>> for MutablePointArray {
+    fn from(geoms: Vec<Option<Point>>) -> Self {
+        let mut x_arr = vec![0.0_f64; geoms.len()];
+        let mut y_arr = vec![0.0_f64; geoms.len()];
+        let mut validity = MutableBitmap::with_capacity(geoms.len());
+
+        for i in 0..geoms.len() {
+            if let Some(geom) = geoms[i] {
+                x_arr[i] = geom.x();
+                y_arr[i] = geom.y();
+                validity.push(true);
+            } else {
+                validity.push(false);
+            }
+        }
+
+        MutablePointArray {
+            x: x_arr,
+            y: y_arr,
+            validity: Some(validity),
+        }
+    }
+}
