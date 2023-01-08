@@ -7,6 +7,7 @@ use polars::prelude::Series;
 use crate::util::index_to_chunked_index;
 
 /// A struct representing a non-null single LineString geometry
+#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct LineStringScalar(pub StructArray);
 
@@ -39,6 +40,7 @@ impl LineStringScalar {
 
 /// Deconstructed LineStringArray
 /// We define this as a separate struct so that we don't have to downcast on every row
+#[derive(Debug, Clone)]
 pub struct LineStringArrayParts<'a> {
     pub x: &'a PrimitiveArray<f64>,
     pub y: &'a PrimitiveArray<f64>,
@@ -62,8 +64,9 @@ impl<'a> LineStringArrayParts<'a> {
             return None;
         }
 
-        let mut coords: Vec<Coord> = Vec::with_capacity(self.x.len());
         let (start_idx, end_idx) = self.geom_offsets.start_end(i);
+        let mut coords: Vec<Coord> = Vec::with_capacity(end_idx - start_idx);
+
         for i in start_idx..end_idx {
             coords.push(Coord {
                 x: self.x.value(i),
@@ -74,6 +77,7 @@ impl<'a> LineStringArrayParts<'a> {
     }
 }
 
+#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct LineStringArray<'a>(pub &'a ListArray<i64>);
 
@@ -121,6 +125,7 @@ impl<'a> LineStringArray<'a> {
     }
 }
 
+#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct LineStringSeries<'a>(pub &'a Series);
 

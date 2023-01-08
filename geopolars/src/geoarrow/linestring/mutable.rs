@@ -53,8 +53,8 @@ impl MutableLineStringArray {
 }
 
 impl From<MutableLineStringArray> for ListArray<i64> {
-    fn from(mut_lsa: MutableLineStringArray) -> Self {
-        mut_lsa.into_arrow()
+    fn from(arr: MutableLineStringArray) -> Self {
+        arr.into_arrow()
     }
 }
 
