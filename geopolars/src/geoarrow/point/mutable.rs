@@ -16,8 +16,8 @@ impl MutablePointArray {
         let field_x = ArrowField::new("x", DataType::Float64, false);
         let field_y = ArrowField::new("y", DataType::Float64, false);
 
-        let array_x = Box::new(PrimitiveArray::<f64>::from_values(self.x)) as Box<dyn Array>;
-        let array_y = Box::new(PrimitiveArray::<f64>::from_values(self.y)) as Box<dyn Array>;
+        let array_x = Box::new(PrimitiveArray::<f64>::from_vec(self.x)) as Box<dyn Array>;
+        let array_y = Box::new(PrimitiveArray::<f64>::from_vec(self.y)) as Box<dyn Array>;
 
         let struct_data_type = DataType::Struct(vec![field_x, field_y]);
         let struct_values = vec![array_x, array_y];

@@ -1,8 +1,10 @@
+use geo::LineString;
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use polars::export::arrow::datatypes::DataType;
 use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::ArrowField;
+use std::convert::From;
 
 #[derive(Debug, Clone)]
 pub struct MutableLineStringArray {
@@ -34,8 +36,8 @@ impl MutableLineStringArray {
         };
 
         // Array data
-        let array_x = Box::new(PrimitiveArray::<f64>::from_values(self.x)) as Box<dyn Array>;
-        let array_y = Box::new(PrimitiveArray::<f64>::from_values(self.y)) as Box<dyn Array>;
+        let array_x = Box::new(PrimitiveArray::<f64>::from_vec(self.x)) as Box<dyn Array>;
+        let array_y = Box::new(PrimitiveArray::<f64>::from_vec(self.y)) as Box<dyn Array>;
 
         let coord_array = Box::new(StructArray::new(
             struct_data_type,
@@ -47,5 +49,42 @@ impl MutableLineStringArray {
         let offsets_buffer = unsafe { OffsetsBuffer::new_unchecked(self.offsets.into()) };
 
         ListArray::new(list_data_type, offsets_buffer, coord_array, validity)
+    }
+}
+
+impl From<MutableLineStringArray> for ListArray<i64> {
+    fn from(mut_lsa: MutableLineStringArray) -> Self {
+        mut_lsa.into_arrow()
+    }
+}
+
+impl From<Vec<LineString>> for MutableLineStringArray {
+    fn from(geoms: Vec<LineString>) -> Self {
+        use geo::coords_iter::CoordsIter;
+
+        let mut offsets: Vec<i64> = vec![0];
+
+        let mut current_offset = 0;
+        for geom in &geoms {
+            current_offset += geom.coords_count();
+            offsets.push(current_offset as i64);
+        }
+
+        let mut x_arr = Vec::<f64>::with_capacity(current_offset);
+        let mut y_arr = Vec::<f64>::with_capacity(current_offset);
+
+        for geom in geoms {
+            for coord in geom.coords_iter() {
+                x_arr.push(coord.x);
+                y_arr.push(coord.y);
+            }
+        }
+
+        MutableLineStringArray {
+            x: x_arr,
+            y: y_arr,
+            offsets,
+            validity: None,
+        }
     }
 }

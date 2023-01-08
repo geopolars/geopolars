@@ -44,8 +44,8 @@ impl MutablePolygonArray {
         let geom_offsets_buffer = unsafe { OffsetsBuffer::new_unchecked(self.geom_offsets.into()) };
 
         // Array data
-        let array_x = Box::new(PrimitiveArray::<f64>::from_values(self.x)) as Box<dyn Array>;
-        let array_y = Box::new(PrimitiveArray::<f64>::from_values(self.y)) as Box<dyn Array>;
+        let array_x = Box::new(PrimitiveArray::<f64>::from_vec(self.x)) as Box<dyn Array>;
+        let array_y = Box::new(PrimitiveArray::<f64>::from_vec(self.y)) as Box<dyn Array>;
 
         let coord_array = Box::new(StructArray::new(
             struct_data_type,
