@@ -12,6 +12,19 @@ pub struct MutablePointArray {
 }
 
 impl MutablePointArray {
+    fn len(&self) -> usize {
+        self.x.len()
+    }
+
+    /// Creates a new [`MutablePointArray`] from a capacity and [`DataType`].
+    pub fn with_capacity(capacity: usize) -> Self {
+        MutablePointArray {
+            x: Vec::with_capacity(capacity),
+            y: Vec::with_capacity(capacity),
+            validity: None,
+        }
+    }
+
     pub fn into_arrow(self) -> StructArray {
         let field_x = ArrowField::new("x", DataType::Float64, false);
         let field_y = ArrowField::new("y", DataType::Float64, false);
@@ -31,9 +44,35 @@ impl MutablePointArray {
         StructArray::new(struct_data_type, struct_values, validity)
     }
 
-    pub fn push(&mut self, p: Point) {
-        self.x.push(p.x());
-        self.y.push(p.y());
+    /// Adds a new value to the array.
+    pub fn push(&mut self, value: Option<Point>) {
+        match value {
+            Some(value) => {
+                self.x.push(value.x());
+                self.y.push(value.y());
+                match &mut self.validity {
+                    Some(validity) => validity.push(true),
+                    None => {}
+                }
+            }
+            None => {
+                self.x.push(0.0);
+                self.y.push(0.0);
+                match &mut self.validity {
+                    Some(validity) => validity.push(false),
+                    None => {
+                        self.init_validity();
+                    }
+                }
+            }
+        }
+    }
+
+    fn init_validity(&mut self) {
+        let mut validity = MutableBitmap::with_capacity(self.x.capacity());
+        validity.extend_constant(self.len(), true);
+        validity.set(self.len() - 1, false);
+        self.validity = Some(validity)
     }
 }
 
