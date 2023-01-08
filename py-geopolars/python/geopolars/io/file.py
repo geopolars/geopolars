@@ -92,7 +92,7 @@ def read_file(filename, *args, **kwargs) -> DataFrame | GeoDataFrame:
     geopandas_gdf = geopandas.read_file(filename=filename, *args, **kwargs)
 
     if isinstance(geopandas_gdf, geopandas.GeoDataFrame):
-        return GeoDataFrame._from_geopandas(geopandas_gdf)
+        return GeoDataFrame._from_geopandas(geopandas_gdf, force_wkb=True)
 
     if isinstance(geopandas_gdf, pandas.DataFrame):
         return pl.from_pandas(geopandas_gdf)

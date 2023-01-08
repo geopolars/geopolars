@@ -11,6 +11,8 @@ dependencies = [
   "pyarrow>=4.0.*",
   "numpy >= 1.16.0",
   "importlib_resources; python_version < '3.11'",
+  # For easy interop with geoarrow
+  "shapely >= 2.0",
 ]
 requires-python = ">=3.8"
 description = "Geospatial extensions for Polars"
@@ -45,7 +47,7 @@ warn_unused_ignores = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ["pyarrow.*", "geopandas.*", "importlib_resources.*"]
+module = ["pyarrow.*", "geopandas.*", "importlib_resources.*", "shapely.*"]
 ignore_missing_imports = true
 
 # [tool.coverage.report]

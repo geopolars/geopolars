@@ -13,6 +13,17 @@ try:
 except ImportError:
     geopandas = None
 
+try:
+    import pyarrow
+except ImportError:
+    pyarrow = None
+
+try:
+    import shapely
+except ImportError:
+    shapely = None
+
+
 if TYPE_CHECKING:  # pragma: no cover
     import pandas
     import pyarrow as pa
@@ -53,6 +64,7 @@ def from_geopandas(
     | geopandas.GeoSeries
     | pandas.DataFrame
     | pandas.Series,
+    force_wkb: bool = True,
 ) -> GeoDataFrame | GeoSeries | DataFrame | Series:
     """
     Construct a GeoPolars :class:`GeoDataFrame` or :class:`GeoSeries` from a
@@ -78,9 +90,9 @@ def from_geopandas(
     import pandas
 
     if isinstance(gdf, geopandas.GeoSeries):
-        return GeoSeries._from_geopandas(gdf)
+        return GeoSeries._from_geopandas(gdf, force_wkb=force_wkb)
     elif isinstance(gdf, geopandas.GeoDataFrame):
-        return GeoDataFrame._from_geopandas(gdf)
+        return GeoDataFrame._from_geopandas(gdf, force_wkb=force_wkb)
     elif isinstance(gdf, (pandas.DataFrame, pandas.Series)):
         return pl.from_pandas(gdf)
     else:

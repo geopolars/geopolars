@@ -1,5 +1,6 @@
 use crate::error::Result;
-use crate::util::iter_geom;
+use crate::geoarrow::linestring::array::LineStringSeries;
+use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
 use geo::algorithm::euclidean_length::EuclideanLength;
 use geo::algorithm::geodesic_length::GeodesicLength;
 use geo::algorithm::haversine_length::HaversineLength;
@@ -16,7 +17,12 @@ pub enum GeodesicLengthMethod {
 }
 
 pub(crate) fn euclidean_length(series: &Series) -> Result<Series> {
-    euclidean_length_wkb(series)
+    match get_geoarrow_type(series) {
+        GeoArrowType::WKB => euclidean_length_wkb(series),
+        GeoArrowType::Point => euclidean_length_geoarrow_point(series),
+        GeoArrowType::LineString => euclidean_length_geoarrow_linestring(series),
+        _ => panic!("Unexpected geometry type for operation euclidean_length"),
+    }
 }
 
 pub(crate) fn geodesic_length(series: &Series, method: GeodesicLengthMethod) -> Result<Series> {
@@ -47,6 +53,37 @@ fn euclidean_length_wkb(series: &Series) -> Result<Series> {
             Geometry::Triangle(triangle) => Ok(triangle.to_polygon().exterior().euclidean_length()),
         }?;
         result.push(Some(length));
+    }
+
+    let result: PrimitiveArray<f64> = result.into();
+    let series = Series::try_from(("geometry", Box::new(result) as Box<dyn Array>))?;
+    Ok(series)
+}
+
+fn euclidean_length_geoarrow_point(series: &Series) -> Result<Series> {
+    // Length of point geometries is always 0
+    // TODO: correct validity
+    let result: Vec<f64> = vec![0.0; series.len()];
+    let series = Series::try_from((
+        "geometry",
+        Box::new(PrimitiveArray::from_vec(result)) as Box<dyn Array>,
+    ))?;
+    Ok(series)
+}
+
+// TODO: "map" utility for any algorithm that takes LineString -> f64
+// this might also assist in being easier to parallelize that function specifically in the future, rather than having to parallelize every implementation
+fn euclidean_length_geoarrow_linestring(series: &Series) -> Result<Series> {
+    let mut result = MutablePrimitiveArray::<f64>::with_capacity(series.len());
+
+    let series = LineStringSeries(series);
+
+    for line_string_array in series.chunks() {
+        let parts = line_string_array.parts();
+        for i in 0..parts.len() {
+            let line_string = parts.get_as_geo(i);
+            result.push(line_string.map(|ls| ls.euclidean_length()))
+        }
     }
 
     let result: PrimitiveArray<f64> = result.into();
@@ -162,10 +199,11 @@ fn geodesic_length_wkb(series: &Series, method: GeodesicLengthMethod) -> Result<
 #[cfg(test)]
 mod tests {
     use super::GeodesicLengthMethod;
+    use crate::geoarrow::linestring::mutable::MutableLineStringArray;
     use crate::geoseries::GeoSeries;
     use geo::{line_string, Geometry, LineString};
     use geozero::{CoordDimensions, ToWkb};
-    use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
+    use polars::export::arrow::array::{Array, BinaryArray, ListArray, MutableBinaryArray};
     use polars::prelude::Series;
 
     #[test]
@@ -193,6 +231,26 @@ mod tests {
         let as_vec: Vec<f64> = lengths.f64().unwrap().into_no_null_iter().collect();
 
         assert_eq!(10.0_f64, as_vec[0]);
+    }
+
+    #[test]
+    fn euclidean_length_geoarrow_linestring() {
+        let line_strings = vec![line_string![
+            (x: 1., y: 1.),
+            (x: 7., y: 1.),
+            (x: 8., y: 1.),
+            (x: 9., y: 1.),
+            (x: 10., y: 1.),
+            (x: 11., y: 1.)
+        ]];
+        let mut_line_string_arr: MutableLineStringArray = line_strings.into();
+        let line_string_arr: ListArray<i64> = mut_line_string_arr.into();
+        let series =
+            Series::try_from(("geometry", Box::new(line_string_arr) as Box<dyn Array>)).unwrap();
+
+        let actual = series.euclidean_length().unwrap();
+        let actual_ca = actual.f64().unwrap();
+        assert_eq!(actual_ca.into_iter().next().unwrap().unwrap(), 10.0_f64);
     }
 
     #[test]

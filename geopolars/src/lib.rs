@@ -1,4 +1,5 @@
 pub mod error;
+pub mod geoarrow;
 pub mod geodataframe;
 pub mod geoseries;
 pub mod ops;
