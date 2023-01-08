@@ -86,8 +86,10 @@ fn simplify_geoarrow_polygon(series: &Series, tolerance: f64) -> Result<Series> 
 mod tests {
     use crate::geoarrow::linestring::array::LineStringSeries;
     use crate::geoarrow::linestring::mutable::MutableLineStringArray;
+    use crate::geoarrow::polygon::array::PolygonSeries;
+    use crate::geoarrow::polygon::mutable::MutablePolygonArray;
     use crate::geoseries::GeoSeries;
-    use geo::line_string;
+    use geo::{line_string, polygon};
     use polars::export::arrow::array::{Array, ListArray};
     use polars::prelude::Series;
 
@@ -114,6 +116,38 @@ mod tests {
             ( x: 11.0, y: 5.5 ),
             ( x: 27.8, y: 0.1 ),
         ];
+        assert_eq!(actual_geo, expected);
+    }
+
+    #[test]
+    fn polygon() {
+        let polys = vec![polygon![
+            (x: 0., y: 0.),
+            (x: 0., y: 10.),
+            (x: 5., y: 11.),
+            (x: 10., y: 10.),
+            (x: 10., y: 0.),
+            (x: 0., y: 0.),
+        ]];
+        let mut_poly_arr: MutablePolygonArray = polys.into();
+        println!("{:?}", mut_poly_arr);
+
+        let poly_arr = mut_poly_arr.into_arrow();
+        let series = Series::try_from(("geometry", Box::new(poly_arr) as Box<dyn Array>)).unwrap();
+
+        println!("{}", series);
+
+        let actual = series.simplify(2.0).unwrap();
+        let actual_geo = PolygonSeries(&actual).get_as_geo(0).unwrap();
+
+        let expected = polygon![
+            (x: 0., y: 0.),
+            (x: 0., y: 10.),
+            (x: 10., y: 10.),
+            (x: 10., y: 0.),
+            (x: 0., y: 0.),
+        ];
+
         assert_eq!(actual_geo, expected);
     }
 }
