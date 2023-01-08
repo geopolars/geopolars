@@ -145,7 +145,7 @@ class GeoSeries(pl.Series):
         import numpy as np
 
         pyarrow_array = self.to_arrow()
-        if pyarrow_array.type == pyarrow.binary():
+        if not self._geom_type or pyarrow_array.type == pyarrow.binary():
             numpy_array = pyarrow_array.to_numpy(zero_copy_only=False)
             # Ideally we shouldn't need the cast to numpy, but the pyarrow BinaryScalar
             # hasn't implemented len()
