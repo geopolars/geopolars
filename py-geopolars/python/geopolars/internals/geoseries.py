@@ -172,7 +172,7 @@ class GeoSeries(pl.Series):
             coords = geoarrow_coords_to_numpy(pyarrow_array.values.values)
             offsets2 = np.asarray(pyarrow_array.offsets)
             offsets1 = np.asarray(pyarrow_array.values.offsets)
-            offsets = (offsets1, offsets2)
+            offsets = (offsets1, offsets2)  # type: ignore
             return shapely.from_ragged_array(
                 shapely.GeometryType.POLYGON, coords, offsets
             )
@@ -188,7 +188,7 @@ class GeoSeries(pl.Series):
             coords = geoarrow_coords_to_numpy(pyarrow_array.values.values)
             offsets2 = np.asarray(pyarrow_array.offsets)
             offsets1 = np.asarray(pyarrow_array.values.offsets)
-            offsets = (offsets1, offsets2)
+            offsets = (offsets1, offsets2)  # type: ignore
             return shapely.from_ragged_array(
                 shapely.GeometryType.MULTILINESTRING, coords, offsets
             )
@@ -198,7 +198,7 @@ class GeoSeries(pl.Series):
             offsets3 = np.asarray(pyarrow_array.offsets)
             offsets2 = np.asarray(pyarrow_array.values.offsets)
             offsets1 = np.asarray(pyarrow_array.values.values.offsets)
-            offsets = (offsets1, offsets2, offsets3)
+            offsets = (offsets1, offsets2, offsets3)  # type: ignore
             return shapely.from_ragged_array(
                 shapely.GeometryType.MULTIPOLYGON, coords, offsets
             )

@@ -35,11 +35,13 @@ class TestToGeoPandas:
 class TestRoundTripGeoPandas:
     def test_gdf_round_trip(self, ne_cities_gdf: gpl.GeoDataFrame):
         geopandas_gdf = ne_cities_gdf.to_geopandas()
-        new_gdf = gpl.GeoDataFrame._from_geopandas(geopandas_gdf)
+        new_gdf = gpl.GeoDataFrame._from_geopandas(geopandas_gdf, force_wkb=True)
         assert new_gdf.frame_equal(ne_cities_gdf)
 
     def test_geoseries_round_trip(self, ne_cities_gdf: gpl.GeoDataFrame):
         geoseries = ne_cities_gdf.geometry
         geopandas_geoseries = geoseries.to_geopandas()
-        new_geoseries = gpl.GeoSeries._from_geopandas(geopandas_geoseries)
+        new_geoseries = gpl.GeoSeries._from_geopandas(
+            geopandas_geoseries, force_wkb=True
+        )
         assert new_geoseries.series_equal(geoseries)
