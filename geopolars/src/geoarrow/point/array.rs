@@ -1,6 +1,7 @@
-use geo::Point;
+use geo::{Coord, Point};
 use polars::export::arrow::array::{Array, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::Bitmap;
+use polars::export::arrow::bitmap::utils::{ZipValidity, BitmapIter};
 use polars::prelude::Series;
 
 use crate::util::index_to_chunked_index;
@@ -21,6 +22,17 @@ impl PointArrayParts<'_> {
 
     pub fn is_empty(&self) -> bool {
         self.x.len() == 0
+    }
+
+    pub fn values_iter_coords(&self) -> impl Iterator<Item = Coord> + '_ {
+        self.x
+            .values_iter()
+            .zip(self.y.values_iter())
+            .map(|(x, y)| Coord { x: *x, y: *y })
+    }
+
+    pub fn iter_coords(&self) -> ZipValidity<Coord, impl Iterator<Item = Coord> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.values_iter_coords(), self.validity)
     }
 
     pub fn get_as_geo(&self, i: usize) -> Option<Point> {

@@ -1,5 +1,6 @@
 use geo::{Coord, LineString, Polygon};
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
+use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::Series;
@@ -54,6 +55,17 @@ impl<'a> PolygonArrayParts<'a> {
 
     pub fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+
+    pub fn values_iter_coords(&self) -> impl Iterator<Item = Coord> + '_ {
+        self.x
+            .values_iter()
+            .zip(self.y.values_iter())
+            .map(|(x, y)| Coord { x: *x, y: *y })
+    }
+
+    pub fn iter_coords(&self) -> ZipValidity<Coord, impl Iterator<Item = Coord> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.values_iter_coords(), self.validity)
     }
 
     pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
