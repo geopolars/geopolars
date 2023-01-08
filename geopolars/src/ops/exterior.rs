@@ -1,12 +1,13 @@
 use crate::error::Result;
-use crate::geoarrow::polygon::array::{PolygonArrayParts, PolygonSeries};
-use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
+use crate::util::iter_geom;
 use geo::Geometry;
 use geozero::{CoordDimensions, ToWkb};
-use polars::export::arrow::array::{
-    Array, BinaryArray, MutableBinaryArray, MutablePrimitiveArray, PrimitiveArray,
-};
+use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
 use polars::prelude::Series;
+
+// use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
+// use crate::geoarrow::polygon::array::{PolygonArrayParts, PolygonSeries};
+// use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
 
 // pub(crate) fn exterior(series: &Series) -> Result<Series> {
 //     match get_geoarrow_type(series) {
@@ -70,25 +71,25 @@ fn exterior_wkb(series: &Series) -> Result<Series> {
 //     todo!()
 // }
 
-fn get_polygon_output_lengths(chunks: Vec<PolygonArrayParts>) -> (usize, usize) {
-    // The length of the coordinates buffer
-    let mut coord_length: usize = 0;
+// fn get_polygon_output_lengths(chunks: Vec<PolygonArrayParts>) -> (usize, usize) {
+//     // The length of the coordinates buffer
+//     let mut coord_length: usize = 0;
 
-    // The length of the output LineString's offsets buffer
-    // This should be equal to the length of the input Polygon's geom_offsets buffer, since every
-    // polygon has one and only one exterior.
-    let mut offsets_length: usize = 0;
+//     // The length of the output LineString's offsets buffer
+//     // This should be equal to the length of the input Polygon's geom_offsets buffer, since every
+//     // polygon has one and only one exterior.
+//     let mut offsets_length: usize = 0;
 
-    for chunk in chunks {
-        offsets_length += chunk.geom_offsets.len();
+//     for chunk in chunks {
+//         offsets_length += chunk.geom_offsets.len();
 
-        // Only care about the first geom_offset since we only care about the exterior ring
-        for geom_offset in chunk.geom_offsets.as_slice() {
-            let (ext_ring_start, ext_ring_end) =
-                chunk.ring_offsets.start_end(*geom_offset as usize);
-            coord_length += ext_ring_end - ext_ring_start;
-        }
-    }
+//         // Only care about the first geom_offset since we only care about the exterior ring
+//         for geom_offset in chunk.geom_offsets.as_slice() {
+//             let (ext_ring_start, ext_ring_end) =
+//                 chunk.ring_offsets.start_end(*geom_offset as usize);
+//             coord_length += ext_ring_end - ext_ring_start;
+//         }
+//     }
 
-    (coord_length, offsets_length)
-}
+//     (coord_length, offsets_length)
+// }

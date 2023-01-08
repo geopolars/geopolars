@@ -71,6 +71,8 @@ fn euclidean_length_geoarrow_point(series: &Series) -> Result<Series> {
     Ok(series)
 }
 
+// TODO: "map" utility for any algorithm that takes LineString -> f64
+// this might also assist in being easier to parallelize that function specifically in the future, rather than having to parallelize every implementation
 fn euclidean_length_geoarrow_linestring(series: &Series) -> Result<Series> {
     let mut result = MutablePrimitiveArray::<f64>::with_capacity(series.len());
 

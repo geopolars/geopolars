@@ -1,5 +1,5 @@
 use geopolars::error::Result;
-use geopolars::geodataframe::GeoDataFrame;
+// use geopolars::geodataframe::GeoDataFrame;
 use geopolars::geoseries::GeoSeries;
 use geopolars::util::geom_at_index;
 use polars::prelude::{IpcReader, SerReader};

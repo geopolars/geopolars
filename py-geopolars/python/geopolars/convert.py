@@ -105,7 +105,8 @@ def from_geopandas(
 def geopandas_geoseries_to_geopolars(geoseries: geopandas.GeoSeries):
     """Convert GeoPandas GeoSeries to GeoArrow
 
-    This prefers converting to a GeoArrow struct encoding when possible, falling back to WKB for mixed geometries.
+    This prefers converting to a GeoArrow struct encoding when possible, falling back to
+    WKB for mixed geometries.
     """
     if pyarrow is None:
         raise ImportError("Pyarrow is required when using from_geopandas().")
@@ -122,7 +123,7 @@ def geopandas_geoseries_to_geopolars(geoseries: geopandas.GeoSeries):
 
     geom_type, coords, offsets = shapely.to_ragged_array(geoseries, include_z=False)
 
-    # From https://github.com/jorisvandenbossche/python-geoarrow/blob/80b76e74e0492a8f0914ed5331155154d0776593/src/geoarrow/extension_types.py#LL135-L172
+    # From https://github.com/jorisvandenbossche/python-geoarrow/blob/80b76e74e0492a8f0914ed5331155154d0776593/src/geoarrow/extension_types.py#LL135-L172 # noqa E501
     # In the future restore extension array type?
     if geom_type == shapely.GeometryType.POINT:
         parr = pyarrow.StructArray.from_arrays([coords[:, 0], coords[:, 1]], ["x", "y"])

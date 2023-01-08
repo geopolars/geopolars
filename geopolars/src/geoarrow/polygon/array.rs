@@ -65,14 +65,14 @@ impl<'a> PolygonArray<'a> {
         polygon_item.map(|p| p.into_geo())
     }
 
-    pub fn parts(&self) -> PolygonArrayParts<'a> {
-        let geom_offsets = self.0.offsets();
+    // pub fn parts(&self) -> PolygonArrayParts<'a> {
+    //     let geom_offsets = self.0.offsets();
 
-        let inner_values = self.0.values();
+    //     let inner_values = self.0.values();
 
-        // PolygonArrayParts { x: (), y: (), ring_offsets: (), geom_offsets: (), validity: () }
-        todo!()
-    }
+    //     // PolygonArrayParts { x: (), y: (), ring_offsets: (), geom_offsets: (), validity: () }
+    //     todo!()
+    // }
 }
 
 #[derive(Debug, Clone)]
