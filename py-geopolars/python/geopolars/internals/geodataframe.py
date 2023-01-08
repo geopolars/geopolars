@@ -60,7 +60,8 @@ class GeoDataFrame(pl.DataFrame):
         return GeoSeries(self.get_column(self._geometry_column_name))
 
     @classmethod
-    def _from_geopandas(cls, geodataframe):
+    def _from_geopandas(cls, geodataframe, force_wkb: bool):
+        # TODO: implement for geoarrow struct
         from geopandas.io.arrow import _geopandas_to_arrow
 
         arrow_table = _geopandas_to_arrow(geodataframe)
