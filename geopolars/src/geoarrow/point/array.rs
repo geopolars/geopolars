@@ -8,8 +8,8 @@ use crate::util::index_to_chunked_index;
 /// Deconstructed PointArray
 /// We define this as a separate struct so that we don't have to downcast on every row
 pub struct PointArrayParts<'a> {
-    x: &'a PrimitiveArray<f64>,
-    y: &'a PrimitiveArray<f64>,
+    pub x: &'a PrimitiveArray<f64>,
+    pub y: &'a PrimitiveArray<f64>,
     validity: Option<&'a Bitmap>,
 }
 

@@ -12,7 +12,6 @@ fn main() -> Result<()> {
     //     File::open("../py-geopolars/python/geopolars/datasets/ne_110m_glaciated_areas.arrow")
     //         .expect("file not found");
 
-
     // let file =
     //     File::open("../py-geopolars/python/geopolars/datasets/naturalearth_cities.arrow")
     //         .expect("file not found");
@@ -33,7 +32,6 @@ fn main() -> Result<()> {
     let x_vals = series.x()?;
     println!("{:?}", x_vals);
     println!("Debug: {}", start.elapsed().as_secs_f32());
-
 
     // let start = Instant::now();
     // let _ = df.centroid()?;
