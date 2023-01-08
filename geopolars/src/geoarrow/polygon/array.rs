@@ -21,8 +21,10 @@ impl PolygonScalar {
             .unwrap();
         let exterior_linestring = LineStringScalar(exterior_ring.clone()).into_geo();
 
-        let n_interior_rings = self.0.len();
-        let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings - 1);
+        let has_interior_rings = self.0.len() > 1;
+        let n_interior_rings = has_interior_rings.then(|| self.0.len() - 2).unwrap_or(0);
+
+        let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings);
         for i in 0..n_interior_rings {
             let interior_value = self.0.value(i + 1);
             let interior_ring = interior_value
@@ -77,7 +79,11 @@ impl<'a> PolygonArrayParts<'a> {
         let exterior_ring: LineString = exterior_coords.into();
 
         // Parse any interior rings
-        let n_interior_rings = end_geom_idx - start_geom_idx - 2;
+        // Note: need to check if interior rings exist otherwise the subtraction below can overflow
+        let has_interior_rings = end_geom_idx - start_geom_idx > 1;
+        let n_interior_rings = has_interior_rings
+            .then(|| end_geom_idx - start_geom_idx - 2)
+            .unwrap_or(0);
         let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings);
         for ring_idx in start_geom_idx + 1..end_geom_idx {
             let (start_coord_idx, end_coord_idx) = self.ring_offsets.start_end(ring_idx);

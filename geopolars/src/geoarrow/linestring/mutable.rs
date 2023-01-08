@@ -62,7 +62,8 @@ impl From<Vec<LineString>> for MutableLineStringArray {
     fn from(geoms: Vec<LineString>) -> Self {
         use geo::coords_iter::CoordsIter;
 
-        let mut offsets: Vec<i64> = vec![0];
+        let mut offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
+        offsets.push(0);
 
         let mut current_offset = 0;
         for geom in &geoms {
@@ -85,6 +86,45 @@ impl From<Vec<LineString>> for MutableLineStringArray {
             y: y_arr,
             offsets,
             validity: None,
+        }
+    }
+}
+
+impl From<Vec<Option<LineString>>> for MutableLineStringArray {
+    fn from(geoms: Vec<Option<LineString>>) -> Self {
+        use geo::coords_iter::CoordsIter;
+
+        let mut offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
+        offsets.push(0);
+
+        let mut validity = MutableBitmap::with_capacity(geoms.len());
+
+        let mut current_offset = 0;
+        for geom in &geoms {
+            if let Some(geom) = geom {
+                current_offset += geom.coords_count();
+                validity.push(true);
+            } else {
+                validity.push(false);
+            }
+            offsets.push(current_offset as i64);
+        }
+
+        let mut x_arr = Vec::<f64>::with_capacity(current_offset);
+        let mut y_arr = Vec::<f64>::with_capacity(current_offset);
+
+        for geom in geoms.into_iter().flatten() {
+            for coord in geom.coords_iter() {
+                x_arr.push(coord.x);
+                y_arr.push(coord.y);
+            }
+        }
+
+        MutableLineStringArray {
+            x: x_arr,
+            y: y_arr,
+            offsets,
+            validity: Some(validity),
         }
     }
 }

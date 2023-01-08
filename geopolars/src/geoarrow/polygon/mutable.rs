@@ -1,3 +1,4 @@
+use geo::Polygon;
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use polars::export::arrow::datatypes::DataType;
@@ -66,5 +67,138 @@ impl MutablePolygonArray {
             inner_list_array,
             validity,
         )
+    }
+}
+
+impl From<Vec<Polygon>> for MutablePolygonArray {
+    fn from(geoms: Vec<Polygon>) -> Self {
+        use geo::coords_iter::CoordsIter;
+
+        // Offset into ring indexes for each geometry
+        let mut geom_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
+        geom_offsets.push(0);
+
+        // Offset into coordinates for each ring
+        // This capacity will only be enough in the case where each geometry has only a single ring
+        let mut ring_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
+        ring_offsets.push(0);
+
+        // Current offset into ring array
+        let mut current_geom_offset = 0;
+
+        // Current offset into coord array
+        let mut current_ring_offset = 0;
+
+        for geom in &geoms {
+            // Total number of rings in this polygon
+            current_geom_offset += geom.interiors().len() + 1;
+            geom_offsets.push(current_geom_offset as i64);
+
+            // Number of coords for each ring
+            current_ring_offset += geom.exterior().coords_count();
+            ring_offsets.push(current_ring_offset as i64);
+
+            for int_ring in geom.interiors() {
+                current_ring_offset += int_ring.coords_count();
+                ring_offsets.push(current_ring_offset as i64);
+            }
+        }
+
+        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+
+        for geom in geoms {
+            let ext_ring = geom.exterior();
+            for coord in ext_ring.coords_iter() {
+                x_arr.push(coord.x);
+                y_arr.push(coord.y);
+            }
+
+            for int_ring in geom.interiors() {
+                for coord in int_ring.coords_iter() {
+                    x_arr.push(coord.x);
+                    y_arr.push(coord.y);
+                }
+            }
+        }
+
+        MutablePolygonArray {
+            x: x_arr,
+            y: y_arr,
+            geom_offsets,
+            ring_offsets,
+            validity: None,
+        }
+    }
+}
+
+impl From<Vec<Option<Polygon>>> for MutablePolygonArray {
+    fn from(geoms: Vec<Option<Polygon>>) -> Self {
+        use geo::coords_iter::CoordsIter;
+
+        let mut validity = MutableBitmap::with_capacity(geoms.len());
+
+        // Offset into ring indexes for each geometry
+        let mut geom_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
+        geom_offsets.push(0);
+
+        // Offset into coordinates for each ring
+        // This capacity will only be enough in the case where each geometry has only a single ring
+        let mut ring_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
+        ring_offsets.push(0);
+
+        // Current offset into ring array
+        let mut current_geom_offset = 0;
+
+        // Current offset into coord array
+        let mut current_ring_offset = 0;
+
+        for geom in &geoms {
+            if let Some(geom) = geom {
+                validity.push(true);
+
+                // Total number of rings in this polygon
+                current_geom_offset += geom.interiors().len() + 1;
+                geom_offsets.push(current_geom_offset as i64);
+
+                // Number of coords for each ring
+                current_ring_offset += geom.exterior().coords_count();
+                ring_offsets.push(current_ring_offset as i64);
+
+                for int_ring in geom.interiors() {
+                    current_ring_offset += int_ring.coords_count();
+                    ring_offsets.push(current_ring_offset as i64);
+                }
+            } else {
+                validity.push(false);
+                geom_offsets.push(current_geom_offset as i64);
+            }
+        }
+
+        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+
+        for geom in geoms.into_iter().flatten() {
+            let ext_ring = geom.exterior();
+            for coord in ext_ring.coords_iter() {
+                x_arr.push(coord.x);
+                y_arr.push(coord.y);
+            }
+
+            for int_ring in geom.interiors() {
+                for coord in int_ring.coords_iter() {
+                    x_arr.push(coord.x);
+                    y_arr.push(coord.y);
+                }
+            }
+        }
+
+        MutablePolygonArray {
+            x: x_arr,
+            y: y_arr,
+            geom_offsets,
+            ring_offsets,
+            validity: Some(validity),
+        }
     }
 }
