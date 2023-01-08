@@ -1,6 +1,10 @@
 use crate::error::Result;
+use crate::geoarrow::linestring::array::LineStringSeries;
+use crate::geoarrow::linestring::mutable::MutableLineStringArray;
 use crate::geoarrow::point::array::PointSeries;
 use crate::geoarrow::point::mutable::MutablePointArray;
+use crate::geoarrow::polygon::array::PolygonSeries;
+use crate::geoarrow::polygon::mutable::MutablePolygonArray;
 use crate::util::{from_geom_vec, get_geoarrow_type, GeoArrowType};
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::algorithm::bounding_rect::BoundingRect;
@@ -54,7 +58,8 @@ pub(crate) fn skew(series: &Series, xs: f64, ys: f64, origin: TransformOrigin) -
 }
 
 pub(crate) fn translate(series: &Series, x: f64, y: f64) -> Result<Series> {
-    translate_wkb(series, x, y)
+    let transform = AffineTransform::translate(x, y);
+    affine_transform(series, transform)
 }
 
 fn affine_transform_wkb(
@@ -86,6 +91,43 @@ fn affine_transform_geoarrow_point(
     let series = Series::try_from(("geometry", Box::new(result.into_arrow()) as Box<dyn Array>))?;
     Ok(series)
 }
+
+// fn affine_transform_geoarrow_linestring(
+//     series: &Series,
+//     matrix: impl Into<AffineTransform<f64>>,
+// ) -> Result<Series> {
+//     let transform: AffineTransform<f64> = matrix.into();
+
+//     // TODO: need to copy offsets from
+//     let mut result = MutableLineStringArray::with_capacity(series.len());
+//     for chunk in LineStringSeries(series).chunks() {
+//         let parts = chunk.parts();
+//         for coord in parts.iter_coords() {
+//             result.push(coord.map(|c| Point(transform.apply(c))));
+//         }
+//     }
+
+//     let series = Series::try_from(("geometry", Box::new(result.into_arrow()) as Box<dyn Array>))?;
+//     Ok(series)
+// }
+
+// fn affine_transform_geoarrow_polygon(
+//     series: &Series,
+//     matrix: impl Into<AffineTransform<f64>>,
+// ) -> Result<Series> {
+//     let transform: AffineTransform<f64> = matrix.into();
+
+//     let mut result = MutablePolygonArray::with_capacity(series.len());
+//     for chunk in PolygonSeries(series).chunks() {
+//         let parts = chunk.parts();
+//         for coord in parts.iter_coords() {
+//             result.push(coord.map(|c| Point(transform.apply(c))));
+//         }
+//     }
+
+//     let series = Series::try_from(("geometry", Box::new(result.into_arrow()) as Box<dyn Array>))?;
+//     Ok(series)
+// }
 
 fn rotate_wkb(series: &Series, angle: f64, origin: TransformOrigin) -> Result<Series> {
     match origin {
@@ -172,11 +214,6 @@ fn skew_wkb(series: &Series, xs: f64, ys: f64, origin: TransformOrigin) -> Resul
             affine_transform_wkb(series, transform)
         }
     }
-}
-
-fn translate_wkb(series: &Series, x: f64, y: f64) -> Result<Series> {
-    let transform = AffineTransform::translate(x, y);
-    affine_transform_wkb(series, transform)
 }
 
 #[cfg(test)]
