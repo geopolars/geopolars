@@ -1,10 +1,6 @@
 use crate::error::Result;
-use crate::geoarrow::linestring::array::LineStringSeries;
-use crate::geoarrow::linestring::mutable::MutableLineStringArray;
 use crate::geoarrow::point::array::PointSeries;
 use crate::geoarrow::point::mutable::MutablePointArray;
-use crate::geoarrow::polygon::array::PolygonSeries;
-use crate::geoarrow::polygon::mutable::MutablePolygonArray;
 use crate::util::{from_geom_vec, get_geoarrow_type, GeoArrowType};
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::algorithm::bounding_rect::BoundingRect;
