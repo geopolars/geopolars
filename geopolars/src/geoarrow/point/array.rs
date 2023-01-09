@@ -1,7 +1,7 @@
 use geo::{Coord, Point};
 use polars::export::arrow::array::{Array, PrimitiveArray, StructArray};
+use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
-use polars::export::arrow::bitmap::utils::{ZipValidity, BitmapIter};
 use polars::prelude::Series;
 
 use crate::util::index_to_chunked_index;
