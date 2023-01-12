@@ -1,12 +1,13 @@
 use crate::error::Result;
-use geopolars_arrow::point::array::PointSeries;
-use geopolars_arrow::point::mutable::MutablePointArray;
-use crate::util::{from_geom_vec, get_geoarrow_type, GeoArrowType};
+use crate::util::from_geom_vec;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::algorithm::bounding_rect::BoundingRect;
 use geo::algorithm::centroid::Centroid;
 use geo::Geometry;
 use geo::{map_coords::MapCoords, Point};
+use geopolars_arrow::point::array::PointSeries;
+use geopolars_arrow::point::mutable::MutablePointArray;
+use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use polars::export::arrow::array::Array;
 use polars::prelude::Series;
 

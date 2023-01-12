@@ -22,23 +22,21 @@ default = [
   "polars/zip_with",
 ]
 
-proj = ["dep:proj"]
+proj = ["dep:proj", "geopolars-geo/proj"]
 bundled_proj = ["proj", "proj/bundled_proj"]
+geos = []
 
 [dependencies]
+polars.workspace = true
+thiserror.workspace = true
+geo.workspace = true
+
+geopolars-geo = { version = "0.1.0-alpha.4", path = "./geopolars-geo" }
+geopolars-geos = { version = "0.1.0-alpha.4", path = "./geopolars-geos", optional = true }
+geopolars-arrow = { version = "0.1.0-alpha.4", path = "./geopolars-arrow" }
+
 geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"
-geo = "0.23"
-# Only the _minimal_ features to get polars to compile should be declared here
-polars = { version = "0.26", features = [
-  "dtype-u8",
-  "dtype-i8",
-  "dtype-binary",
-  "dtype-struct",
-  "ipc",
-  "private",
-], default-features = false }
-thiserror = "1.0"
 
 proj = { version = "0.27.0", optional = true, features = [
   "geo-types",

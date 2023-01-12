@@ -5,7 +5,7 @@ use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::Series;
 
-use crate::geoarrow::linestring::array::LineStringScalar;
+use crate::linestring::array::LineStringScalar;
 use crate::util::index_to_chunked_index;
 
 /// A struct representing a non-null single LineString geometry
@@ -93,9 +93,11 @@ impl<'a> PolygonArrayParts<'a> {
         // Parse any interior rings
         // Note: need to check if interior rings exist otherwise the subtraction below can overflow
         let has_interior_rings = end_geom_idx - start_geom_idx > 1;
-        let n_interior_rings = has_interior_rings
-            .then(|| end_geom_idx - start_geom_idx - 2)
-            .unwrap_or(0);
+        let n_interior_rings = if has_interior_rings {
+            end_geom_idx - start_geom_idx - 2
+        } else {
+            0
+        };
         let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings);
         for ring_idx in start_geom_idx + 1..end_geom_idx {
             let (start_coord_idx, end_coord_idx) = self.ring_offsets.start_end(ring_idx);
@@ -111,13 +113,27 @@ impl<'a> PolygonArrayParts<'a> {
 
         Some(Polygon::new(exterior_ring, interior_rings))
     }
+
+    #[cfg(feature = "geos")]
+    pub fn get_as_geos(&self, i: usize) -> Option<geos::Geometry> {
+        // TODO: handle this error
+        self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
+    }
 }
 
 #[repr(transparent)]
 #[derive(Debug, Clone)]
-pub struct PolygonArray<'a>(&'a ListArray<i64>);
+pub struct PolygonArray<'a>(pub &'a ListArray<i64>);
 
 impl<'a> PolygonArray<'a> {
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     pub fn get(&self, i: usize) -> Option<PolygonScalar> {
         if self.0.is_null(i) {
             return None;

@@ -3,8 +3,8 @@ use geo::Geometry;
 use geo::MultiPoint;
 use geo::Point;
 use geopolars::error::Result;
-use geopolars::geoseries::GeoSeries;
-use geopolars::util::from_geom_vec;
+use geopolars_geo::geoseries::GeoSeries;
+use geopolars_geo::util::from_geom_vec;
 use polars::prelude::*;
 
 fn generate_multipoint_series() -> Result<Series> {

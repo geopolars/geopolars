@@ -1,10 +1,12 @@
-pub mod error;
-pub mod geoarrow;
-pub mod geodataframe;
-pub mod geoseries;
-pub mod ops;
 pub mod spatial_index;
 pub mod util;
+
+pub use geopolars_arrow;
+pub use geopolars_geo;
+#[cfg(feature = "geos")]
+pub use geopolars_geos;
+
+pub use geopolars_geo::error;
 
 #[cfg(test)]
 mod tests {

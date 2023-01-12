@@ -1,11 +1,43 @@
 use crate::error::Result;
-use crate::geoarrow::linestring::array::LineStringSeries;
-use crate::geoarrow::point::array::PointSeries;
-use crate::geoarrow::polygon::array::PolygonSeries;
-use crate::util::iter_geom;
 use geo::{Geometry, LineString, Point, Polygon};
-use polars::export::arrow::array::{Array, MutablePrimitiveArray, PrimitiveArray};
-use polars::prelude::Series;
+use geopolars_arrow::linestring::array::LineStringSeries;
+use geopolars_arrow::point::array::PointSeries;
+use geopolars_arrow::polygon::array::PolygonSeries;
+use geozero::{wkb::Wkb, ToGeo};
+use geozero::{CoordDimensions, ToWkb};
+use polars::error::ErrString;
+use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
+use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
+use polars::prelude::{PolarsError, Series};
+use std::convert::Into;
+
+pub fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series> {
+    let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
+
+    for geom in geoms {
+        let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
+            PolarsError::ComputeError(ErrString::from("Failed to convert geom vec to GeoSeries"))
+        })?;
+        wkb_array.push(Some(wkb));
+    }
+    let array: BinaryArray<i32> = wkb_array.into();
+
+    let series = Series::try_from(("geometry", Box::new(array) as Box<dyn Array>))?;
+    Ok(series)
+}
+
+/// Helper function to iterate over geometries from polars Series
+pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
+    let chunks = series.binary().expect("series was not a list type");
+
+    let iter = chunks.into_iter();
+    iter.map(|row| {
+        let value = row.expect("Row is null");
+        Wkb(value.to_vec())
+            .to_geo()
+            .expect("unable to convert to geo")
+    })
+}
 
 pub fn map_point_series_to_float_series<F>(series: &Series, op: F) -> Result<Series>
 where

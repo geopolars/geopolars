@@ -1,13 +1,13 @@
 use crate::error::Result;
-use crate::geoarrow::util::{
-    map_linestring_series_to_float_series, map_polygon_series_to_float_series,
+use crate::util::{
+    iter_geom, map_linestring_series_to_float_series, map_polygon_series_to_float_series,
 };
-use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
 use geo::algorithm::euclidean_length::EuclideanLength;
 use geo::algorithm::geodesic_length::GeodesicLength;
 use geo::algorithm::haversine_length::HaversineLength;
 use geo::algorithm::vincenty_length::VincentyLength;
 use geo::Geometry;
+use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use polars::error::ErrString;
 use polars::export::arrow::array::{Array, MutablePrimitiveArray, PrimitiveArray};
 use polars::prelude::{PolarsError, Series};
@@ -217,9 +217,9 @@ fn geodesic_length_wkb(series: &Series, method: GeodesicLengthMethod) -> Result<
 #[cfg(test)]
 mod tests {
     use super::GeodesicLengthMethod;
-    use crate::geoarrow::linestring::mutable::MutableLineStringArray;
     use crate::geoseries::GeoSeries;
     use geo::{line_string, Geometry, LineString};
+    use geopolars_arrow::linestring::mutable::MutableLineStringArray;
     use geozero::{CoordDimensions, ToWkb};
     use polars::export::arrow::array::{Array, BinaryArray, ListArray, MutableBinaryArray};
     use polars::prelude::Series;

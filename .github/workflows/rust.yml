@@ -82,5 +82,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - run: sudo apt install libgeos-dev
+
       - name: "cargo test"
         run: cd geopolars && cargo test --all --all-features

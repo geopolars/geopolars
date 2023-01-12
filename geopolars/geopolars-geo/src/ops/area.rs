@@ -1,7 +1,7 @@
 use crate::error::Result;
-use crate::geoarrow::util::map_polygon_series_to_float_series;
-use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
+use crate::util::{iter_geom, map_polygon_series_to_float_series};
 use geo::prelude::Area;
+use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use polars::prelude::Series;
 
 pub(crate) fn area(series: &Series) -> Result<Series> {

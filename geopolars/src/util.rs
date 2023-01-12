@@ -1,50 +1,12 @@
-use crate::error::Result;
 use geo::{Coord, Geometry, LineString, Point, Polygon};
 use geozero::{wkb::Wkb, ToGeo};
-use geozero::{CoordDimensions, ToWkb};
 use polars::datatypes::{AnyValue, DataType};
-use polars::error::ErrString;
-use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
 use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::num;
 use polars::prelude::{PolarsError, PolarsResult, Series};
 use std::convert::Into;
 
-pub enum GeoArrowType {
-    Point,
-    LineString,
-    Polygon,
-    WKB,
-}
-
-pub fn get_geoarrow_type(series: &Series) -> GeoArrowType {
-    match series.dtype() {
-        DataType::Binary => GeoArrowType::WKB,
-        DataType::Struct(_) => GeoArrowType::Point,
-        DataType::List(dt) => match *dt.clone() {
-            DataType::Struct(_) => GeoArrowType::LineString,
-            DataType::List(_) => GeoArrowType::Polygon,
-            _ => panic!("Unexpected inner list type: {}", dt),
-        },
-
-        dt => panic!("Unexpected geoarrow type: {}", dt),
-    }
-}
-
-pub fn from_geom_vec(geoms: &[Geometry<f64>]) -> Result<Series> {
-    let mut wkb_array = MutableBinaryArray::<i32>::with_capacity(geoms.len());
-
-    for geom in geoms {
-        let wkb = geom.to_wkb(CoordDimensions::xy()).map_err(|_| {
-            PolarsError::ComputeError(ErrString::from("Failed to convert geom vec to GeoSeries"))
-        })?;
-        wkb_array.push(Some(wkb));
-    }
-    let array: BinaryArray<i32> = wkb_array.into();
-
-    let series = Series::try_from(("geometry", Box::new(array) as Box<dyn Array>))?;
-    Ok(series)
-}
+// TODO: the rest of the code here can probably be removed
 
 /// Helper function to iterate over geometries from polars Series
 pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
@@ -61,7 +23,6 @@ pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> 
 
 /// Access to a geometry at a specified index
 pub fn geom_at_index(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
-    // let struct_type = DataType::Struct(vec![X_FIELD, Y_FIELD]);
     match series.dtype() {
         DataType::Binary => geom_at_index_wkb(series, index),
         DataType::Struct(_) => geom_at_index_point(series, index),

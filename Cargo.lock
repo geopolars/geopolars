@@ -205,6 +205,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfb24e866b15a1af2a1b663f10c6b6b8f397a84aadb828f12e5b289ec23a3a3c"
 
 [[package]]
+name = "c_vec"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdd7a427adc0135366d99db65b36dae9237130997e560ed61118041fb72be6e8"
+
+[[package]]
 name = "cast"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -729,11 +735,70 @@ version = "0.1.0-alpha.4"
 dependencies = [
  "criterion",
  "geo",
+ "geopolars-arrow",
+ "geopolars-geo",
+ "geopolars-geos",
  "geozero",
  "polars",
  "proj",
  "rstar",
  "thiserror",
+]
+
+[[package]]
+name = "geopolars-arrow"
+version = "0.1.0-alpha.4"
+dependencies = [
+ "geo",
+ "geos",
+ "polars",
+]
+
+[[package]]
+name = "geopolars-geo"
+version = "0.1.0-alpha.4"
+dependencies = [
+ "geo",
+ "geopolars-arrow",
+ "geozero",
+ "polars",
+ "proj",
+ "thiserror",
+]
+
+[[package]]
+name = "geopolars-geos"
+version = "0.1.0-alpha.4"
+dependencies = [
+ "approx",
+ "geo",
+ "geopolars-arrow",
+ "geos",
+ "polars",
+]
+
+[[package]]
+name = "geos"
+version = "8.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2faf51d32b09edaf404d9a6eb6b4e7a777d6f6002c9f84bc8f7d5d124c57d80"
+dependencies = [
+ "c_vec",
+ "geo-types",
+ "geos-sys",
+ "libc",
+ "num",
+ "wkt 0.9.2",
+]
+
+[[package]]
+name = "geos-sys"
+version = "2.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ece257289a8aa90a1016447b870e4df1d389f6ff21b411cc7f046944370db3e"
+dependencies = [
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -749,7 +814,7 @@ dependencies = [
  "scroll",
  "serde_json",
  "thiserror",
- "wkt",
+ "wkt 0.10.3",
 ]
 
 [[package]]
@@ -2291,6 +2356,17 @@ name = "windows_x86_64_msvc"
 version = "0.42.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40009d85759725a34da6d89a94e63d7bdc50a862acf0dbc7c8e488f1edcb6f5"
+
+[[package]]
+name = "wkt"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3cb4f61f748cb9de30eef5508a212c6edf9c0926847247fcad7ec969907112a"
+dependencies = [
+ "geo-types",
+ "num-traits",
+ "thiserror",
+]
 
 [[package]]
 name = "wkt"
