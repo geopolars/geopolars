@@ -5,7 +5,7 @@ use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::Series;
 
-use crate::geoarrow::linestring::array::LineStringScalar;
+use crate::linestring::array::LineStringScalar;
 use crate::util::index_to_chunked_index;
 
 /// A struct representing a non-null single LineString geometry
