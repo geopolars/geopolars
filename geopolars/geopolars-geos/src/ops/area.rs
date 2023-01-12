@@ -20,3 +20,44 @@ pub fn area(arr: &dyn Array) -> Box<dyn Array> {
         _ => panic!("Unexpected geometry type for operation: area"),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::area;
+    use approx::assert_relative_eq;
+    use geo::{polygon, Polygon};
+    use geopolars_arrow::polygon::mutable::MutablePolygonArray;
+    use polars::export::arrow::array::PrimitiveArray;
+
+    fn call_area(input: Vec<Polygon>) -> PrimitiveArray<f64> {
+        let mut_polygon_arr: MutablePolygonArray = input.into();
+        let polygon_arr = mut_polygon_arr.into_arrow();
+
+        let result = area(&polygon_arr);
+        let result_arr = result
+            .as_any()
+            .downcast_ref::<PrimitiveArray<f64>>()
+            .unwrap();
+        result_arr.clone()
+    }
+
+    #[test]
+    fn area_empty_polygon_test() {
+        let polygons = vec![polygon![]];
+        let result = call_area(polygons);
+        assert_eq!(result.value(0), 0.0_f64);
+    }
+
+    #[test]
+    fn area_polygon_test() {
+        let polygons = vec![polygon![
+            (x: 0., y: 0.),
+            (x: 5., y: 0.),
+            (x: 5., y: 6.),
+            (x: 0., y: 6.),
+            (x: 0., y: 0.)
+        ]];
+        let result = call_area(polygons);
+        assert_relative_eq!(result.value(0), 30.);
+    }
+}

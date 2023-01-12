@@ -770,6 +770,8 @@ dependencies = [
 name = "geopolars-geos"
 version = "0.1.0-alpha.4"
 dependencies = [
+ "approx",
+ "geo",
  "geopolars-arrow",
  "geos",
  "polars",
