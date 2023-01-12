@@ -1,11 +1,12 @@
 use crate::error::Result;
-use crate::geoarrow::linestring::array::LineStringSeries;
-use crate::geoarrow::linestring::mutable::MutableLineStringArray;
-use crate::geoarrow::polygon::array::PolygonSeries;
-use crate::geoarrow::polygon::mutable::MutablePolygonArray;
-use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
+use crate::util::iter_geom;
 use geo::algorithm::simplify::Simplify;
 use geo::{Geometry, LineString, Polygon};
+use geopolars_arrow::linestring::array::LineStringSeries;
+use geopolars_arrow::linestring::mutable::MutableLineStringArray;
+use geopolars_arrow::polygon::array::PolygonSeries;
+use geopolars_arrow::polygon::mutable::MutablePolygonArray;
+use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use geozero::{CoordDimensions, ToWkb};
 use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
 use polars::prelude::Series;
@@ -84,10 +85,10 @@ fn simplify_geoarrow_polygon(series: &Series, tolerance: f64) -> Result<Series> 
 
 #[cfg(test)]
 mod tests {
-    use crate::geoarrow::linestring::array::LineStringSeries;
-    use crate::geoarrow::linestring::mutable::MutableLineStringArray;
-    use crate::geoarrow::polygon::array::PolygonSeries;
-    use crate::geoarrow::polygon::mutable::MutablePolygonArray;
+    use geopolars_arrow::linestring::array::LineStringSeries;
+    use geopolars_arrow::linestring::mutable::MutableLineStringArray;
+    use geopolars_arrow::polygon::array::PolygonSeries;
+    use geopolars_arrow::polygon::mutable::MutablePolygonArray;
     use crate::geoseries::GeoSeries;
     use geo::{line_string, polygon};
     use polars::export::arrow::array::{Array, ListArray};

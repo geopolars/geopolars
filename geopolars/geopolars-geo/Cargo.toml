@@ -7,7 +7,16 @@ license = "MIT"
 repository = "https://github.com/geopolars/geopolars"
 description = "GEOS backend for GeoPolars"
 
+[features]
+proj = ["dep:proj"]
+bundled_proj = ["proj", "proj/bundled_proj"]
+
 [dependencies]
 polars.workspace = true
+thiserror.workspace = true
 geo = "0.23"
 geopolars-arrow = { version = "0.1.0-alpha.4", path = "../geopolars-arrow" }
+proj = { version = "0.27.0", optional = true, features = [
+  "geo-types",
+] }
+geozero = { version = "0.9.4", features = ["with-wkb"] }

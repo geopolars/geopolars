@@ -1,7 +1,8 @@
 use crate::error::{inner_type_name, GeopolarsError, Result};
-use crate::geoarrow::point::array::PointSeries;
-use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
+use crate::util::iter_geom;
 use geo::{Geometry, Point};
+use geopolars_arrow::point::array::PointSeries;
+use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use polars::export::arrow::array::{Array, MutablePrimitiveArray, PrimitiveArray};
 use polars::prelude::{Float64Chunked, Series};
 use polars::series::IntoSeries;

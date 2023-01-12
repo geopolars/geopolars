@@ -44,7 +44,7 @@ pub fn spatial_join(
     let lhs_geometry = lhs.column("geometry")?;
     let rhs_geometry = rhs.column("geometry")?;
 
-    // If we where not given a left index, generate one on the fly
+    // If we were not given a left index, generate one on the fly
     let spatial_index_left: Arc<SpatialIndex> = options.l_index.unwrap_or_else(|| {
         let spatial_index_left: SpatialIndex = lhs_geometry
             .try_into()
@@ -57,7 +57,7 @@ pub fn spatial_join(
         Arc::new(spatial_index_left)
     });
 
-    // If we where not given a right index, generate one on the fly
+    // If we were not given a right index, generate one on the fly
     let spatial_index_right: Arc<SpatialIndex> = options.r_index.unwrap_or_else(|| {
         let spatial_index_right: SpatialIndex = rhs_geometry
             .try_into()
@@ -142,7 +142,7 @@ pub fn spatial_join(
         }
     }
 
-    // Now we have two vecs with the alligned left right node indexes we perform a
+    // Now we have two vecs with the aligned left right node indexes we perform a
     // join using polars existing code.
     let lhs_index: Vec<u64> = (0..lhs.shape().0).map(|i| i as u64).collect();
     let rhs_index: Vec<u64> = (0..rhs.shape().0).map(|i| i as u64).collect();
@@ -348,8 +348,8 @@ impl TryFrom<Series> for SpatialIndex {
 #[cfg(test)]
 mod tests {
     use crate::spatial_index::{spatial_join, SpatialIndex, SpatialJoinArgs};
-    use crate::util::from_geom_vec;
     use geo::{polygon, Geometry, Point, Polygon};
+    use geopolars_geo::util::from_geom_vec;
     use polars::prelude::{DataFrame, JoinType, NamedFrom, PolarsError, Series};
     use rstar::AABB;
     use std::sync::Arc;

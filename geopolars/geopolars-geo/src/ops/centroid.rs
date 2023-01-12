@@ -1,10 +1,11 @@
 use crate::error::Result;
-use crate::geoarrow::linestring::array::LineStringSeries;
-use crate::geoarrow::point::mutable::MutablePointArray;
-use crate::geoarrow::polygon::array::PolygonSeries;
-use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
+use crate::util::iter_geom;
 use geo::algorithm::centroid::Centroid;
 use geo::Geometry;
+use geopolars_arrow::linestring::array::LineStringSeries;
+use geopolars_arrow::point::mutable::MutablePointArray;
+use geopolars_arrow::polygon::array::PolygonSeries;
+use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use geozero::{CoordDimensions, ToWkb};
 use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
 use polars::prelude::Series;

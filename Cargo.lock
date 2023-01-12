@@ -760,7 +760,10 @@ version = "0.1.0-alpha.4"
 dependencies = [
  "geo",
  "geopolars-arrow",
+ "geozero",
  "polars",
+ "proj",
+ "thiserror",
 ]
 
 [[package]]

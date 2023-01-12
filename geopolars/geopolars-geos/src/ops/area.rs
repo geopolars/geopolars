@@ -5,7 +5,7 @@ use polars::export::arrow::array::{Array, BinaryArray, ListArray};
 
 use crate::util::{map_polygon_array_to_float_array, map_wkb_array_to_float_array};
 
-pub(crate) fn area(arr: &dyn Array) -> Box<dyn Array> {
+pub fn area(arr: &dyn Array) -> Box<dyn Array> {
     match get_geoarrow_array_type(arr) {
         GeoArrowType::WKB => {
             let binary_arr = arr.as_any().downcast_ref::<BinaryArray<i64>>().unwrap();
