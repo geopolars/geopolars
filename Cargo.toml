@@ -1,3 +1,26 @@
 [workspace]
-members = ["geopolars"]
+members = [
+  "geopolars",
+  "geopolars/geopolars-geos",
+  "geopolars/geopolars-geo",
+  "geopolars/geopolars-arrow",
+]
 exclude = ["py-geopolars", "wasm-geopolars"]
+
+[workspace.package]
+version = "0.1.0-alpha.4"
+edition = "2021"
+authors = ["Kyle Barron <kylebarron2@gmail.com>"]
+
+[workspace.dependencies]
+# Only the _minimal_ features to get polars to compile should be declared here
+polars = { version = "0.26", features = [
+  "dtype-u8",
+  "dtype-i8",
+  "dtype-binary",
+  "dtype-struct",
+  "ipc",
+  "private",
+], default-features = false }
+thiserror = "1"
+geo = "0.23"
