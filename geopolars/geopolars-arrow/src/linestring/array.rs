@@ -87,6 +87,12 @@ impl<'a> LineStringArrayParts<'a> {
         }
         Some(LineString::new(coords))
     }
+
+    #[cfg(feature = "geos")]
+    pub fn get_as_geos(&self, i: usize) -> Option<geos::Geometry> {
+        // TODO: handle this error
+        self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
+    }
 }
 
 #[repr(transparent)]

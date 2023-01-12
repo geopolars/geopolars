@@ -1,12 +1,26 @@
+use polars::datatypes::DataType;
+use polars::export::arrow::array::Array;
 use polars::export::num;
-use polars::prelude::{PolarsError, PolarsResult, Series};
-use polars::datatypes::{AnyValue, DataType};
+use polars::prelude::{ArrowDataType, Series};
 
 pub enum GeoArrowType {
     Point,
     LineString,
     Polygon,
     WKB,
+}
+
+pub fn get_geoarrow_array_type(arr: &dyn Array) -> GeoArrowType {
+    match arr.data_type() {
+        ArrowDataType::Binary => GeoArrowType::WKB,
+        ArrowDataType::Struct(_) => GeoArrowType::Point,
+        ArrowDataType::List(dt) | ArrowDataType::LargeList(dt) => match dt.data_type() {
+            ArrowDataType::Struct(_) => GeoArrowType::LineString,
+            ArrowDataType::List(_) | ArrowDataType::LargeList(_) => GeoArrowType::Polygon,
+            _ => panic!("Unexpected inner list type: {:?}", dt),
+        },
+        dt => panic!("Unexpected geoarrow type: {:?}", dt),
+    }
 }
 
 pub fn get_geoarrow_type(series: &Series) -> GeoArrowType {

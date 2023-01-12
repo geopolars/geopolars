@@ -111,13 +111,27 @@ impl<'a> PolygonArrayParts<'a> {
 
         Some(Polygon::new(exterior_ring, interior_rings))
     }
+
+    #[cfg(feature = "geos")]
+    pub fn get_as_geos(&self, i: usize) -> Option<geos::Geometry> {
+        // TODO: handle this error
+        self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
+    }
 }
 
 #[repr(transparent)]
 #[derive(Debug, Clone)]
-pub struct PolygonArray<'a>(&'a ListArray<i64>);
+pub struct PolygonArray<'a>(pub &'a ListArray<i64>);
 
 impl<'a> PolygonArray<'a> {
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     pub fn get(&self, i: usize) -> Option<PolygonScalar> {
         if self.0.is_null(i) {
             return None;
