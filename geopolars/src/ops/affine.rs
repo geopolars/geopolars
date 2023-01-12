@@ -8,7 +8,10 @@ use geo::algorithm::centroid::Centroid;
 use geo::Geometry;
 use geo::{map_coords::MapCoords, Point};
 use polars::export::arrow::array::Array;
+// use polars::export::arrow::bitmap::MutableBitmap;
+// use polars::prelude::{ListChunked, Series};
 use polars::prelude::Series;
+// use polars::series::IntoSeries;
 
 use crate::util::iter_geom;
 
@@ -94,17 +97,26 @@ fn affine_transform_geoarrow_point(
 // ) -> Result<Series> {
 //     let transform: AffineTransform<f64> = matrix.into();
 
-//     // TODO: need to copy offsets from
-//     let mut result = MutableLineStringArray::with_capacity(series.len());
+//     let output_chunks: Vec<Box<dyn Array>> = Vec::with_capacity(series.n_chunks());
 //     for chunk in LineStringSeries(series).chunks() {
 //         let parts = chunk.parts();
+
+//         let mut result = MutableLineStringArray {
+//             x: Vec::with_capacity(series.len()),
+//             y: Vec::with_capacity(series.len()),
+//             offsets: parts.geom_offsets.clone().as_slice().into(),
+//             // Note: copying this validity makes it wrong
+//             validity: parts.validity.map(|v| v.make_mut()),
+//         };
+
 //         for coord in parts.iter_coords() {
-//             result.push(coord.map(|c| Point(transform.apply(c))));
+//             result.push_coord(coord.map(|c| transform.apply(c)));
 //         }
+
+//         output_chunks.push(Box::new(result.into_arrow()) as Box<dyn Array>);
 //     }
 
-//     let series = Series::try_from(("geometry", Box::new(result.into_arrow()) as Box<dyn Array>))?;
-//     Ok(series)
+//     Ok(ListChunked::from_chunks("result", output_chunks).into_series())
 // }
 
 // fn affine_transform_geoarrow_polygon(
