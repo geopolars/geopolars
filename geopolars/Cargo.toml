@@ -22,7 +22,7 @@ default = [
   "polars/zip_with",
 ]
 
-proj = ["dep:proj"]
+proj = ["dep:proj", "geopolars-geo/proj"]
 bundled_proj = ["proj", "proj/bundled_proj"]
 geos = []
 

@@ -632,10 +632,32 @@ name = "geopolars"
 version = "0.1.0-alpha.4"
 dependencies = [
  "geo",
+ "geopolars-arrow",
+ "geopolars-geo",
  "geozero",
  "polars",
  "proj",
  "rstar",
+ "thiserror",
+]
+
+[[package]]
+name = "geopolars-arrow"
+version = "0.1.0-alpha.4"
+dependencies = [
+ "geo",
+ "polars",
+]
+
+[[package]]
+name = "geopolars-geo"
+version = "0.1.0-alpha.4"
+dependencies = [
+ "geo",
+ "geopolars-arrow",
+ "geozero",
+ "polars",
+ "proj",
  "thiserror",
 ]
 
