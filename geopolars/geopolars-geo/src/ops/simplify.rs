@@ -85,12 +85,12 @@ fn simplify_geoarrow_polygon(series: &Series, tolerance: f64) -> Result<Series> 
 
 #[cfg(test)]
 mod tests {
+    use crate::geoseries::GeoSeries;
+    use geo::{line_string, polygon};
     use geopolars_arrow::linestring::array::LineStringSeries;
     use geopolars_arrow::linestring::mutable::MutableLineStringArray;
     use geopolars_arrow::polygon::array::PolygonSeries;
     use geopolars_arrow::polygon::mutable::MutablePolygonArray;
-    use crate::geoseries::GeoSeries;
-    use geo::{line_string, polygon};
     use polars::export::arrow::array::{Array, ListArray};
     use polars::prelude::Series;
 

@@ -217,9 +217,9 @@ fn geodesic_length_wkb(series: &Series, method: GeodesicLengthMethod) -> Result<
 #[cfg(test)]
 mod tests {
     use super::GeodesicLengthMethod;
-    use geopolars_arrow::linestring::mutable::MutableLineStringArray;
     use crate::geoseries::GeoSeries;
     use geo::{line_string, Geometry, LineString};
+    use geopolars_arrow::linestring::mutable::MutableLineStringArray;
     use geozero::{CoordDimensions, ToWkb};
     use polars::export::arrow::array::{Array, BinaryArray, ListArray, MutableBinaryArray};
     use polars::prelude::Series;
