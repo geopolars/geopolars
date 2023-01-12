@@ -93,9 +93,11 @@ impl<'a> PolygonArrayParts<'a> {
         // Parse any interior rings
         // Note: need to check if interior rings exist otherwise the subtraction below can overflow
         let has_interior_rings = end_geom_idx - start_geom_idx > 1;
-        let n_interior_rings = has_interior_rings
-            .then(|| end_geom_idx - start_geom_idx - 2)
-            .unwrap_or(0);
+        let n_interior_rings = if has_interior_rings {
+            end_geom_idx - start_geom_idx - 2
+        } else {
+            0
+        };
         let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings);
         for ring_idx in start_geom_idx + 1..end_geom_idx {
             let (start_coord_idx, end_coord_idx) = self.ring_offsets.start_end(ring_idx);
