@@ -1,117 +1,156 @@
+use crate::enum_::GeometryType;
+use crate::error::GeoArrowError;
+use crate::trait_::GeometryArray;
 use geo::{Coord, LineString, Polygon};
-use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
+use polars::export::arrow::buffer::Buffer;
 use polars::export::arrow::offset::OffsetsBuffer;
-use polars::prelude::Series;
 
-use crate::linestring::LineStringScalar;
-use crate::util::index_to_chunked_index;
-
-/// A struct representing a non-null single Polygon geometry
-#[repr(transparent)]
+/// A [`GeometryArray`] semantically equivalent to `Vec<Option<Polygon>>` using Arrow's
+/// in-memory representation.
 #[derive(Debug, Clone)]
-pub struct PolygonScalar(ListArray<i64>);
+pub struct PolygonArray {
+    /// Buffer of x coordinates
+    x: Buffer<f64>,
 
-impl PolygonScalar {
-    pub fn into_geo(self) -> Polygon {
-        let exterior_value = self.0.value(0);
-        let exterior_ring = exterior_value
-            .as_any()
-            .downcast_ref::<StructArray>()
-            .unwrap();
-        let exterior_linestring = LineStringScalar(exterior_ring.clone()).into_geo();
+    /// Buffer of y coordinates
+    y: Buffer<f64>,
 
-        let has_interior_rings = self.0.len() > 1;
-        let n_interior_rings = has_interior_rings.then(|| self.0.len() - 2).unwrap_or(0);
+    /// Offsets into the ring array where each geometry starts
+    geom_offsets: OffsetsBuffer<i64>,
 
-        let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings);
-        for i in 0..n_interior_rings {
-            let interior_value = self.0.value(i + 1);
-            let interior_ring = interior_value
-                .as_any()
-                .downcast_ref::<StructArray>()
-                .unwrap();
-            interior_rings.push(LineStringScalar(interior_ring.clone()).into_geo());
-        }
+    /// Offsets into the coordinate array where each ring starts
+    ring_offsets: OffsetsBuffer<i64>,
 
-        Polygon::new(exterior_linestring, interior_rings)
-    }
+    /// Validity bitmap
+    validity: Option<Bitmap>,
 }
 
-/// Deconstructed PolygonArray
-/// We define this as a separate struct so that we don't have to downcast on every row
-#[derive(Debug, Clone)]
-pub struct PolygonArrayParts<'a> {
-    pub x: &'a PrimitiveArray<f64>,
-    pub y: &'a PrimitiveArray<f64>,
-    pub ring_offsets: &'a OffsetsBuffer<i64>,
-    pub geom_offsets: &'a OffsetsBuffer<i64>,
-    pub validity: Option<&'a Bitmap>,
+pub(super) fn check(
+    x: &[f64],
+    y: &[f64],
+    validity_len: Option<usize>,
+) -> Result<(), GeoArrowError> {
+    // TODO: check geom offsets and ring_offsets?
+    if validity_len.map_or(false, |len| len != x.len()) {
+        return Err(GeoArrowError::General(
+            "validity mask length must match the number of values".to_string(),
+        ));
+    }
+
+    if x.len() != y.len() {
+        return Err(GeoArrowError::General(
+            "x and y arrays must have the same length".to_string(),
+        ));
+    }
+    Ok(())
 }
 
-impl<'a> PolygonArrayParts<'a> {
-    pub fn len(&self) -> usize {
-        self.geom_offsets.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    /// The number of null slots on this [`Array`].
+impl PolygonArray {
+    /// Create a new PolygonArray from parts
     /// # Implementation
-    /// This is `O(1)` since the number of null elements is pre-computed.
+    /// This function is `O(1)`.
+    pub fn new(
+        x: Buffer<f64>,
+        y: Buffer<f64>,
+        geom_offsets: OffsetsBuffer<i64>,
+        ring_offsets: OffsetsBuffer<i64>,
+        validity: Option<Bitmap>,
+    ) -> Self {
+        check(&x, &y, validity.as_ref().map(|v| v.len())).unwrap();
+        Self {
+            x,
+            y,
+            geom_offsets,
+            ring_offsets,
+            validity,
+        }
+    }
+
+    /// Create a new PolygonArray from parts
+    /// # Implementation
+    /// This function is `O(1)`.
+    pub fn try_new(
+        x: Buffer<f64>,
+        y: Buffer<f64>,
+        geom_offsets: OffsetsBuffer<i64>,
+        ring_offsets: OffsetsBuffer<i64>,
+        validity: Option<Bitmap>,
+    ) -> Result<Self, GeoArrowError> {
+        check(&x, &y, validity.as_ref().map(|v| v.len()))?;
+        Ok(Self {
+            x,
+            y,
+            geom_offsets,
+            ring_offsets,
+            validity,
+        })
+    }
+
+    /// Returns the number of geometries in this array
     #[inline]
-    pub fn null_count(&self) -> usize {
-        self.validity.as_ref().map(|x| x.unset_bits()).unwrap_or(0)
+    pub fn len(&self) -> usize {
+        self.geom_offsets.len() - 1
     }
 
-    /// Returns whether slot `i` is null.
-    /// # Panic
-    /// Panics iff `i >= self.len()`.
+    /// Returns the optional validity.
     #[inline]
-    pub fn is_null(&self, i: usize) -> bool {
-        self.validity
-            .as_ref()
-            .map(|x| !x.get_bit(i))
-            .unwrap_or(false)
+    pub fn validity(&self) -> Option<&Bitmap> {
+        self.validity.as_ref()
     }
 
-    /// Returns whether slot `i` is valid.
-    /// # Panic
-    /// Panics iff `i >= self.len()`.
-    #[inline]
-    pub fn is_valid(&self, i: usize) -> bool {
-        !self.is_null(i)
-    }
-
-    /// Iterate over values as coordinates without taking into account validity bitmap
-    pub fn values_iter_coords(&self) -> impl Iterator<Item = Coord> + '_ {
-        self.x
-            .values_iter()
-            .zip(self.y.values_iter())
-            .map(|(x, y)| Coord { x: *x, y: *y })
-    }
-
-    /// Iterate over coordinates
-    pub fn iter_coords(&self) -> ZipValidity<Coord, impl Iterator<Item = Coord> + '_, BitmapIter> {
-        ZipValidity::new_with_validity(self.values_iter_coords(), self.validity)
-    }
-
-    /// Iterate over values as geo objects without taking into account validity bitmap
-    pub fn values_iter_geo(&self) -> impl Iterator<Item = Polygon> + '_ {
-        (0..self.len()).into_iter().map(|i| self.value_as_geo(i))
-    }
-
-    /// Iterate over geo geometries
-    pub fn iter_geo(&self) -> ZipValidity<Polygon, impl Iterator<Item = Polygon> + '_, BitmapIter> {
-        ZipValidity::new_with_validity(self.values_iter_geo(), self.validity)
-    }
-
-    /// Returns the value at slot `i` as a geo object.
+    /// Returns a clone of this [`PrimitiveArray`] sliced by an offset and length.
+    /// # Implementation
+    /// This operation is `O(1)` as it amounts to increase two ref counts.
+    /// # Examples
+    /// ```
+    /// use arrow2::array::PrimitiveArray;
     ///
-    /// The value of a null slot is undetermined (it can be anything).
+    /// let array = PrimitiveArray::from_vec(vec![1, 2, 3]);
+    /// assert_eq!(format!("{:?}", array), "Int32[1, 2, 3]");
+    /// let sliced = array.slice(1, 1);
+    /// assert_eq!(format!("{:?}", sliced), "Int32[2]");
+    /// // note: `sliced` and `array` share the same memory region.
+    /// ```
+    /// # Panic
+    /// This function panics iff `offset + length > self.len()`.
+    #[inline]
+    #[must_use]
+    pub fn slice(&self, offset: usize, length: usize) -> Self {
+        assert!(
+            offset + length <= self.len(),
+            "offset + length may not exceed length of array"
+        );
+        unsafe { self.slice_unchecked(offset, length) }
+    }
+
+    /// Returns a clone of this [`PrimitiveArray`] sliced by an offset and length.
+    /// # Implementation
+    /// This operation is `O(1)` as it amounts to increase two ref counts.
+    /// # Safety
+    /// The caller must ensure that `offset + length <= self.len()`.
+    #[inline]
+    #[must_use]
+    pub unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
+        let validity = self
+            .validity
+            .clone()
+            .map(|bitmap| bitmap.slice_unchecked(offset, length))
+            .and_then(|bitmap| (bitmap.unset_bits() > 0).then(|| bitmap));
+        Self {
+            x: self.x.clone().slice_unchecked(offset, length),
+            y: self.y.clone().slice_unchecked(offset, length),
+            geom_offsets: self.geom_offsets.clone().slice_unchecked(offset, length),
+            ring_offsets: self.ring_offsets.clone().slice_unchecked(offset, length),
+            validity,
+        }
+    }
+}
+
+// Implement geometry accessors
+impl PolygonArray {
+    /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> Polygon {
         // Start and end indices into the ring_offsets buffer
         let (start_geom_idx, end_geom_idx) = self.geom_offsets.start_end(i);
@@ -123,8 +162,8 @@ impl<'a> PolygonArrayParts<'a> {
 
         for i in start_ext_ring_idx..end_ext_ring_idx {
             exterior_coords.push(Coord {
-                x: self.x.value(i),
-                y: self.y.value(i),
+                x: self.x[i],
+                y: self.y[i],
             })
         }
         let exterior_ring: LineString = exterior_coords.into();
@@ -143,8 +182,8 @@ impl<'a> PolygonArrayParts<'a> {
             let mut ring: Vec<Coord> = Vec::with_capacity(end_coord_idx - start_coord_idx);
             for coord_idx in start_coord_idx..end_coord_idx {
                 ring.push(Coord {
-                    x: self.x.value(coord_idx),
-                    y: self.y.value(coord_idx),
+                    x: self.x[i],
+                    y: self.y[i],
                 })
             }
             interior_rings.push(ring.into());
@@ -155,111 +194,88 @@ impl<'a> PolygonArrayParts<'a> {
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
     pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
-        let is_null = self.validity.map(|x| !x.get_bit(i)).unwrap_or(false);
-        if is_null {
+        if self.is_null(i) {
             return None;
         }
 
         Some(self.value_as_geo(i))
     }
 
+    /// Iterator over geo Geometry objects, not looking at validity
+    fn iter_geo_values(&self) -> impl Iterator<Item = Polygon> + '_ {
+        (0..self.len()).map(|i| self.value_as_geo(i))
+    }
+
+    /// Iterator over geo Geometry objects, taking into account validity
+    fn iter_geo(&self) -> ZipValidity<Polygon, impl Iterator<Item = Polygon> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
+    }
+
+    /// Returns the value at slot `i` as a GEOS geometry.
+    #[cfg(feature = "geos")]
+    pub fn value_as_geos(&self, i: usize) -> geos::Geometry {
+        (&self.value_as_geo(i)).try_into().unwrap()
+    }
+
+    /// Gets the value at slot `i` as a GEOS geometry, additionally checking the validity bitmap
     #[cfg(feature = "geos")]
     pub fn get_as_geos(&self, i: usize) -> Option<geos::Geometry> {
-        // TODO: handle this error
-        self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
-    }
-}
-
-#[repr(transparent)]
-#[derive(Debug, Clone)]
-pub struct PolygonArray<'a>(pub &'a ListArray<i64>);
-
-impl<'a> PolygonArray<'a> {
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    pub fn get(&self, i: usize) -> Option<PolygonScalar> {
-        if self.0.is_null(i) {
+        if self.is_null(i) {
             return None;
         }
 
-        let polygon_value = self.0.value(i);
-        let polygon_item = polygon_value
-            .as_any()
-            .downcast_ref::<ListArray<i64>>()
-            .unwrap();
-        Some(PolygonScalar(polygon_item.clone()))
+        self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
     }
 
-    pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
-        let polygon_item = self.get(i);
-        polygon_item.map(|p| p.into_geo())
+    /// Iterator over GEOS geometry objects
+    #[cfg(feature = "geos")]
+    fn iter_geos_values(&self) -> impl Iterator<Item = geos::Geometry> + '_ {
+        (0..self.len()).map(|i| self.value_as_geos(i))
     }
 
-    pub fn parts(&self) -> PolygonArrayParts<'a> {
-        let geom_offsets = self.0.offsets();
-        let validity = self.0.validity();
-
-        let inner_dyn_array = self.0.values();
-        let inner_array = inner_dyn_array
-            .as_any()
-            .downcast_ref::<ListArray<i64>>()
-            .unwrap();
-
-        let ring_offsets = inner_array.offsets();
-        let coords_dyn_array = inner_array.values();
-        let coords_array = coords_dyn_array
-            .as_any()
-            .downcast_ref::<StructArray>()
-            .unwrap();
-
-        let x_array_values = coords_array.values()[0]
-            .as_any()
-            .downcast_ref::<PrimitiveArray<f64>>()
-            .unwrap();
-        let y_array_values = coords_array.values()[1]
-            .as_any()
-            .downcast_ref::<PrimitiveArray<f64>>()
-            .unwrap();
-
-        PolygonArrayParts {
-            x: x_array_values,
-            y: y_array_values,
-            ring_offsets,
-            geom_offsets,
-            validity,
-        }
+    /// Iterator over GEOS geometry objects, taking validity into account
+    #[cfg(feature = "geos")]
+    fn iter_geos(
+        &self,
+    ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     }
 }
 
-#[repr(transparent)]
-#[derive(Debug, Clone)]
-pub struct PolygonSeries<'a>(pub &'a Series);
-
-impl PolygonSeries<'_> {
-    pub fn get(&self, i: usize) -> Option<PolygonScalar> {
-        let (chunk_idx, local_idx) = index_to_chunked_index(self.0, i);
-        let chunk = &self.0.chunks()[chunk_idx];
-
-        let polygon_array = PolygonArray(chunk.as_any().downcast_ref::<ListArray<i64>>().unwrap());
-        polygon_array.get(local_idx)
+impl GeometryArray for PolygonArray {
+    #[inline]
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 
-    pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
-        let polygon_item = self.get(i);
-        polygon_item.map(|p| p.into_geo())
+    #[inline]
+    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
+        self
     }
 
-    pub fn chunks(&self) -> Vec<PolygonArray> {
-        self.0
-            .chunks()
-            .iter()
-            .map(|chunk| PolygonArray(chunk.as_any().downcast_ref::<ListArray<i64>>().unwrap()))
-            .collect()
+    #[inline]
+    fn len(&self) -> usize {
+        self.len()
+    }
+
+    #[inline]
+    fn geometry_type(&self) -> GeometryType {
+        GeometryType::WKB
+    }
+
+    fn validity(&self) -> Option<&Bitmap> {
+        self.validity()
+    }
+
+    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
+        Box::new(self.slice(offset, length))
+    }
+
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
+        Box::new(self.slice_unchecked(offset, length))
+    }
+
+    fn to_boxed(&self) -> Box<dyn GeometryArray> {
+        Box::new(self.clone())
     }
 }
