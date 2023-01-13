@@ -5,10 +5,10 @@ use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::Series;
 
-use crate::linestring::array::LineStringScalar;
+use crate::linestring::LineStringScalar;
 use crate::util::index_to_chunked_index;
 
-/// A struct representing a non-null single LineString geometry
+/// A struct representing a non-null single Polygon geometry
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct PolygonScalar(ListArray<i64>);
@@ -39,6 +39,8 @@ impl PolygonScalar {
     }
 }
 
+/// Deconstructed PolygonArray
+/// We define this as a separate struct so that we don't have to downcast on every row
 #[derive(Debug, Clone)]
 pub struct PolygonArrayParts<'a> {
     pub x: &'a PrimitiveArray<f64>,
@@ -57,6 +59,34 @@ impl<'a> PolygonArrayParts<'a> {
         self.len() == 0
     }
 
+    /// The number of null slots on this [`Array`].
+    /// # Implementation
+    /// This is `O(1)` since the number of null elements is pre-computed.
+    #[inline]
+    pub fn null_count(&self) -> usize {
+        self.validity.as_ref().map(|x| x.unset_bits()).unwrap_or(0)
+    }
+
+    /// Returns whether slot `i` is null.
+    /// # Panic
+    /// Panics iff `i >= self.len()`.
+    #[inline]
+    pub fn is_null(&self, i: usize) -> bool {
+        self.validity
+            .as_ref()
+            .map(|x| !x.get_bit(i))
+            .unwrap_or(false)
+    }
+
+    /// Returns whether slot `i` is valid.
+    /// # Panic
+    /// Panics iff `i >= self.len()`.
+    #[inline]
+    pub fn is_valid(&self, i: usize) -> bool {
+        !self.is_null(i)
+    }
+
+    /// Iterate over values as coordinates without taking into account validity bitmap
     pub fn values_iter_coords(&self) -> impl Iterator<Item = Coord> + '_ {
         self.x
             .values_iter()
@@ -64,16 +94,25 @@ impl<'a> PolygonArrayParts<'a> {
             .map(|(x, y)| Coord { x: *x, y: *y })
     }
 
+    /// Iterate over coordinates
     pub fn iter_coords(&self) -> ZipValidity<Coord, impl Iterator<Item = Coord> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.values_iter_coords(), self.validity)
     }
 
-    pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
-        let is_null = self.validity.map(|x| !x.get_bit(i)).unwrap_or(false);
-        if is_null {
-            return None;
-        }
+    /// Iterate over values as geo objects without taking into account validity bitmap
+    pub fn values_iter_geo(&self) -> impl Iterator<Item = Polygon> + '_ {
+        (0..self.len()).into_iter().map(|i| self.value_as_geo(i))
+    }
 
+    /// Iterate over geo geometries
+    pub fn iter_geo(&self) -> ZipValidity<Polygon, impl Iterator<Item = Polygon> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.values_iter_geo(), self.validity)
+    }
+
+    /// Returns the value at slot `i` as a geo object.
+    ///
+    /// The value of a null slot is undetermined (it can be anything).
+    pub fn value_as_geo(&self, i: usize) -> Polygon {
         // Start and end indices into the ring_offsets buffer
         let (start_geom_idx, end_geom_idx) = self.geom_offsets.start_end(i);
 
@@ -111,7 +150,17 @@ impl<'a> PolygonArrayParts<'a> {
             interior_rings.push(ring.into());
         }
 
-        Some(Polygon::new(exterior_ring, interior_rings))
+        Polygon::new(exterior_ring, interior_rings)
+    }
+
+    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
+    pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
+        let is_null = self.validity.map(|x| !x.get_bit(i)).unwrap_or(false);
+        if is_null {
+            return None;
+        }
+
+        Some(self.value_as_geo(i))
     }
 
     #[cfg(feature = "geos")]

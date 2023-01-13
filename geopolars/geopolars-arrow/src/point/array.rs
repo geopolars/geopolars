@@ -24,6 +24,34 @@ impl PointArrayParts<'_> {
         self.x.len() == 0
     }
 
+    /// The number of null slots on this [`Array`].
+    /// # Implementation
+    /// This is `O(1)` since the number of null elements is pre-computed.
+    #[inline]
+    pub fn null_count(&self) -> usize {
+        self.validity.as_ref().map(|x| x.unset_bits()).unwrap_or(0)
+    }
+
+    /// Returns whether slot `i` is null.
+    /// # Panic
+    /// Panics iff `i >= self.len()`.
+    #[inline]
+    pub fn is_null(&self, i: usize) -> bool {
+        self.validity
+            .as_ref()
+            .map(|x| !x.get_bit(i))
+            .unwrap_or(false)
+    }
+
+    /// Returns whether slot `i` is valid.
+    /// # Panic
+    /// Panics iff `i >= self.len()`.
+    #[inline]
+    pub fn is_valid(&self, i: usize) -> bool {
+        !self.is_null(i)
+    }
+
+    /// Iterate over values as coordinates without taking into account validity bitmap
     pub fn values_iter_coords(&self) -> impl Iterator<Item = Coord> + '_ {
         self.x
             .values_iter()
@@ -31,21 +59,55 @@ impl PointArrayParts<'_> {
             .map(|(x, y)| Coord { x: *x, y: *y })
     }
 
+    /// Iterate over coordinates
     pub fn iter_coords(&self) -> ZipValidity<Coord, impl Iterator<Item = Coord> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.values_iter_coords(), self.validity)
     }
 
+    /// Iterate over values as geo objects without taking into account validity bitmap
+    pub fn values_iter_geo(&self) -> impl Iterator<Item = Point> + '_ {
+        self.x
+            .values_iter()
+            .zip(self.y.values_iter())
+            .map(|(x, y)| Point::new(*x, *y))
+    }
+
+    /// Iterate over geo geometries
+    pub fn iter_geo(&self) -> ZipValidity<Point, impl Iterator<Item = Point> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.values_iter_geo(), self.validity)
+    }
+
+    /// Returns the value at slot `i` as a geo object.
+    ///
+    /// The value of a null slot is undetermined (it can be anything).
+    pub fn value_as_geo(&self, i: usize) -> Point {
+        Point::new(self.x.value(i), self.y.value(i))
+    }
+
+    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
     pub fn get_as_geo(&self, i: usize) -> Option<Point> {
-        let is_null = self.validity.map(|x| !x.get_bit(i)).unwrap_or(false);
-        if is_null {
+        if self.is_null(i) {
             return None;
         }
 
-        Some(Point::new(self.x.value(i), self.y.value(i)))
+        Some(self.value_as_geo(i))
     }
 
+    /// Returns the value at slot `i` as a GEOS geometry.
+    ///
+    /// The value of a null slot is undetermined (it can be anything).
+    #[cfg(feature = "geos")]
+    pub fn value_as_geos(&self, i: usize) -> geos::Geometry {
+        (&self.value_as_geo(i)).try_into().unwrap()
+    }
+
+    /// Gets the value at slot `i` as a GEOS geometry, additionally checking the validity bitmap
     #[cfg(feature = "geos")]
     pub fn get_as_geos(&self, i: usize) -> Option<geos::Geometry> {
+        if self.is_null(i) {
+            return None;
+        }
+
         // TODO: handle this error
         self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
     }

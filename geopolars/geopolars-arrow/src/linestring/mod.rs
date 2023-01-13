@@ -1,4 +1,7 @@
 //! Helpers for using LineString GeoArrow data
 
-pub mod array;
-pub mod mutable;
+pub use array::{LineStringArray, LineStringArrayParts, LineStringScalar, LineStringSeries};
+pub use mutable::MutableLineStringArray;
+
+mod array;
+mod mutable;
