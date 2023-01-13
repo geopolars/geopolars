@@ -1,14 +1,23 @@
 use crate::error::Result;
 use crate::util::iter_geom;
 use geo::algorithm::convex_hull::ConvexHull;
-use geo::Geometry;
+use geo::{Geometry, Polygon};
+use geopolars_arrow::linestring::LineStringSeries;
+use geopolars_arrow::polygon::{MutablePolygonArray, PolygonSeries};
+use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use geozero::{CoordDimensions, ToWkb};
 use polars::error::ErrString;
 use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
-use polars::prelude::{PolarsError, Series};
+use polars::prelude::{ListChunked, PolarsError, Series};
+use polars::series::IntoSeries;
 
 pub(crate) fn convex_hull(series: &Series) -> Result<Series> {
-    convex_hull_wkb(series)
+    match get_geoarrow_type(series) {
+        GeoArrowType::WKB => convex_hull_wkb(series),
+        GeoArrowType::LineString => convex_hull_geoarrow_linestring(series),
+        GeoArrowType::Polygon => convex_hull_geoarrow_polygon(series),
+        _ => panic!("convex hull not supported for this geometry type"),
+    }
 }
 
 fn convex_hull_wkb(series: &Series) -> Result<Series> {
@@ -36,13 +45,45 @@ fn convex_hull_wkb(series: &Series) -> Result<Series> {
     Ok(series)
 }
 
+fn convex_hull_geoarrow_linestring(series: &Series) -> Result<Series> {
+    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
+    for chunk in LineStringSeries(series).chunks() {
+        let out: Vec<Option<Polygon>> = chunk
+            .parts()
+            .iter_geo()
+            .map(|maybe_geo| maybe_geo.map(|g| g.convex_hull()))
+            .collect();
+        let mut_arr: MutablePolygonArray = out.into();
+        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
+    }
+
+    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
+}
+
+fn convex_hull_geoarrow_polygon(series: &Series) -> Result<Series> {
+    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
+    for chunk in PolygonSeries(series).chunks() {
+        let out: Vec<Option<Polygon>> = chunk
+            .parts()
+            .iter_geo()
+            .map(|maybe_geo| maybe_geo.map(|g| g.convex_hull()))
+            .collect();
+        let mut_arr: MutablePolygonArray = out.into();
+        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
+    }
+
+    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
+}
+
 #[cfg(test)]
 mod tests {
     use crate::geoseries::GeoSeries;
     use crate::util::iter_geom;
-    use geo::{polygon, Geometry, MultiPoint, Point};
+    use geo::{line_string, polygon, Geometry, MultiPoint, Point};
+    use geopolars_arrow::linestring::MutableLineStringArray;
+    use geopolars_arrow::polygon::PolygonSeries;
     use geozero::{CoordDimensions, ToWkb};
-    use polars::export::arrow::array::Array;
+    use polars::export::arrow::array::{Array, ListArray};
     use polars::export::arrow::array::{BinaryArray, MutableBinaryArray};
     use polars::prelude::Series;
 
@@ -98,5 +139,36 @@ mod tests {
         let result = geom_iter.next().unwrap();
 
         assert_eq!(result, correct_poly, "Should get the correct convex hull");
+    }
+
+    #[test]
+    fn convex_hull_linestring_test() {
+        let line_strings = vec![line_string![
+            (x: 0.0, y: 10.0),
+            (x: 1.0, y: 1.0),
+            (x: 10.0, y: 0.0),
+            (x: 1.0, y: -1.0),
+            (x: 0.0, y: -10.0),
+            (x: -1.0, y: -1.0),
+            (x: -10.0, y: 0.0),
+            (x: -1.0, y: 1.0),
+            (x: 0.0, y: 10.0),
+        ]];
+        let expected = polygon![
+            (x: 0.0, y: -10.0),
+            (x: 10.0, y: 0.0),
+            (x: 0.0, y: 10.0),
+            (x: -10.0, y: 0.0),
+            (x: 0.0, y: -10.0),
+        ];
+
+        let mut_line_string_arr: MutableLineStringArray = line_strings.into();
+        let line_string_arr: ListArray<i64> = mut_line_string_arr.into();
+        let series =
+            Series::try_from(("geometry", Box::new(line_string_arr) as Box<dyn Array>)).unwrap();
+
+        let actual = series.convex_hull().unwrap();
+        let actual_geo = PolygonSeries(&actual).get_as_geo(0).unwrap();
+        assert_eq!(actual_geo, expected);
     }
 }
