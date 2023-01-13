@@ -5,4 +5,4 @@ pub use mutable::MutablePolygonArray;
 
 mod array_old;
 mod mutable;
-mod array;
+pub mod array;

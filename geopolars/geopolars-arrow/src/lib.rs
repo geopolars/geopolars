@@ -4,7 +4,13 @@
 //! into geozero
 
 pub mod binary;
+pub mod enum_;
+pub mod error;
 pub mod linestring;
+mod multilinestring;
+mod multipoint;
+mod multipolygon;
 pub mod point;
 pub mod polygon;
+pub mod trait_;
 pub mod util;
