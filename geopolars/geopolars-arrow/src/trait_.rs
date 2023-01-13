@@ -1,5 +1,5 @@
 use crate::enum_::GeometryType;
-use polars::export::arrow::bitmap::Bitmap;
+use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use std::any::Any;
 
 /// A trait representing an immutable Arrow geometry array. Arrow arrays are trait objects
@@ -86,3 +86,60 @@ pub trait GeometryArray: Send + Sync + dyn_clone::DynClone + 'static {
 }
 
 dyn_clone::clone_trait_object!(GeometryArray);
+
+/// A trait describing a mutable geometry array; i.e. an array whose values can be changed.
+/// Mutable arrays cannot be cloned but can be mutated in place,
+/// thereby making them useful to perform numeric operations without allocations.
+/// As in [`GeometryArray`], concrete arrays (such as [`MutablePointArray`]) implement how they are mutated.
+pub trait MutableGeometryArray: std::fmt::Debug + Send + Sync {
+    /// The [`GeometryType`] of the array.
+    fn geometry_type(&self) -> GeometryType;
+
+    /// The length of the array.
+    fn len(&self) -> usize;
+
+    /// Whether the array is empty.
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// The optional validity of the array.
+    fn validity(&self) -> Option<&MutableBitmap>;
+
+    // /// Convert itself to an (immutable) [`GeometryArray`].
+    // fn as_box(&mut self) -> Box<dyn GeometryArray>;
+
+    // /// Convert itself to an (immutable) atomically reference counted [`GeometryArray`].
+    // // This provided implementation has an extra allocation as it first
+    // // boxes `self`, then converts the box into an `Arc`. Implementors may wish
+    // // to avoid an allocation by skipping the box completely.
+    // fn as_arc(&mut self) -> std::sync::Arc<dyn GeometryArray> {
+    //     self.as_box().into()
+    // }
+
+    /// Convert to `Any`, to enable dynamic casting.
+    fn as_any(&self) -> &dyn Any;
+
+    /// Convert to mutable `Any`, to enable dynamic casting.
+    fn as_mut_any(&mut self) -> &mut dyn Any;
+
+    // /// Adds a new null element to the array.
+    // fn push_null(&mut self);
+
+    /// Whether `index` is valid / set.
+    /// # Panic
+    /// Panics if `index >= self.len()`.
+    #[inline]
+    fn is_valid(&self, index: usize) -> bool {
+        self.validity()
+            .as_ref()
+            .map(|x| x.get(index))
+            .unwrap_or(true)
+    }
+
+    // /// Reserves additional slots to its capacity.
+    // fn reserve(&mut self, additional: usize);
+
+    // /// Shrink the array to fit its length.
+    // fn shrink_to_fit(&mut self);
+}

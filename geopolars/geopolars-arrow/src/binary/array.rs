@@ -111,9 +111,9 @@ impl GeometryArray for WKBArray {
         Box::new(WKBArray::new(self.0.slice_unchecked(offset, length)))
     }
 
-    fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn GeometryArray> {
-        Box::new(WKBArray::new(self.0.clone().with_validity(validity)))
-    }
+    // fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn GeometryArray> {
+    //     Box::new(WKBArray::new(self.0.clone().with_validity(validity)))
+    // }
 
     fn to_boxed(&self) -> Box<dyn GeometryArray> {
         Box::new(WKBArray::new(self.0.clone()))
