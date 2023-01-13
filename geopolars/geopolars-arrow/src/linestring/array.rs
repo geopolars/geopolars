@@ -59,6 +59,34 @@ impl<'a> LineStringArrayParts<'a> {
         self.len() == 0
     }
 
+    /// The number of null slots on this [`Array`].
+    /// # Implementation
+    /// This is `O(1)` since the number of null elements is pre-computed.
+    #[inline]
+    pub fn null_count(&self) -> usize {
+        self.validity.as_ref().map(|x| x.unset_bits()).unwrap_or(0)
+    }
+
+    /// Returns whether slot `i` is null.
+    /// # Panic
+    /// Panics iff `i >= self.len()`.
+    #[inline]
+    pub fn is_null(&self, i: usize) -> bool {
+        self.validity
+            .as_ref()
+            .map(|x| !x.get_bit(i))
+            .unwrap_or(false)
+    }
+
+    /// Returns whether slot `i` is valid.
+    /// # Panic
+    /// Panics iff `i >= self.len()`.
+    #[inline]
+    pub fn is_valid(&self, i: usize) -> bool {
+        !self.is_null(i)
+    }
+
+    /// Iterate over values as coordinates without taking into account validity bitmap
     pub fn values_iter_coords(&self) -> impl Iterator<Item = Coord> + '_ {
         self.x
             .values_iter()
@@ -66,16 +94,27 @@ impl<'a> LineStringArrayParts<'a> {
             .map(|(x, y)| Coord { x: *x, y: *y })
     }
 
+    /// Iterate over coordinates
     pub fn iter_coords(&self) -> ZipValidity<Coord, impl Iterator<Item = Coord> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.values_iter_coords(), self.validity)
     }
 
-    pub fn get_as_geo(&self, i: usize) -> Option<LineString> {
-        let is_null = self.validity.map(|x| !x.get_bit(i)).unwrap_or(false);
-        if is_null {
-            return None;
-        }
+    /// Iterate over values as geo objects without taking into account validity bitmap
+    pub fn values_iter_geo(&self) -> impl Iterator<Item = LineString> + '_ {
+        (0..self.len()).into_iter().map(|i| self.value_as_geo(i))
+    }
 
+    /// Iterate over geo geometries
+    pub fn iter_geo(
+        &self,
+    ) -> ZipValidity<LineString, impl Iterator<Item = LineString> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.values_iter_geo(), self.validity)
+    }
+
+    /// Returns the value at slot `i` as a geo object.
+    ///
+    /// The value of a null slot is undetermined (it can be anything).
+    pub fn value_as_geo(&self, i: usize) -> LineString {
         let (start_idx, end_idx) = self.geom_offsets.start_end(i);
         let mut coords: Vec<Coord> = Vec::with_capacity(end_idx - start_idx);
 
@@ -85,7 +124,17 @@ impl<'a> LineStringArrayParts<'a> {
                 y: self.y.value(i),
             })
         }
-        Some(LineString::new(coords))
+
+        LineString::new(coords)
+    }
+
+    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
+    pub fn get_as_geo(&self, i: usize) -> Option<LineString> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(self.value_as_geo(i))
     }
 
     #[cfg(feature = "geos")]
