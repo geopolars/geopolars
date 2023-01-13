@@ -7,13 +7,13 @@ use polars::prelude::ArrowField;
 
 #[derive(Debug, Clone)]
 pub struct MutablePolygonArray {
-    x: Vec<f64>,
-    y: Vec<f64>,
-    ring_offsets: Vec<i64>,
-    geom_offsets: Vec<i64>,
+    pub x: Vec<f64>,
+    pub y: Vec<f64>,
+    pub ring_offsets: Vec<i64>,
+    pub geom_offsets: Vec<i64>,
 
     /// Validity is only defined at the geometry level
-    validity: Option<MutableBitmap>,
+    pub validity: Option<MutableBitmap>,
 }
 
 impl MutablePolygonArray {
