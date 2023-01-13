@@ -219,7 +219,7 @@ mod tests {
     use super::GeodesicLengthMethod;
     use crate::geoseries::GeoSeries;
     use geo::{line_string, Geometry, LineString};
-    use geopolars_arrow::linestring::mutable::MutableLineStringArray;
+    use geopolars_arrow::linestring::MutableLineStringArray;
     use geozero::{CoordDimensions, ToWkb};
     use polars::export::arrow::array::{Array, BinaryArray, ListArray, MutableBinaryArray};
     use polars::prelude::Series;
