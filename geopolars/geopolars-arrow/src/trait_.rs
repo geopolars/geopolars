@@ -76,10 +76,10 @@ pub trait GeometryArray: Send + Sync + dyn_clone::DynClone + 'static {
     /// The caller must ensure that `offset + length <= self.len()`
     unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray>;
 
-    /// Clones this [`GeometryArray`] with a new new assigned bitmap.
-    /// # Panic
-    /// This function panics iff `validity.len() != self.len()`.
-    fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn GeometryArray>;
+    // /// Clones this [`GeometryArray`] with a new new assigned bitmap.
+    // /// # Panic
+    // /// This function panics iff `validity.len() != self.len()`.
+    // fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn GeometryArray>;
 
     /// Clone a `&dyn GeometryArray` to an owned `Box<dyn GeometryArray>`.
     fn to_boxed(&self) -> Box<dyn GeometryArray>;
