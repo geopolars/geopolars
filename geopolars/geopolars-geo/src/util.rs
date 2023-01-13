@@ -1,8 +1,8 @@
 use crate::error::Result;
 use geo::{Geometry, LineString, Point, Polygon};
-use geopolars_arrow::linestring::array::LineStringSeries;
-use geopolars_arrow::point::array::PointSeries;
-use geopolars_arrow::polygon::array::PolygonSeries;
+use geopolars_arrow::linestring::LineStringSeries;
+use geopolars_arrow::point::PointSeries;
+use geopolars_arrow::polygon::PolygonSeries;
 use geozero::{wkb::Wkb, ToGeo};
 use geozero::{CoordDimensions, ToWkb};
 use polars::error::ErrString;

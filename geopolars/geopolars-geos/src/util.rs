@@ -1,4 +1,4 @@
-use geopolars_arrow::polygon::array::PolygonArray;
+use geopolars_arrow::polygon::PolygonArray;
 use geos::Geometry;
 use polars::export::arrow::array::{BinaryArray, MutablePrimitiveArray, PrimitiveArray};
 

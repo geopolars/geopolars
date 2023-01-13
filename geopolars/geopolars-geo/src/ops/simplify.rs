@@ -9,7 +9,8 @@ use geopolars_arrow::polygon::PolygonSeries;
 use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
 use geozero::{CoordDimensions, ToWkb};
 use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
-use polars::prelude::Series;
+use polars::prelude::{ListChunked, Series};
+use polars::series::IntoSeries;
 
 pub(crate) fn simplify(series: &Series, tolerance: f64) -> Result<Series> {
     match get_geoarrow_type(series) {
@@ -48,49 +49,43 @@ fn simplify_wkb(series: &Series, tolerance: f64) -> Result<Series> {
 }
 
 fn simplify_geoarrow_linestring(series: &Series, tolerance: f64) -> Result<Series> {
-    let mut output_geoms: Vec<Option<LineString>> = Vec::with_capacity(series.len());
-
+    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
     for chunk in LineStringSeries(series).chunks() {
-        let parts = chunk.parts();
-        for i in 0..parts.len() {
-            output_geoms.push(parts.get_as_geo(i).map(|ls| ls.simplify(&tolerance)));
-        }
+        let out: Vec<Option<LineString>> = chunk
+            .parts()
+            .iter_geo()
+            .map(|maybe_geo| maybe_geo.map(|g| g.simplify(&tolerance)))
+            .collect();
+        let mut_arr: MutableLineStringArray = out.into();
+        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
     }
 
-    let mut_linestring_arr: MutableLineStringArray = output_geoms.into();
-    let series = Series::try_from((
-        "geometry",
-        Box::new(mut_linestring_arr.into_arrow()) as Box<dyn Array>,
-    ))?;
-    Ok(series)
+    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
 }
 
 fn simplify_geoarrow_polygon(series: &Series, tolerance: f64) -> Result<Series> {
-    let mut output_geoms: Vec<Option<Polygon>> = Vec::with_capacity(series.len());
-
+    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
     for chunk in PolygonSeries(series).chunks() {
-        let parts = chunk.parts();
-        for i in 0..parts.len() {
-            output_geoms.push(parts.get_as_geo(i).map(|ls| ls.simplify(&tolerance)));
-        }
+        let out: Vec<Option<Polygon>> = chunk
+            .parts()
+            .iter_geo()
+            .map(|maybe_geo| maybe_geo.map(|g| g.simplify(&tolerance)))
+            .collect();
+        let mut_arr: MutablePolygonArray = out.into();
+        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
     }
 
-    let mut_linestring_arr: MutablePolygonArray = output_geoms.into();
-    let series = Series::try_from((
-        "geometry",
-        Box::new(mut_linestring_arr.into_arrow()) as Box<dyn Array>,
-    ))?;
-    Ok(series)
+    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
 }
 
 #[cfg(test)]
 mod tests {
     use crate::geoseries::GeoSeries;
     use geo::{line_string, polygon};
-    use geopolars_arrow::linestring::array::LineStringSeries;
-    use geopolars_arrow::linestring::mutable::MutableLineStringArray;
-    use geopolars_arrow::polygon::array::PolygonSeries;
-    use geopolars_arrow::polygon::mutable::MutablePolygonArray;
+    use geopolars_arrow::linestring::LineStringSeries;
+    use geopolars_arrow::linestring::MutableLineStringArray;
+    use geopolars_arrow::polygon::MutablePolygonArray;
+    use geopolars_arrow::polygon::PolygonSeries;
     use polars::export::arrow::array::{Array, ListArray};
     use polars::prelude::Series;
 
@@ -131,12 +126,9 @@ mod tests {
             (x: 0., y: 0.),
         ]];
         let mut_poly_arr: MutablePolygonArray = polys.into();
-        println!("{:?}", mut_poly_arr);
 
         let poly_arr = mut_poly_arr.into_arrow();
         let series = Series::try_from(("geometry", Box::new(poly_arr) as Box<dyn Array>)).unwrap();
-
-        println!("{}", series);
 
         let actual = series.simplify(2.0).unwrap();
         let actual_geo = PolygonSeries(&actual).get_as_geo(0).unwrap();
