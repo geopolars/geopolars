@@ -2,10 +2,12 @@ use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use geo::Point;
-use polars::export::arrow::array::{PrimitiveArray, StructArray};
+use polars::export::arrow::array::{Array, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
+use polars::export::arrow::datatypes::DataType;
+use polars::prelude::ArrowField;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Point>>` using Arrow's
 /// in-memory representation.
@@ -203,6 +205,27 @@ impl TryFrom<StructArray> for PointArray {
             y_array_values.values().clone(),
             validity.cloned(),
         ))
+    }
+}
+
+impl From<PointArray> for StructArray {
+    fn from(value: PointArray) -> Self {
+        let field_x = ArrowField::new("x", DataType::Float64, false);
+        let field_y = ArrowField::new("y", DataType::Float64, false);
+
+        let array_x = PrimitiveArray::<f64>::new(DataType::Float64, value.x, None);
+        let array_y = PrimitiveArray::<f64>::new(DataType::Float64, value.y, None);
+
+        let struct_data_type = DataType::Struct(vec![field_x, field_y]);
+        let struct_values: Vec<Box<dyn Array>> = vec![array_x.boxed(), array_y.boxed()];
+
+        let validity: Option<Bitmap> = if let Some(validity) = value.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        StructArray::new(struct_data_type, struct_values, validity)
     }
 }
 

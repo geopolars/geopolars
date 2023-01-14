@@ -6,7 +6,7 @@ use crate::ops::proj::ProjOptions;
 use geo::algorithm::affine_ops::AffineTransform;
 use geopolars_arrow::util::array_to_geometry_array;
 use polars::export::arrow::array::Array;
-use polars::prelude::{Float64Chunked, Series};
+use polars::prelude::{Float64Chunked, Series, StructChunked};
 use polars::series::IntoSeries;
 use std::convert::Into;
 
@@ -203,7 +203,18 @@ impl GeoSeries for Series {
     }
 
     fn centroid(&self) -> Result<Series> {
-        crate::ops::centroid::centroid(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .into_iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk);
+                let result_arr = crate::ops::centroid::centroid(geo_arr).unwrap();
+                Box::new(result_arr.into()) as Box<dyn Array>
+            })
+            .collect();
+
+        // TODO: need a workaround because from_chunks doesn't exist
+        Ok(StructChunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn convex_hull(&self) -> Result<Series> {
