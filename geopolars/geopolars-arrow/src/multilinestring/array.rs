@@ -95,6 +95,11 @@ impl MultiLineStringArray {
         self.geom_offsets.len() - 1
     }
 
+    /// Returns true if the array is empty
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns the optional validity.
     #[inline]
     pub fn validity(&self) -> Option<&Bitmap> {
@@ -138,7 +143,7 @@ impl MultiLineStringArray {
             .validity
             .clone()
             .map(|bitmap| bitmap.slice_unchecked(offset, length))
-            .and_then(|bitmap| (bitmap.unset_bits() > 0).then(|| bitmap));
+            .and_then(|bitmap| (bitmap.unset_bits() > 0).then_some(bitmap));
         Self {
             x: self.x.clone().slice_unchecked(offset, length),
             y: self.y.clone().slice_unchecked(offset, length),
@@ -163,8 +168,8 @@ impl MultiLineStringArray {
             let mut ring: Vec<Coord> = Vec::with_capacity(end_coord_idx - start_coord_idx);
             for coord_idx in start_coord_idx..end_coord_idx {
                 ring.push(Coord {
-                    x: self.x[i],
-                    y: self.y[i],
+                    x: self.x[coord_idx],
+                    y: self.y[coord_idx],
                 })
             }
             line_strings.push(ring.into());

@@ -103,6 +103,11 @@ impl MultiPolygonArray {
         self.geom_offsets.len() - 1
     }
 
+    /// Returns true if the array is empty
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns the optional validity.
     #[inline]
     pub fn validity(&self) -> Option<&Bitmap> {
@@ -146,7 +151,7 @@ impl MultiPolygonArray {
             .validity
             .clone()
             .map(|bitmap| bitmap.slice_unchecked(offset, length))
-            .and_then(|bitmap| (bitmap.unset_bits() > 0).then(|| bitmap));
+            .and_then(|bitmap| (bitmap.unset_bits() > 0).then_some(bitmap));
         Self {
             x: self.x.clone().slice_unchecked(offset, length),
             y: self.y.clone().slice_unchecked(offset, length),
@@ -170,10 +175,10 @@ impl MultiPolygonArray {
 
         for geom_idx in start_geom_idx..end_geom_idx {
             let poly = parse_polygon(
-                self.x,
-                self.y,
-                self.polygon_offsets,
-                self.ring_offsets,
+                &self.x,
+                &self.y,
+                &self.polygon_offsets,
+                &self.ring_offsets,
                 geom_idx,
             );
             polygons.push(poly);
@@ -251,7 +256,7 @@ impl TryFrom<ListArray<i64>> for MultiPolygonArray {
 
         let polygon_offsets = first_level_array.offsets();
         let second_level_dyn_array = first_level_array.values();
-        let second_level_array = first_level_dyn_array
+        let second_level_array = second_level_dyn_array
             .as_any()
             .downcast_ref::<ListArray<i64>>()
             .unwrap();

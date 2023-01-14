@@ -95,6 +95,11 @@ impl PolygonArray {
         self.geom_offsets.len() - 1
     }
 
+    /// Returns true if the array is empty
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns the optional validity.
     #[inline]
     pub fn validity(&self) -> Option<&Bitmap> {
@@ -138,7 +143,7 @@ impl PolygonArray {
             .validity
             .clone()
             .map(|bitmap| bitmap.slice_unchecked(offset, length))
-            .and_then(|bitmap| (bitmap.unset_bits() > 0).then(|| bitmap));
+            .and_then(|bitmap| (bitmap.unset_bits() > 0).then_some(bitmap));
         Self {
             x: self.x.clone().slice_unchecked(offset, length),
             y: self.y.clone().slice_unchecked(offset, length),
@@ -150,10 +155,10 @@ impl PolygonArray {
 }
 
 pub(crate) fn parse_polygon(
-    x: Buffer<f64>,
-    y: Buffer<f64>,
-    polygon_offsets: OffsetsBuffer<i64>,
-    ring_offsets: OffsetsBuffer<i64>,
+    x: &Buffer<f64>,
+    y: &Buffer<f64>,
+    polygon_offsets: &OffsetsBuffer<i64>,
+    ring_offsets: &OffsetsBuffer<i64>,
     i: usize,
 ) -> Polygon {
     // Start and end indices into the ring_offsets buffer
@@ -181,7 +186,10 @@ pub(crate) fn parse_polygon(
         let (start_coord_idx, end_coord_idx) = ring_offsets.start_end(ring_idx);
         let mut ring: Vec<Coord> = Vec::with_capacity(end_coord_idx - start_coord_idx);
         for coord_idx in start_coord_idx..end_coord_idx {
-            ring.push(Coord { x: x[i], y: y[i] })
+            ring.push(Coord {
+                x: x[coord_idx],
+                y: y[coord_idx],
+            })
         }
         interior_rings.push(ring.into());
     }
@@ -193,7 +201,7 @@ pub(crate) fn parse_polygon(
 impl PolygonArray {
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> Polygon {
-        parse_polygon(self.x, self.y, self.geom_offsets, self.ring_offsets, i)
+        parse_polygon(&self.x, &self.y, &self.geom_offsets, &self.ring_offsets, i)
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap

@@ -88,6 +88,11 @@ impl MultiPointArray {
         self.geom_offsets.len() - 1
     }
 
+    /// Returns true if the array is empty
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns the optional validity.
     #[inline]
     pub fn validity(&self) -> Option<&Bitmap> {
@@ -131,7 +136,7 @@ impl MultiPointArray {
             .validity
             .clone()
             .map(|bitmap| bitmap.slice_unchecked(offset, length))
-            .and_then(|bitmap| (bitmap.unset_bits() > 0).then(|| bitmap));
+            .and_then(|bitmap| (bitmap.unset_bits() > 0).then_some(bitmap));
         Self {
             x: self.x.clone().slice_unchecked(offset, length),
             y: self.y.clone().slice_unchecked(offset, length),
