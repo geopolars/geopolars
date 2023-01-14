@@ -2,6 +2,7 @@ use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use geo::{Coord, LineString};
+use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
@@ -206,6 +207,36 @@ impl LineStringArray {
         &self,
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
+    }
+}
+
+impl TryFrom<ListArray<i64>> for LineStringArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: ListArray<i64>) -> Result<Self, Self::Error> {
+        let inner_dyn_array = value.values();
+        let struct_array = inner_dyn_array
+            .as_any()
+            .downcast_ref::<StructArray>()
+            .unwrap();
+        let geom_offsets = value.offsets();
+        let validity = value.validity();
+
+        let x_array_values = struct_array.values()[0]
+            .as_any()
+            .downcast_ref::<PrimitiveArray<f64>>()
+            .unwrap();
+        let y_array_values = struct_array.values()[1]
+            .as_any()
+            .downcast_ref::<PrimitiveArray<f64>>()
+            .unwrap();
+
+        Ok(Self::new(
+            x_array_values.values().clone(),
+            y_array_values.values().clone(),
+            geom_offsets.clone(),
+            validity.cloned(),
+        ))
     }
 }
 

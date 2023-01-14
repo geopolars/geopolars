@@ -2,6 +2,7 @@ use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use geo::Point;
+use polars::export::arrow::array::{PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
@@ -167,6 +168,36 @@ impl PointArray {
         &self,
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
+    }
+}
+
+impl TryFrom<StructArray> for PointArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: StructArray) -> Result<Self, Self::Error> {
+        let arrays = value.values();
+        let validity = value.validity();
+
+        if !arrays.len() == 2 {
+            return Err(GeoArrowError::General(
+                "Expected two child arrays of this StructArray.".to_string(),
+            ));
+        }
+
+        let x_array_values = arrays[0]
+            .as_any()
+            .downcast_ref::<PrimitiveArray<f64>>()
+            .unwrap();
+        let y_array_values = arrays[1]
+            .as_any()
+            .downcast_ref::<PrimitiveArray<f64>>()
+            .unwrap();
+
+        Ok(Self::new(
+            x_array_values.values().clone(),
+            y_array_values.values().clone(),
+            validity.cloned(),
+        ))
     }
 }
 

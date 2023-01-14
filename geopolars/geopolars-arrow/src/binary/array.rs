@@ -78,6 +78,12 @@ impl WKBArray {
     }
 }
 
+impl From<BinaryArray<i64>> for WKBArray {
+    fn from(other: BinaryArray<i64>) -> Self {
+        Self(other)
+    }
+}
+
 impl GeometryArray for WKBArray {
     #[inline]
     fn as_any(&self) -> &dyn std::any::Any {
