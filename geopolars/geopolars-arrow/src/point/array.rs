@@ -69,6 +69,20 @@ impl PointArray {
         self.len() == 0
     }
 
+    /// The values [`Buffer`].
+    /// Values on null slots are undetermined (they can be anything).
+    #[inline]
+    pub fn values_x(&self) -> &Buffer<f64> {
+        &self.x
+    }
+
+    /// The values [`Buffer`].
+    /// Values on null slots are undetermined (they can be anything).
+    #[inline]
+    pub fn values_y(&self) -> &Buffer<f64> {
+        &self.y
+    }
+
     /// Returns the optional validity.
     #[inline]
     pub fn validity(&self) -> Option<&Bitmap> {

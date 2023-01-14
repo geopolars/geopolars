@@ -293,10 +293,30 @@ impl GeoSeries for Series {
     }
 
     fn x(&self) -> Result<Series> {
-        crate::ops::point::x(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .into_iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk);
+                let result_arr = crate::ops::point::x(geo_arr).unwrap();
+                Box::new(result_arr) as Box<dyn Array>
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn y(&self) -> Result<Series> {
-        crate::ops::point::y(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .into_iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk);
+                let result_arr = crate::ops::point::y(geo_arr).unwrap();
+                Box::new(result_arr) as Box<dyn Array>
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 }
