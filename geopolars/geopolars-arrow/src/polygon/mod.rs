@@ -1,8 +1,8 @@
 //! Helpers for using Polygon GeoArrow data
 
-pub use array_old::{PolygonArray, PolygonArrayParts, PolygonScalar, PolygonSeries};
+pub use array::PolygonArray;
 pub use mutable::MutablePolygonArray;
 
+pub mod array;
 mod array_old;
 mod mutable;
-pub mod array;
