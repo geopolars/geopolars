@@ -226,7 +226,17 @@ impl GeoSeries for Series {
     }
 
     fn euclidean_length(&self) -> Result<Series> {
-        crate::ops::length::euclidean_length(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .into_iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk);
+                let result_arr = crate::ops::length::euclidean_length(geo_arr).unwrap();
+                Box::new(result_arr) as Box<dyn Array>
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn explode(&self) -> Result<Series> {
@@ -238,7 +248,17 @@ impl GeoSeries for Series {
     }
 
     fn geodesic_length(&self, method: GeodesicLengthMethod) -> Result<Series> {
-        crate::ops::length::geodesic_length(self, method)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .into_iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk);
+                let result_arr = crate::ops::length::geodesic_length(geo_arr, method).unwrap();
+                Box::new(result_arr) as Box<dyn Array>
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn geom_type(&self) -> Result<Series> {
