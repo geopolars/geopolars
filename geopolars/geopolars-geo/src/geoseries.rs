@@ -4,7 +4,10 @@ use crate::ops::length::GeodesicLengthMethod;
 #[cfg(feature = "proj")]
 use crate::ops::proj::ProjOptions;
 use geo::algorithm::affine_ops::AffineTransform;
-use polars::prelude::Series;
+use geopolars_arrow::util::array_to_geometry_array;
+use polars::export::arrow::array::Array;
+use polars::prelude::{Float64Chunked, Series};
+use polars::series::IntoSeries;
 use std::convert::Into;
 
 pub trait GeoSeries {
@@ -186,7 +189,17 @@ impl GeoSeries for Series {
     }
 
     fn area(&self) -> Result<Series> {
-        crate::ops::area::area(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .into_iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk);
+                let result_arr = crate::ops::area::area(geo_arr).unwrap();
+                Box::new(result_arr) as Box<dyn Array>
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn centroid(&self) -> Result<Series> {

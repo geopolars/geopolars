@@ -10,7 +10,7 @@ pub use multipoint::MultiPointArray;
 pub use multipolygon::MultiPolygonArray;
 pub use point::{MutablePointArray, PointArray};
 pub use polygon::PolygonArray;
-pub use enum_::GeometryType;
+pub use enum_::{GeometryType, GeometryArrayEnum};
 pub use trait_::GeometryArray;
 
 pub mod binary;

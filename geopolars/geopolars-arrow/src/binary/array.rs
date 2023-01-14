@@ -18,6 +18,17 @@ impl WKBArray {
         Self(arr)
     }
 
+    /// Returns the number of geometries in this array
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// Returns true if the array is empty
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> Geometry {
         let buf = self.0.value(i);
