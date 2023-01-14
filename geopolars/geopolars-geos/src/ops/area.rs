@@ -46,13 +46,16 @@ mod tests {
     use approx::assert_relative_eq;
     use geo::{polygon, Polygon};
     use geopolars_arrow::polygon::MutablePolygonArray;
-    use polars::export::arrow::array::PrimitiveArray;
+    use geopolars_arrow::{GeometryArrayEnum, PolygonArray};
+    use polars::export::arrow::array::{Array, PrimitiveArray};
 
     fn call_area(input: Vec<Polygon>) -> PrimitiveArray<f64> {
         let mut_polygon_arr: MutablePolygonArray = input.into();
         let polygon_arr = mut_polygon_arr.into_arrow();
 
-        let result = area(&polygon_arr);
+        let polygon_arr2: PolygonArray = polygon_arr.try_into().unwrap();
+
+        let result = area(GeometryArrayEnum::Polygon(polygon_arr2));
         let result_arr = result
             .as_any()
             .downcast_ref::<PrimitiveArray<f64>>()
