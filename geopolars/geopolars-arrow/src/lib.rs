@@ -3,6 +3,16 @@
 //! At some point in the future, this will likely become a public geoarrow module, or be integrated
 //! into geozero
 
+pub use binary::{MutableWKBArray, WKBArray};
+pub use linestring::LineStringArray;
+pub use multilinestring::MultiLineStringArray;
+pub use multipoint::MultiPointArray;
+pub use multipolygon::MultiPolygonArray;
+pub use point::{MutablePointArray, PointArray};
+pub use polygon::PolygonArray;
+pub use enum_::GeometryType;
+pub use trait_::GeometryArray;
+
 pub mod binary;
 pub mod enum_;
 pub mod error;

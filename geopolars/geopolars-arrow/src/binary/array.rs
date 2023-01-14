@@ -54,24 +54,24 @@ impl WKBArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    fn iter_geo_values(&self) -> impl Iterator<Item = Geometry> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = Geometry> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
-    fn iter_geo(&self) -> ZipValidity<Geometry, impl Iterator<Item = Geometry> + '_, BitmapIter> {
+    pub fn iter_geo(&self) -> ZipValidity<Geometry, impl Iterator<Item = Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
     /// Iterator over GEOS geometry objects
     #[cfg(feature = "geos")]
-    fn iter_geos_values(&self) -> impl Iterator<Item = geos::Geometry> + '_ {
+    pub fn iter_geos_values(&self) -> impl Iterator<Item = geos::Geometry> + '_ {
         (0..self.len()).map(|i| self.value_as_geos(i))
     }
 
     /// Iterator over GEOS geometry objects, taking validity into account
     #[cfg(feature = "geos")]
-    fn iter_geos(
+    pub fn iter_geos(
         &self,
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
