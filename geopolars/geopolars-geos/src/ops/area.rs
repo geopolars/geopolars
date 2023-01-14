@@ -1,24 +1,43 @@
-use geopolars_arrow::polygon::PolygonArray;
-use geopolars_arrow::util::{get_geoarrow_array_type, GeoArrowType};
+use geopolars_arrow::GeometryArrayEnum;
 use geos::Geom;
-use polars::export::arrow::array::{Array, BinaryArray, ListArray};
+use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 
-use crate::util::{map_polygon_array_to_float_array, map_wkb_array_to_float_array};
+pub(crate) fn area(array: GeometryArrayEnum) -> PrimitiveArray<f64> {
+    let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
 
-pub fn area(arr: &dyn Array) -> Box<dyn Array> {
-    match get_geoarrow_array_type(arr) {
-        GeoArrowType::WKB => {
-            let binary_arr = arr.as_any().downcast_ref::<BinaryArray<i64>>().unwrap();
-            let result_arr = map_wkb_array_to_float_array(binary_arr, |g| g.area().unwrap());
-            Box::new(result_arr) as Box<dyn Array>
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            arr.iter_geos()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         }
-        GeoArrowType::Polygon => {
-            let polygon_arr = PolygonArray(arr.as_any().downcast_ref::<ListArray<i64>>().unwrap());
-            let result_arr = map_polygon_array_to_float_array(polygon_arr, |g| g.area().unwrap());
-            Box::new(result_arr) as Box<dyn Array>
+        GeometryArrayEnum::Point(arr) => {
+            arr.iter_geos()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         }
-        _ => panic!("Unexpected geometry type for operation: area"),
+        GeometryArrayEnum::LineString(arr) => {
+            arr.iter_geos()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            arr.iter_geos()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
+        }
+        // GeometryArrayEnum::MultiPoint(arr) => {
+        //     arr.iter_geos()
+        //         .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
+        // }
+        // GeometryArrayEnum::MultiLineString(arr) => {
+        //     arr.iter_geos()
+        //         .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
+        // }
+        // GeometryArrayEnum::MultiPolygon(arr) => {
+        //     arr.iter_geos()
+        //         .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
+        // }
+        _ => unimplemented!(),
     }
+
+    output_array.into()
 }
 
 #[cfg(test)]
