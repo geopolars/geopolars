@@ -3,10 +3,11 @@ use crate::util::from_geom_vec;
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::algorithm::bounding_rect::BoundingRect;
 use geo::algorithm::centroid::Centroid;
-use geo::Geometry;
-use geo::{map_coords::MapCoords, Point};
+use geo::map_coords::MapCoords;
+use geo::{Geometry, LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
 use geopolars_arrow::point::{MutablePointArray, PointSeries};
 use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
+use geopolars_arrow::GeometryArrayEnum;
 use polars::export::arrow::array::Array;
 use polars::prelude::Series;
 
@@ -25,14 +26,70 @@ pub enum TransformOrigin {
     Point(Point),
 }
 
-pub(crate) fn affine_transform(
-    series: &Series,
+pub(crate) fn affine_transform2(
+    array: GeometryArrayEnum,
     matrix: impl Into<AffineTransform<f64>>,
-) -> Result<Series> {
-    match get_geoarrow_type(series) {
-        GeoArrowType::WKB => affine_transform_wkb(series, matrix),
-        GeoArrowType::Point => affine_transform_geoarrow_point(series, matrix),
-        _ => todo!(),
+) -> Result<GeometryArrayEnum> {
+    let transform: AffineTransform<f64> = matrix.into();
+
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            let output_geoms: Vec<Option<Geometry>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
+                .collect();
+
+            Ok(GeometryArrayEnum::WKB(output_geoms.into()))
+        }
+        GeometryArrayEnum::Point(arr) => {
+            let output_geoms: Vec<Option<Point>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
+                .collect();
+
+            Ok(GeometryArrayEnum::Point(output_geoms.into()))
+        }
+
+        GeometryArrayEnum::MultiPoint(arr) => {
+            let output_geoms: Vec<Option<MultiPoint>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
+                .collect();
+
+            Ok(GeometryArrayEnum::MultiPoint(output_geoms.into()))
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            let output_geoms: Vec<Option<LineString>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
+                .collect();
+
+            Ok(GeometryArrayEnum::LineString(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            let output_geoms: Vec<Option<MultiLineString>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
+                .collect();
+
+            Ok(GeometryArrayEnum::MultiLineString(output_geoms.into()))
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            let output_geoms: Vec<Option<MultiPolygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
+                .collect();
+
+            Ok(GeometryArrayEnum::MultiPolygon(output_geoms.into()))
+        }
     }
 }
 

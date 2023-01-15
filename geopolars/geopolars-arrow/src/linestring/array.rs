@@ -1,3 +1,4 @@
+use crate::MultiPointArray;
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
@@ -7,6 +8,8 @@ use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
 use polars::export::arrow::offset::OffsetsBuffer;
+
+use super::MutableLineStringArray;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<LineString>>` using Arrow's
 /// in-memory representation.
@@ -280,5 +283,27 @@ impl GeometryArray for LineStringArray {
 
     fn to_boxed(&self) -> Box<dyn GeometryArray> {
         Box::new(self.clone())
+    }
+}
+
+impl From<Vec<Option<LineString>>> for LineStringArray {
+    fn from(other: Vec<Option<LineString>>) -> Self {
+        let mut_arr: MutableLineStringArray = other.into();
+        mut_arr.into()
+    }
+}
+
+impl From<Vec<LineString>> for LineStringArray {
+    fn from(other: Vec<LineString>) -> Self {
+        let mut_arr: MutableLineStringArray = other.into();
+        mut_arr.into()
+    }
+}
+
+/// LineString and MultiPoint have the same layout, so enable conversions between the two to change
+/// the semantic type
+impl From<LineStringArray> for MultiPointArray {
+    fn from(value: LineStringArray) -> Self {
+        Self::new(value.x, value.y, value.geom_offsets, value.validity)
     }
 }

@@ -1,3 +1,4 @@
+use crate::MutablePointArray;
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
@@ -278,5 +279,19 @@ impl GeometryArray for PointArray {
 
     fn to_boxed(&self) -> Box<dyn GeometryArray> {
         Box::new(self.clone())
+    }
+}
+
+impl From<Vec<Option<Point>>> for PointArray {
+    fn from(other: Vec<Option<Point>>) -> Self {
+        let mut_arr: MutablePointArray = other.into();
+        mut_arr.into()
+    }
+}
+
+impl From<Vec<Point>> for PointArray {
+    fn from(other: Vec<Point>) -> Self {
+        let mut_arr: MutablePointArray = other.into();
+        mut_arr.into()
     }
 }

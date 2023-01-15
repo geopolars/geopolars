@@ -1,3 +1,4 @@
+use crate::MutableWKBArray;
 use crate::enum_::GeometryType;
 use crate::trait_::GeometryArray;
 use geo::Geometry;
@@ -136,5 +137,12 @@ impl GeometryArray for WKBArray {
 
     fn to_boxed(&self) -> Box<dyn GeometryArray> {
         Box::new(WKBArray::new(self.0.clone()))
+    }
+}
+
+impl From<Vec<Option<Geometry>>> for WKBArray {
+    fn from(other: Vec<Option<Geometry>>) -> Self {
+        let mut_arr: MutableWKBArray = other.into();
+        mut_arr.into()
     }
 }

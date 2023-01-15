@@ -40,19 +40,6 @@ impl MutableWKBArray {
     }
 }
 
-impl From<Vec<Option<Geometry>>> for MutableWKBArray {
-    fn from(other: Vec<Option<Geometry>>) -> Self {
-        let mut wkb_array = MutableBinaryArray::<i64>::with_capacity(other.len());
-
-        for geom in other {
-            let wkb = geom.map(|g| g.to_wkb(CoordDimensions::xy()).unwrap());
-            wkb_array.push(wkb);
-        }
-
-        Self(wkb_array)
-    }
-}
-
 impl MutableGeometryArray for MutableWKBArray {
     fn geometry_type(&self) -> GeometryType {
         GeometryType::WKB
@@ -82,6 +69,19 @@ impl MutableGeometryArray for MutableWKBArray {
 
     fn as_mut_any(&mut self) -> &mut dyn std::any::Any {
         self
+    }
+}
+
+impl From<Vec<Option<Geometry>>> for MutableWKBArray {
+    fn from(other: Vec<Option<Geometry>>) -> Self {
+        let mut wkb_array = MutableBinaryArray::<i64>::with_capacity(other.len());
+
+        for geom in other {
+            let wkb = geom.map(|g| g.to_wkb(CoordDimensions::xy()).unwrap());
+            wkb_array.push(wkb);
+        }
+
+        Self(wkb_array)
     }
 }
 

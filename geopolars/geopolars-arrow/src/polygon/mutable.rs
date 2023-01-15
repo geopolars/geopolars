@@ -1,24 +1,94 @@
+use super::array::check;
 use geo::Polygon;
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use polars::export::arrow::datatypes::DataType;
-use polars::export::arrow::offset::OffsetsBuffer;
+use polars::export::arrow::offset::{Offsets, OffsetsBuffer};
 use polars::prelude::ArrowField;
 
+use crate::error::GeoArrowError;
+use crate::multilinestring::MutableMultiLineStringArray;
 use crate::PolygonArray;
 
 #[derive(Debug, Clone)]
 pub struct MutablePolygonArray {
     x: Vec<f64>,
     y: Vec<f64>,
-    ring_offsets: Vec<i64>,
-    geom_offsets: Vec<i64>,
+
+    /// Offsets into the ring array where each geometry starts
+    geom_offsets: Offsets<i64>,
+
+    /// Offsets into the coordinate array where each ring starts
+    ring_offsets: Offsets<i64>,
 
     /// Validity is only defined at the geometry level
     validity: Option<MutableBitmap>,
 }
 
 impl MutablePolygonArray {
+    /// Creates a new empty [`MutableLineStringArray`].
+    pub fn new() -> Self {
+        Self::with_capacities(0, 0, 0)
+    }
+
+    /// Creates a new [`MutableLineStringArray`] with a capacity.
+    pub fn with_capacities(
+        coord_capacity: usize,
+        geom_capacity: usize,
+        ring_capacity: usize,
+    ) -> Self {
+        Self {
+            x: Vec::with_capacity(coord_capacity),
+            y: Vec::with_capacity(coord_capacity),
+            geom_offsets: Offsets::<i64>::with_capacity(geom_capacity),
+            ring_offsets: Offsets::<i64>::with_capacity(ring_capacity),
+            validity: None,
+        }
+    }
+
+    /// The canonical method to create a [`MutableLineStringArray`] out of its internal components.
+    /// # Implementation
+    /// This function is `O(1)`.
+    ///
+    /// # Errors
+    /// This function errors iff:
+    /// * The validity is not `None` and its length is different from `values`'s length
+    pub fn try_new(
+        x: Vec<f64>,
+        y: Vec<f64>,
+        geom_offsets: Offsets<i64>,
+        ring_offsets: Offsets<i64>,
+        validity: Option<MutableBitmap>,
+    ) -> Result<Self, GeoArrowError> {
+        check(&x, &y, validity.as_ref().map(|x| x.len()))?;
+        Ok(Self {
+            x,
+            y,
+            geom_offsets,
+            ring_offsets,
+            validity,
+        })
+    }
+
+    /// Extract the low-level APIs from the [`MutableLineStringArray`].
+    pub fn into_inner(
+        self,
+    ) -> (
+        Vec<f64>,
+        Vec<f64>,
+        Offsets<i64>,
+        Offsets<i64>,
+        Option<MutableBitmap>,
+    ) {
+        (
+            self.x,
+            self.y,
+            self.geom_offsets,
+            self.ring_offsets,
+            self.validity,
+        )
+    }
+
     pub fn into_arrow(self) -> ListArray<i64> {
         // Data type
         let coord_field_x = ArrowField::new("x", DataType::Float64, false);
@@ -43,8 +113,8 @@ impl MutablePolygonArray {
         };
 
         // Offsets
-        let ring_offsets_buffer = unsafe { OffsetsBuffer::new_unchecked(self.ring_offsets.into()) };
-        let geom_offsets_buffer = unsafe { OffsetsBuffer::new_unchecked(self.geom_offsets.into()) };
+        let geom_offsets_buffer: OffsetsBuffer<i64> = self.geom_offsets.into();
+        let ring_offsets_buffer: OffsetsBuffer<i64> = self.ring_offsets.into();
 
         // Array data
         let array_x = Box::new(PrimitiveArray::<f64>::from_vec(self.x)) as Box<dyn Array>;
@@ -83,10 +153,8 @@ impl From<MutablePolygonArray> for PolygonArray {
             }
         });
 
-        let geom_offsets =
-            unsafe { OffsetsBuffer::<i64>::new_unchecked(other.geom_offsets.into()) };
-        let ring_offsets =
-            unsafe { OffsetsBuffer::<i64>::new_unchecked(other.ring_offsets.into()) };
+        let geom_offsets: OffsetsBuffer<i64> = other.geom_offsets.into();
+        let ring_offsets: OffsetsBuffer<i64> = other.ring_offsets.into();
 
         Self::new(
             other.x.into(),
@@ -103,13 +171,11 @@ impl From<Vec<Polygon>> for MutablePolygonArray {
         use geo::coords_iter::CoordsIter;
 
         // Offset into ring indexes for each geometry
-        let mut geom_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
-        geom_offsets.push(0);
+        let mut geom_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
         // Offset into coordinates for each ring
         // This capacity will only be enough in the case where each geometry has only a single ring
-        let mut ring_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
-        ring_offsets.push(0);
+        let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
         // Current offset into ring array
         let mut current_geom_offset = 0;
@@ -120,15 +186,15 @@ impl From<Vec<Polygon>> for MutablePolygonArray {
         for geom in &geoms {
             // Total number of rings in this polygon
             current_geom_offset += geom.interiors().len() + 1;
-            geom_offsets.push(current_geom_offset as i64);
+            geom_offsets.try_push_usize(current_geom_offset).unwrap();
 
             // Number of coords for each ring
             current_ring_offset += geom.exterior().coords_count();
-            ring_offsets.push(current_ring_offset as i64);
+            ring_offsets.try_push_usize(current_ring_offset).unwrap();
 
             for int_ring in geom.interiors() {
                 current_ring_offset += int_ring.coords_count();
-                ring_offsets.push(current_ring_offset as i64);
+                ring_offsets.try_push_usize(current_ring_offset).unwrap();
             }
         }
 
@@ -167,13 +233,11 @@ impl From<Vec<Option<Polygon>>> for MutablePolygonArray {
         let mut validity = MutableBitmap::with_capacity(geoms.len());
 
         // Offset into ring indexes for each geometry
-        let mut geom_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
-        geom_offsets.push(0);
+        let mut geom_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
         // Offset into coordinates for each ring
         // This capacity will only be enough in the case where each geometry has only a single ring
-        let mut ring_offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
-        ring_offsets.push(0);
+        let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
         // Current offset into ring array
         let mut current_geom_offset = 0;
@@ -187,19 +251,19 @@ impl From<Vec<Option<Polygon>>> for MutablePolygonArray {
 
                 // Total number of rings in this polygon
                 current_geom_offset += geom.interiors().len() + 1;
-                geom_offsets.push(current_geom_offset as i64);
+                geom_offsets.try_push_usize(current_geom_offset).unwrap();
 
                 // Number of coords for each ring
                 current_ring_offset += geom.exterior().coords_count();
-                ring_offsets.push(current_ring_offset as i64);
+                ring_offsets.try_push_usize(current_ring_offset).unwrap();
 
                 for int_ring in geom.interiors() {
                     current_ring_offset += int_ring.coords_count();
-                    ring_offsets.push(current_ring_offset as i64);
+                    ring_offsets.try_push_usize(current_ring_offset).unwrap();
                 }
             } else {
                 validity.push(false);
-                geom_offsets.push(current_geom_offset as i64);
+                geom_offsets.try_push_usize(current_geom_offset).unwrap();
             }
         }
 
@@ -228,5 +292,19 @@ impl From<Vec<Option<Polygon>>> for MutablePolygonArray {
             ring_offsets,
             validity: Some(validity),
         }
+    }
+}
+
+/// Polygon and MultiLineString have the same layout, so enable conversions between the two to
+/// change the semantic type
+impl From<MutablePolygonArray> for MutableMultiLineStringArray {
+    fn from(value: MutablePolygonArray) -> Self {
+        Self::try_new(
+            value.x,
+            value.y,
+            value.geom_offsets,
+            value.ring_offsets,
+            value.validity,
+        ).unwrap()
     }
 }

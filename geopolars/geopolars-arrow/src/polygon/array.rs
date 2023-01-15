@@ -1,12 +1,15 @@
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
+use crate::MultiLineStringArray;
 use geo::{Coord, LineString, Polygon};
 use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
 use polars::export::arrow::offset::OffsetsBuffer;
+
+use super::MutablePolygonArray;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Polygon>>` using Arrow's
 /// in-memory representation.
@@ -328,5 +331,33 @@ impl GeometryArray for PolygonArray {
 
     fn to_boxed(&self) -> Box<dyn GeometryArray> {
         Box::new(self.clone())
+    }
+}
+
+impl From<Vec<Option<Polygon>>> for PolygonArray {
+    fn from(other: Vec<Option<Polygon>>) -> Self {
+        let mut_arr: MutablePolygonArray = other.into();
+        mut_arr.into()
+    }
+}
+
+impl From<Vec<Polygon>> for PolygonArray {
+    fn from(other: Vec<Polygon>) -> Self {
+        let mut_arr: MutablePolygonArray = other.into();
+        mut_arr.into()
+    }
+}
+
+/// Polygon and MultiLineString have the same layout, so enable conversions between the two to
+/// change the semantic type
+impl From<PolygonArray> for MultiLineStringArray {
+    fn from(value: PolygonArray) -> Self {
+        Self::new(
+            value.x,
+            value.y,
+            value.geom_offsets,
+            value.ring_offsets,
+            value.validity,
+        )
     }
 }

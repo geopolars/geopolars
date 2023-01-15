@@ -33,8 +33,13 @@ impl MutableMultiPointArray {
     }
 
     /// Creates a new [`MutableMultiPointArray`] with a capacity.
-    pub fn with_capacity(capacity: usize) -> Self {
-        MutableLineStringArray::with_capacity(capacity).into()
+    pub fn with_capacities(coord_capacity: usize, geom_capacity: usize) -> Self {
+        Self {
+            x: Vec::with_capacity(coord_capacity),
+            y: Vec::with_capacity(coord_capacity),
+            geom_offsets: Offsets::<i64>::with_capacity(geom_capacity),
+            validity: None,
+        }
     }
 
     /// The canonical method to create a [`MutableMultiPointArray`] out of its internal components.

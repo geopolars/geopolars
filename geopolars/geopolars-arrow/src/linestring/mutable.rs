@@ -18,6 +18,8 @@ use std::vec;
 pub struct MutableLineStringArray {
     x: Vec<f64>,
     y: Vec<f64>,
+
+    /// Offsets into the coordinate array where each geometry starts
     geom_offsets: Offsets<i64>,
 
     /// Validity is only defined at the geometry level
@@ -27,15 +29,15 @@ pub struct MutableLineStringArray {
 impl MutableLineStringArray {
     /// Creates a new empty [`MutableLineStringArray`].
     pub fn new() -> Self {
-        Self::with_capacity(0)
+        Self::with_capacities(0, 0)
     }
 
     /// Creates a new [`MutableLineStringArray`] with a capacity.
-    pub fn with_capacity(capacity: usize) -> Self {
+    pub fn with_capacities(coord_capacity: usize, geom_capacity: usize) -> Self {
         Self {
-            x: Vec::with_capacity(capacity),
-            y: Vec::with_capacity(capacity),
-            geom_offsets: Offsets::<i64>::with_capacity(0),
+            x: Vec::with_capacity(coord_capacity),
+            y: Vec::with_capacity(coord_capacity),
+            geom_offsets: Offsets::<i64>::with_capacity(geom_capacity),
             validity: None,
         }
     }
