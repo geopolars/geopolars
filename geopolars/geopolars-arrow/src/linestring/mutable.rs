@@ -7,6 +7,7 @@ use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use polars::export::arrow::datatypes::DataType;
 use polars::export::arrow::offset::{Offsets, OffsetsBuffer};
+use polars::export::arrow::types::Index;
 use polars::prelude::ArrowField;
 use std::convert::From;
 use std::vec;
@@ -64,6 +65,56 @@ impl MutableLineStringArray {
     /// Extract the low-level APIs from the [`MutableLineStringArray`].
     pub fn into_inner(self) -> (Vec<f64>, Vec<f64>, Offsets<i64>, Option<MutableBitmap>) {
         (self.x, self.y, self.geom_offsets, self.validity)
+    }
+
+    /// Adds a new value to the array.
+    pub fn try_push_geo(&mut self, value: Option<LineString>) -> Result<(), GeoArrowError> {
+        if let Some(line_string) = value {
+            line_string.coords_iter().for_each(|c| {
+                self.x.push(c.x);
+                self.y.push(c.y);
+            });
+            self.try_push_valid()?;
+        } else {
+            self.push_null();
+        }
+        Ok(())
+    }
+
+    #[inline]
+    /// Needs to be called when a valid value was extended to this array.
+    /// This is a relatively low level function, prefer `try_push` when you can.
+    pub fn try_push_valid(&mut self) -> Result<(), GeoArrowError> {
+        let total_length = self.x.len();
+        let offset = self.geom_offsets.last().to_usize();
+        let length = total_length
+            .checked_sub(offset)
+            .ok_or(GeoArrowError::Overflow)?;
+
+        // TODO: remove unwrap
+        self.geom_offsets.try_push_usize(length).unwrap();
+        if let Some(validity) = &mut self.validity {
+            validity.push(true)
+        }
+        Ok(())
+    }
+
+    #[inline]
+    fn push_null(&mut self) {
+        self.geom_offsets.extend_constant(1);
+        match &mut self.validity {
+            Some(validity) => validity.push(false),
+            None => self.init_validity(),
+        }
+    }
+
+    fn init_validity(&mut self) {
+        let len = self.geom_offsets.len_proxy();
+
+        let mut validity = MutableBitmap::with_capacity(self.geom_offsets.capacity());
+        validity.extend_constant(len, true);
+        validity.set(len - 1, false);
+        self.validity = Some(validity)
     }
 
     pub fn into_arrow(self) -> ListArray<i64> {

@@ -2,6 +2,7 @@ use geo::MultiPoint;
 use polars::export::arrow::array::ListArray;
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use polars::export::arrow::offset::Offsets;
+use polars::export::arrow::types::Index;
 
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
@@ -62,50 +63,55 @@ impl MutableMultiPointArray {
         mutable_line_string_array.into_arrow()
     }
 
-    // // TODO: left off here
-    // /// Adds a new value to the array.
-    // pub fn push_geo(&mut self, value: Option<MultiPoint>) {
-    //     match value {
-    //         Some(value) => {
-    //             self.x.push(value.x());
-    //             self.y.push(value.y());
-    //             match &mut self.validity {
-    //                 Some(validity) => validity.push(true),
-    //                 None => {}
-    //             }
-    //         }
-    //         None => {
-    //             self.x.push(f64::default());
-    //             self.y.push(f64::default());
-    //             match &mut self.validity {
-    //                 Some(validity) => validity.push(false),
-    //                 None => {
-    //                     self.init_validity();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    /// Adds a new value to the array.
+    pub fn try_push_geo(&mut self, value: Option<MultiPoint>) -> Result<(), GeoArrowError> {
+        if let Some(multipoint) = value {
+            multipoint.0.iter().for_each(|point| {
+                self.x.push(point.x());
+                self.y.push(point.y());
+            });
+            self.try_push_valid()?;
+        } else {
+            self.push_null();
+        }
+        Ok(())
+    }
 
-    // /// Pop a value from the array.
-    // /// Note if the values is empty, this method will return None.
-    // pub fn pop_geo(&mut self) -> Option<Point> {
-    //     let x = self.x.pop()?;
-    //     let y = self.y.pop()?;
-    //     let pt = Point::new(x, y);
+    #[inline]
+    /// Needs to be called when a valid value was extended to this array.
+    /// This is a relatively low level function, prefer `try_push` when you can.
+    pub fn try_push_valid(&mut self) -> Result<(), GeoArrowError> {
+        let total_length = self.x.len();
+        let offset = self.geom_offsets.last().to_usize();
+        let length = total_length
+            .checked_sub(offset)
+            .ok_or(GeoArrowError::Overflow)?;
 
-    //     self.validity
-    //         .as_mut()
-    //         .map(|x| x.pop()?.then(|| pt))
-    //         .unwrap_or_else(|| Some(pt))
-    // }
+        // TODO: remove unwrap
+        self.geom_offsets.try_push_usize(length).unwrap();
+        if let Some(validity) = &mut self.validity {
+            validity.push(true)
+        }
+        Ok(())
+    }
 
-    // fn init_validity(&mut self) {
-    //     let mut validity = MutableBitmap::with_capacity(self.values.capacity());
-    //     validity.extend_constant(self.len(), true);
-    //     validity.set(self.len() - 1, false);
-    //     self.validity = Some(validity)
-    // }
+    #[inline]
+    fn push_null(&mut self) {
+        self.geom_offsets.extend_constant(1);
+        match &mut self.validity {
+            Some(validity) => validity.push(false),
+            None => self.init_validity(),
+        }
+    }
+
+    fn init_validity(&mut self) {
+        let len = self.geom_offsets.len_proxy();
+
+        let mut validity = MutableBitmap::with_capacity(self.geom_offsets.capacity());
+        validity.extend_constant(len, true);
+        validity.set(len - 1, false);
+        self.validity = Some(validity)
+    }
 }
 
 impl Default for MutableMultiPointArray {
