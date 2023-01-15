@@ -2,7 +2,7 @@ use geopolars_arrow::GeometryArrayEnum;
 use geos::Geom;
 use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 
-pub(crate) fn area(array: GeometryArrayEnum) -> PrimitiveArray<f64> {
+pub fn area(array: GeometryArrayEnum) -> PrimitiveArray<f64> {
     let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
 
     match array {
