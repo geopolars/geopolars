@@ -19,21 +19,6 @@ pub struct MutablePointArray {
     validity: Option<MutableBitmap>,
 }
 
-impl From<MutablePointArray> for PointArray {
-    fn from(other: MutablePointArray) -> Self {
-        let validity = other.validity.and_then(|x| {
-            let bitmap: Bitmap = x.into();
-            if bitmap.unset_bits() == 0 {
-                None
-            } else {
-                Some(bitmap)
-            }
-        });
-
-        Self::new(other.x.into(), other.y.into(), validity)
-    }
-}
-
 impl MutablePointArray {
     /// Creates a new empty [`MutablePointArray`].
     pub fn new() -> Self {
@@ -160,6 +145,27 @@ impl MutableGeometryArray for MutablePointArray {
 
     fn as_mut_any(&mut self) -> &mut dyn std::any::Any {
         self
+    }
+}
+
+impl Default for MutablePointArray {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl From<MutablePointArray> for PointArray {
+    fn from(other: MutablePointArray) -> Self {
+        let validity = other.validity.and_then(|x| {
+            let bitmap: Bitmap = x.into();
+            if bitmap.unset_bits() == 0 {
+                None
+            } else {
+                Some(bitmap)
+            }
+        });
+
+        Self::new(other.x.into(), other.y.into(), validity)
     }
 }
 

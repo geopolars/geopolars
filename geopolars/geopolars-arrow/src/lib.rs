@@ -4,13 +4,13 @@
 //! into geozero
 
 pub use binary::{MutableWKBArray, WKBArray};
+pub use enum_::{GeometryArrayEnum, GeometryType};
 pub use linestring::LineStringArray;
 pub use multilinestring::MultiLineStringArray;
 pub use multipoint::MultiPointArray;
 pub use multipolygon::MultiPolygonArray;
 pub use point::{MutablePointArray, PointArray};
 pub use polygon::PolygonArray;
-pub use enum_::{GeometryType, GeometryArrayEnum};
 pub use trait_::GeometryArray;
 
 pub mod binary;

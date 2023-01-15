@@ -5,6 +5,8 @@ use polars::export::arrow::datatypes::DataType;
 use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::ArrowField;
 
+use crate::PolygonArray;
+
 #[derive(Debug, Clone)]
 pub struct MutablePolygonArray {
     x: Vec<f64>,
@@ -65,6 +67,32 @@ impl MutablePolygonArray {
             outer_list_data_type,
             geom_offsets_buffer,
             inner_list_array,
+            validity,
+        )
+    }
+}
+
+impl From<MutablePolygonArray> for PolygonArray {
+    fn from(other: MutablePolygonArray) -> Self {
+        let validity = other.validity.and_then(|x| {
+            let bitmap: Bitmap = x.into();
+            if bitmap.unset_bits() == 0 {
+                None
+            } else {
+                Some(bitmap)
+            }
+        });
+
+        let geom_offsets =
+            unsafe { OffsetsBuffer::<i64>::new_unchecked(other.geom_offsets.into()) };
+        let ring_offsets =
+            unsafe { OffsetsBuffer::<i64>::new_unchecked(other.ring_offsets.into()) };
+
+        Self::new(
+            other.x.into(),
+            other.y.into(),
+            geom_offsets,
+            ring_offsets,
             validity,
         )
     }

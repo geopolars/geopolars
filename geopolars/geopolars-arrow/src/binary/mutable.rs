@@ -13,12 +13,6 @@ use super::array::WKBArray;
 #[derive(Debug, Clone)]
 pub struct MutableWKBArray(MutableBinaryArray<i64>);
 
-impl From<MutableWKBArray> for WKBArray {
-    fn from(other: MutableWKBArray) -> Self {
-        Self::new(other.0.into())
-    }
-}
-
 impl Default for MutableWKBArray {
     fn default() -> Self {
         Self::new()
@@ -88,5 +82,11 @@ impl MutableGeometryArray for MutableWKBArray {
 
     fn as_mut_any(&mut self) -> &mut dyn std::any::Any {
         self
+    }
+}
+
+impl From<MutableWKBArray> for WKBArray {
+    fn from(other: MutableWKBArray) -> Self {
+        Self::new(other.0.into())
     }
 }

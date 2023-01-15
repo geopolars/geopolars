@@ -70,7 +70,9 @@ impl WKBArray {
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
-    pub fn iter_geo(&self) -> ZipValidity<Geometry, impl Iterator<Item = Geometry> + '_, BitmapIter> {
+    pub fn iter_geo(
+        &self,
+    ) -> ZipValidity<Geometry, impl Iterator<Item = Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 

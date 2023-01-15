@@ -1,3 +1,5 @@
+use crate::error::GeoArrowError;
+use crate::linestring::array::check;
 use crate::multipoint::MutableMultiPointArray;
 use crate::LineStringArray;
 use geo::{CoordsIter, LineString};
@@ -9,6 +11,8 @@ use polars::prelude::ArrowField;
 use std::convert::From;
 use std::vec;
 
+/// The Arrow equivalent to `Vec<Option<LineString>>`.
+/// Converting a [`MutableLineStringArray`] into a [`LineStringArray`] is `O(1)`.
 #[derive(Debug, Clone)]
 pub struct MutableLineStringArray {
     x: Vec<f64>,
@@ -20,6 +24,48 @@ pub struct MutableLineStringArray {
 }
 
 impl MutableLineStringArray {
+    /// Creates a new empty [`MutableLineStringArray`].
+    pub fn new() -> Self {
+        Self::with_capacity(0)
+    }
+
+    /// Creates a new [`MutableLineStringArray`] with a capacity.
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            x: Vec::with_capacity(capacity),
+            y: Vec::with_capacity(capacity),
+            geom_offsets: Offsets::<i64>::with_capacity(0),
+            validity: None,
+        }
+    }
+
+    /// The canonical method to create a [`MutableLineStringArray`] out of its internal components.
+    /// # Implementation
+    /// This function is `O(1)`.
+    ///
+    /// # Errors
+    /// This function errors iff:
+    /// * The validity is not `None` and its length is different from `values`'s length
+    pub fn try_new(
+        x: Vec<f64>,
+        y: Vec<f64>,
+        geom_offsets: Offsets<i64>,
+        validity: Option<MutableBitmap>,
+    ) -> Result<Self, GeoArrowError> {
+        check(&x, &y, validity.as_ref().map(|x| x.len()))?;
+        Ok(Self {
+            x,
+            y,
+            geom_offsets,
+            validity,
+        })
+    }
+
+    /// Extract the low-level APIs from the [`MutableLineStringArray`].
+    pub fn into_inner(self) -> (Vec<f64>, Vec<f64>, Offsets<i64>, Option<MutableBitmap>) {
+        (self.x, self.y, self.geom_offsets, self.validity)
+    }
+
     pub fn into_arrow(self) -> ListArray<i64> {
         // Data type
         let coord_field_x = ArrowField::new("x", DataType::Float64, false);
@@ -52,6 +98,12 @@ impl MutableLineStringArray {
         let offsets_buffer: OffsetsBuffer<i64> = self.geom_offsets.into();
 
         ListArray::new(list_data_type, offsets_buffer, coord_array, validity)
+    }
+}
+
+impl Default for MutableLineStringArray {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -89,7 +141,7 @@ pub(crate) fn line_string_from_geo_vec(geoms: Vec<LineString>) -> MutableLineStr
     let mut geom_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
     let mut current_offset = 0;
-    for geom in geoms {
+    for geom in &geoms {
         current_offset += geom.coords_count();
         geom_offsets.try_push_usize(current_offset).unwrap();
     }
@@ -122,14 +174,14 @@ pub(crate) fn line_string_from_geo_option_vec(
     let mut validity = MutableBitmap::with_capacity(geoms.len());
 
     let mut current_offset = 0;
-    for maybe_geom in geoms {
+    for maybe_geom in &geoms {
         if let Some(geom) = maybe_geom {
             current_offset += geom.coords_count();
             validity.push(true);
         } else {
             validity.push(false);
         }
-        geom_offsets.try_push_usize(current_offset);
+        geom_offsets.try_push_usize(current_offset).unwrap();
     }
 
     let mut x_arr = Vec::<f64>::with_capacity(current_offset);
