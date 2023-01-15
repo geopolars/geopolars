@@ -18,6 +18,8 @@ pub type MutablePolygonParts = (
     Option<MutableBitmap>,
 );
 
+/// The Arrow equivalent to `Vec<Option<Polygon>>`.
+/// Converting a [`MutablePolygonArray`] into a [`PolygonArray`] is `O(1)`.
 #[derive(Debug, Clone)]
 pub struct MutablePolygonArray {
     x: Vec<f64>,

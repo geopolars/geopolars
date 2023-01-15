@@ -1,7 +1,7 @@
-use crate::MutablePointArray;
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
+use crate::MutablePointArray;
 use geo::Point;
 use polars::export::arrow::array::{Array, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
@@ -190,6 +190,27 @@ impl PointArray {
         &self,
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
+    }
+
+    pub fn into_arrow(self) -> StructArray {
+        let field_x = ArrowField::new("x", DataType::Float64, false);
+        let field_y = ArrowField::new("y", DataType::Float64, false);
+
+        let array_x =
+            Box::new(PrimitiveArray::new(DataType::Float64, self.x, None)) as Box<dyn Array>;
+        let array_y =
+            Box::new(PrimitiveArray::new(DataType::Float64, self.y, None)) as Box<dyn Array>;
+
+        let struct_data_type = DataType::Struct(vec![field_x, field_y]);
+        let struct_values = vec![array_x, array_y];
+
+        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        StructArray::new(struct_data_type, struct_values, validity)
     }
 }
 

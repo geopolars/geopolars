@@ -4,6 +4,7 @@ use geozero::{wkb::Wkb, ToGeo};
 use geozero::{CoordDimensions, ToWkb};
 use polars::error::ErrString;
 use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
+use polars::export::arrow::compute::concatenate::concatenate;
 use polars::prelude::{PolarsError, Series};
 use std::convert::Into;
 
@@ -33,4 +34,11 @@ pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> 
             .to_geo()
             .expect("unable to convert to geo")
     })
+}
+
+// This is a workaround hack because StructChunked::from_chunks doesn't exist
+pub(crate) fn struct_series_from_chunks(chunks: Vec<Box<dyn Array>>) -> Result<Series> {
+    let refs: Vec<&dyn Array> = chunks.iter().map(|chunk| chunk.as_ref()).collect();
+    let output = concatenate(refs.as_slice()).unwrap();
+    Ok(Series::try_from(("geometry", output))?)
 }

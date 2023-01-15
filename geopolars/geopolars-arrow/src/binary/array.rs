@@ -90,6 +90,10 @@ impl WKBArray {
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     }
+
+    pub fn into_arrow(self) -> BinaryArray<i64> {
+        self.0
+    }
 }
 
 impl From<BinaryArray<i64>> for WKBArray {

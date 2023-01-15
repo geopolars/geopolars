@@ -3,6 +3,7 @@ use crate::ops::affine::TransformOrigin;
 use crate::ops::length::GeodesicLengthMethod;
 #[cfg(feature = "proj")]
 use crate::ops::proj::ProjOptions;
+use crate::util::struct_series_from_chunks;
 use geo::algorithm::affine_ops::AffineTransform;
 use geopolars_arrow::util::array_to_geometry_array;
 use polars::export::arrow::array::Array;
@@ -185,7 +186,8 @@ pub trait GeoSeries {
 
 impl GeoSeries for Series {
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series> {
-        crate::ops::affine::affine_transform(self, matrix)
+        todo!()
+        // crate::ops::affine::affine_transform(self, matrix)
     }
 
     fn area(&self) -> Result<Series> {
@@ -209,12 +211,13 @@ impl GeoSeries for Series {
             .map(|chunk| {
                 let geo_arr = array_to_geometry_array(&**chunk, false);
                 let result_arr = crate::ops::centroid::centroid(geo_arr).unwrap();
-                Box::new(result_arr.into()) as Box<dyn Array>
+                Box::new(result_arr.into_arrow()) as Box<dyn Array>
             })
             .collect();
 
-        // TODO: need a workaround because from_chunks doesn't exist
-        Ok(StructChunked::from_chunks("result", output_chunks).into_series())
+        // Need a workaround because StructChunked::from_chunks doesn't exist
+        // Ok(StructChunked::from_chunks("result", output_chunks).into_series())
+        struct_series_from_chunks(output_chunks)
     }
 
     fn convex_hull(&self) -> Result<Series> {
@@ -274,7 +277,8 @@ impl GeoSeries for Series {
     }
 
     fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series> {
-        crate::ops::affine::rotate(self, angle, origin)
+        todo!()
+        // crate::ops::affine::rotate(self, angle, origin)
     }
 
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series> {

@@ -1,8 +1,6 @@
 use geo::Point;
-use polars::export::arrow::array::{Array, PrimitiveArray, StructArray};
+use polars::export::arrow::array::StructArray;
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
-use polars::export::arrow::datatypes::DataType;
-use polars::prelude::ArrowField;
 
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
@@ -107,22 +105,8 @@ impl MutablePointArray {
     }
 
     pub fn into_arrow(self) -> StructArray {
-        let field_x = ArrowField::new("x", DataType::Float64, false);
-        let field_y = ArrowField::new("y", DataType::Float64, false);
-
-        let array_x = Box::new(PrimitiveArray::<f64>::from_vec(self.x)) as Box<dyn Array>;
-        let array_y = Box::new(PrimitiveArray::<f64>::from_vec(self.y)) as Box<dyn Array>;
-
-        let struct_data_type = DataType::Struct(vec![field_x, field_y]);
-        let struct_values = vec![array_x, array_y];
-
-        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
-            validity.into()
-        } else {
-            None
-        };
-
-        StructArray::new(struct_data_type, struct_values, validity)
+        let point_array: PointArray = self.into();
+        point_array.into_arrow()
     }
 }
 
