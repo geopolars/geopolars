@@ -10,6 +10,14 @@ use crate::error::GeoArrowError;
 use crate::multilinestring::MutableMultiLineStringArray;
 use crate::PolygonArray;
 
+pub type MutablePolygonParts = (
+    Vec<f64>,
+    Vec<f64>,
+    Offsets<i64>,
+    Offsets<i64>,
+    Option<MutableBitmap>,
+);
+
 #[derive(Debug, Clone)]
 pub struct MutablePolygonArray {
     x: Vec<f64>,
@@ -71,15 +79,7 @@ impl MutablePolygonArray {
     }
 
     /// Extract the low-level APIs from the [`MutableLineStringArray`].
-    pub fn into_inner(
-        self,
-    ) -> (
-        Vec<f64>,
-        Vec<f64>,
-        Offsets<i64>,
-        Offsets<i64>,
-        Option<MutableBitmap>,
-    ) {
+    pub fn into_inner(self) -> MutablePolygonParts {
         (
             self.x,
             self.y,
@@ -139,6 +139,12 @@ impl MutablePolygonArray {
             inner_list_array,
             validity,
         )
+    }
+}
+
+impl Default for MutablePolygonArray {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -305,6 +311,7 @@ impl From<MutablePolygonArray> for MutableMultiLineStringArray {
             value.geom_offsets,
             value.ring_offsets,
             value.validity,
-        ).unwrap()
+        )
+        .unwrap()
     }
 }
