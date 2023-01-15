@@ -1,16 +1,19 @@
-use geo::LineString;
+use crate::multipoint::MutableMultiPointArray;
+use crate::LineStringArray;
+use geo::{CoordsIter, LineString};
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 use polars::export::arrow::datatypes::DataType;
-use polars::export::arrow::offset::OffsetsBuffer;
+use polars::export::arrow::offset::{Offsets, OffsetsBuffer};
 use polars::prelude::ArrowField;
 use std::convert::From;
+use std::vec;
 
 #[derive(Debug, Clone)]
 pub struct MutableLineStringArray {
     x: Vec<f64>,
     y: Vec<f64>,
-    offsets: Vec<i64>,
+    geom_offsets: Offsets<i64>,
 
     /// Validity is only defined at the geometry level
     validity: Option<MutableBitmap>,
@@ -46,9 +49,29 @@ impl MutableLineStringArray {
         )) as Box<dyn Array>;
 
         // Offsets
-        let offsets_buffer = unsafe { OffsetsBuffer::new_unchecked(self.offsets.into()) };
+        let offsets_buffer: OffsetsBuffer<i64> = self.geom_offsets.into();
 
         ListArray::new(list_data_type, offsets_buffer, coord_array, validity)
+    }
+}
+
+impl From<MutableLineStringArray> for LineStringArray {
+    fn from(other: MutableLineStringArray) -> Self {
+        let validity = other.validity.and_then(|x| {
+            let bitmap: Bitmap = x.into();
+            if bitmap.unset_bits() == 0 {
+                None
+            } else {
+                Some(bitmap)
+            }
+        });
+
+        Self::new(
+            other.x.into(),
+            other.y.into(),
+            other.geom_offsets.into(),
+            validity,
+        )
     }
 }
 
@@ -58,73 +81,91 @@ impl From<MutableLineStringArray> for ListArray<i64> {
     }
 }
 
+// TODO: in the future it would be useful to DRY the functions here and for MultiPoint
+
+/// Implement a converter that can be used for either Vec<LineString> or
+/// Vec<MultiPoint>
+pub(crate) fn line_string_from_geo_vec(geoms: Vec<LineString>) -> MutableLineStringArray {
+    let mut geom_offsets = Offsets::<i64>::with_capacity(geoms.len());
+
+    let mut current_offset = 0;
+    for geom in geoms {
+        current_offset += geom.coords_count();
+        geom_offsets.try_push_usize(current_offset).unwrap();
+    }
+
+    let mut x_arr = Vec::<f64>::with_capacity(current_offset);
+    let mut y_arr = Vec::<f64>::with_capacity(current_offset);
+
+    for geom in geoms {
+        for coord in geom.coords_iter() {
+            x_arr.push(coord.x);
+            y_arr.push(coord.y);
+        }
+    }
+
+    MutableLineStringArray {
+        x: x_arr,
+        y: y_arr,
+        geom_offsets,
+        validity: None,
+    }
+}
+
+/// Implement a converter that can be used for either Vec<Option<LineString>> or
+/// Vec<Option<MultiPoint>>
+pub(crate) fn line_string_from_geo_option_vec(
+    geoms: Vec<Option<LineString>>,
+) -> MutableLineStringArray {
+    let mut geom_offsets = Offsets::<i64>::with_capacity(geoms.len());
+
+    let mut validity = MutableBitmap::with_capacity(geoms.len());
+
+    let mut current_offset = 0;
+    for maybe_geom in geoms {
+        if let Some(geom) = maybe_geom {
+            current_offset += geom.coords_count();
+            validity.push(true);
+        } else {
+            validity.push(false);
+        }
+        geom_offsets.try_push_usize(current_offset);
+    }
+
+    let mut x_arr = Vec::<f64>::with_capacity(current_offset);
+    let mut y_arr = Vec::<f64>::with_capacity(current_offset);
+
+    for geom in geoms.into_iter().flatten() {
+        for coord in geom.coords_iter() {
+            x_arr.push(coord.x);
+            y_arr.push(coord.y);
+        }
+    }
+
+    MutableLineStringArray {
+        x: x_arr,
+        y: y_arr,
+        geom_offsets,
+        validity: Some(validity),
+    }
+}
+
 impl From<Vec<LineString>> for MutableLineStringArray {
     fn from(geoms: Vec<LineString>) -> Self {
-        use geo::coords_iter::CoordsIter;
-
-        let mut offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
-        offsets.push(0);
-
-        let mut current_offset = 0;
-        for geom in &geoms {
-            current_offset += geom.coords_count();
-            offsets.push(current_offset as i64);
-        }
-
-        let mut x_arr = Vec::<f64>::with_capacity(current_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_offset);
-
-        for geom in geoms {
-            for coord in geom.coords_iter() {
-                x_arr.push(coord.x);
-                y_arr.push(coord.y);
-            }
-        }
-
-        MutableLineStringArray {
-            x: x_arr,
-            y: y_arr,
-            offsets,
-            validity: None,
-        }
+        line_string_from_geo_vec(geoms)
     }
 }
 
 impl From<Vec<Option<LineString>>> for MutableLineStringArray {
     fn from(geoms: Vec<Option<LineString>>) -> Self {
-        use geo::coords_iter::CoordsIter;
+        line_string_from_geo_option_vec(geoms)
+    }
+}
 
-        let mut offsets: Vec<i64> = Vec::with_capacity(geoms.len() + 1);
-        offsets.push(0);
-
-        let mut validity = MutableBitmap::with_capacity(geoms.len());
-
-        let mut current_offset = 0;
-        for geom in &geoms {
-            if let Some(geom) = geom {
-                current_offset += geom.coords_count();
-                validity.push(true);
-            } else {
-                validity.push(false);
-            }
-            offsets.push(current_offset as i64);
-        }
-
-        let mut x_arr = Vec::<f64>::with_capacity(current_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_offset);
-
-        for geom in geoms.into_iter().flatten() {
-            for coord in geom.coords_iter() {
-                x_arr.push(coord.x);
-                y_arr.push(coord.y);
-            }
-        }
-
-        MutableLineStringArray {
-            x: x_arr,
-            y: y_arr,
-            offsets,
-            validity: Some(validity),
-        }
+/// LineString and MultiPoint have the same layout, so enable conversions between the two to change
+/// the semantic type
+impl From<MutableLineStringArray> for MutableMultiPointArray {
+    fn from(value: MutableLineStringArray) -> Self {
+        Self::try_new(value.x, value.y, value.geom_offsets, value.validity).unwrap()
     }
 }
