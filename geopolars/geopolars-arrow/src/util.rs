@@ -11,7 +11,7 @@ pub enum GeoArrowType {
     WKB,
 }
 
-pub fn array_to_geometry_array(arr: &dyn Array) -> GeometryArrayEnum {
+pub fn array_to_geometry_array(arr: &dyn Array, is_multi: bool) -> GeometryArrayEnum {
     match arr.data_type() {
         ArrowDataType::LargeBinary => {
             let lit_arr = arr.as_any().downcast_ref::<BinaryArray<i64>>().unwrap();
@@ -24,12 +24,21 @@ pub fn array_to_geometry_array(arr: &dyn Array) -> GeometryArrayEnum {
         ArrowDataType::List(dt) | ArrowDataType::LargeList(dt) => match dt.data_type() {
             ArrowDataType::Struct(_) => {
                 let lit_arr = arr.as_any().downcast_ref::<ListArray<i64>>().unwrap();
-                GeometryArrayEnum::LineString(lit_arr.clone().try_into().unwrap())
+
+                if is_multi {
+                    GeometryArrayEnum::MultiPoint(lit_arr.clone().try_into().unwrap())
+                } else {
+                    GeometryArrayEnum::LineString(lit_arr.clone().try_into().unwrap())
+                }
             }
             ArrowDataType::List(dt2) | ArrowDataType::LargeList(dt2) => match dt2.data_type() {
                 ArrowDataType::Struct(_) => {
                     let lit_arr = arr.as_any().downcast_ref::<ListArray<i64>>().unwrap();
-                    GeometryArrayEnum::Polygon(lit_arr.clone().try_into().unwrap())
+                    if is_multi {
+                        GeometryArrayEnum::MultiLineString(lit_arr.clone().try_into().unwrap())
+                    } else {
+                        GeometryArrayEnum::Polygon(lit_arr.clone().try_into().unwrap())
+                    }
                 }
                 ArrowDataType::List(_) | ArrowDataType::LargeList(_) => {
                     let lit_arr = arr.as_any().downcast_ref::<ListArray<i64>>().unwrap();
