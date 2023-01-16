@@ -1,103 +1,115 @@
 from __future__ import annotations
 
+from typing import cast
+
 import polars as pl
 from polars import DataFrame
+from pyogrio.raw import read_arrow as _read_arrow
 
 from geopolars.internals.geodataframe import GeoDataFrame
 
-try:
-    import geopandas
-except ImportError:
-    geopandas = None
 
+def read_file(
+    path_or_buffer,
+    /,
+    layer=None,
+    encoding=None,
+    columns=None,
+    read_geometry=True,
+    force_2d=False,
+    skip_features=0,
+    max_features=None,
+    where=None,
+    bbox=None,
+    fids=None,
+    sql=None,
+    sql_dialect=None,
+    return_fids=False,
+) -> DataFrame | GeoDataFrame:
+    """Read OGR data source into numpy arrays.
 
-def read_file(filename, *args, **kwargs) -> DataFrame | GeoDataFrame:
-    """Returns a GeoDataFrame from a file or URL.
-
-    For now, this is a convenience wrapper around :func:`geopandas.read_file`. In the
-    future, the implementation and this function signature may change.
+    IMPORTANT: non-linear geometry types (e.g., MultiSurface) are converted
+    to their linear approximations.
 
     Parameters
     ----------
-    filename : str, path object or file-like object
-        Either the absolute or relative path to the file or URL to
-        be opened, or any object with a read() method (such as an open file
-        or StringIO)
-    bbox : tuple | GeoDataFrame or GeoSeries | shapely Geometry, default None
-        Filter features by given bounding box, GeoSeries, GeoDataFrame or a shapely
-        geometry. With engine="fiona", CRS mis-matches are resolved if given a GeoSeries
-        or GeoDataFrame. With engine="pyogrio", bbox must be in the same CRS as the
-        dataset. Tuple is (minx, miny, maxx, maxy) to match the bounds property of
-        shapely geometry objects. Cannot be used with mask.
-    mask : dict | GeoDataFrame or GeoSeries | shapely Geometry, default None
-        Filter for features that intersect with the given dict-like geojson
-        geometry, GeoSeries, GeoDataFrame or shapely geometry.
-        CRS mis-matches are resolved if given a GeoSeries or GeoDataFrame.
-        Cannot be used with bbox.
-    rows : int or slice, default None
-        Load in specific rows by passing an integer (first `n` rows) or a
-        slice() object.
-    engine : str, "fiona" or "pyogrio"
-        The underlying library that is used to read the file. Currently, the
-        supported options are "fiona" and "pyogrio". Defaults to "fiona" if
-        installed, otherwise tries "pyogrio".
-    **kwargs :
-        Keyword args to be passed to the engine. In case of the "fiona" engine,
-        the keyword arguments are passed to :func:`fiona.open` or
-        :class:`fiona.collection.BytesCollection` when opening the file.
-        For more information on possible keywords, type:
-        ``import fiona; help(fiona.open)``. In case of the "pyogrio" engine,
-        the keyword arguments are passed to :func:`pyogrio.read_dataframe`.
 
-    Examples
-    --------
-    >>> df = geopandas.read_file("nybb.shp")  # doctest: +SKIP
-
-    Specifying layer of GPKG:
-
-    >>> df = geopandas.read_file("file.gpkg", layer='cities')  # doctest: +SKIP
-
-    Reading only first 10 rows:
-
-    >>> df = geopandas.read_file("nybb.shp", rows=10)  # doctest: +SKIP
-
-    Reading only geometries intersecting ``mask``:
-
-    >>> df = geopandas.read_file("nybb.shp", mask=polygon)  # doctest: +SKIP
-
-    Reading only geometries intersecting ``bbox``:
-
-    >>> df = geopandas.read_file("nybb.shp", bbox=(0, 0, 10, 20))  # doctest: +SKIP
+    path_or_buffer : pathlib.Path or str, or bytes buffer
+        A dataset path or URI, or raw buffer.
+    layer : int or str, optional (default: first layer)
+        If an integer is provided, it corresponds to the index of the layer
+        with the data source.  If a string is provided, it must match the name
+        of the layer in the data source.  Defaults to first layer in data source.
+    encoding : str, optional (default: None)
+        If present, will be used as the encoding for reading string values from
+        the data source, unless encoding can be inferred directly from the data
+        source.
+    columns : list-like, optional (default: all columns)
+        List of column names to import from the data source.  Column names must
+        exactly match the names in the data source, and will be returned in
+        the order they occur in the data source.  To avoid reading any columns,
+        pass an empty list-like.
+    read_geometry : bool, optional (default: True)
+        If True, will read geometry into WKB.  If False, geometry will be None.
+    force_2d : bool, optional (default: False)
+        If the geometry has Z values, setting this to True will cause those to
+        be ignored and 2D geometries to be returned
+    skip_features : int, optional (default: 0)
+        Number of features to skip from the beginning of the file before returning
+        features.  Must be less than the total number of features in the file.
+    max_features : int, optional (default: None)
+        Number of features to read from the file.  Must be less than the total
+        number of features in the file minus skip_features (if used).
+    where : str, optional (default: None)
+        Where clause to filter features in layer by attribute values.  Uses a
+        restricted form of SQL WHERE clause, defined here:
+        http://ogdi.sourceforge.net/prop/6.2.CapabilitiesMetadata.html
+        Examples: "ISO_A3 = 'CAN'", "POP_EST > 10000000 AND POP_EST < 100000000"
+    bbox : tuple of (xmin, ymin, xmax, ymax), optional (default: None)
+        If present, will be used to filter records whose geometry intersects this
+        box.  This must be in the same CRS as the dataset.  If GEOS is present
+        and used by GDAL, only geometries that intersect this bbox will be
+        returned; if GEOS is not available or not used by GDAL, all geometries
+        with bounding boxes that intersect this bbox will be returned.
+    fids : array-like, optional (default: None)
+        Array of integer feature id (FID) values to select. Cannot be combined
+        with other keywords to select a subset (`skip_features`, `max_features`,
+        `where` or `bbox`). Note that the starting index is driver and file
+        specific (e.g. typically 0 for Shapefile and 1 for GeoPackage, but can
+        still depend on the specific file). The performance of reading a large
+        number of features usings FIDs is also driver specific.
+    return_fids : bool, optional (default: False)
+        If True, will return the FIDs of the feature that were read.
 
     Returns
     -------
-    :obj:`geopandas.GeoDataFrame` or :obj:`pandas.DataFrame` :
 
-        If `ignore_geometry=True` a :obj:`pandas.DataFrame` will be returned.
-
-    Notes
-    -----
-    The format drivers will attempt to detect the encoding of your data, but
-    may fail. In this case, the proper encoding can be specified explicitly
-    by using the encoding keyword parameter, e.g. ``encoding='utf-8'``.
+    :obj:`geopolars.GeoDataFrame` or :obj:`polars.DataFrame`
     """
-    if geopandas is None:
-        raise ImportError(
-            "Geopandas is currently required for the read_file method. "
-            "Install it with `pip install geopandas`."
-        )
-
-    import pandas
-
-    geopandas_gdf = geopandas.read_file(filename=filename, *args, **kwargs)
-
-    if isinstance(geopandas_gdf, geopandas.GeoDataFrame):
-        return GeoDataFrame._from_geopandas(geopandas_gdf, force_wkb=True)
-
-    if isinstance(geopandas_gdf, pandas.DataFrame):
-        return pl.from_pandas(geopandas_gdf)
-
-    raise ValueError(
-        "Expected geopandas.read_file to return a GeoDataFrame, "
-        f"got {type(geopandas_gdf)}"
+    metadata, table = _read_arrow(
+        path_or_buffer,
+        layer=layer,
+        encoding=encoding,
+        columns=columns,
+        read_geometry=read_geometry,
+        force_2d=force_2d,
+        skip_features=skip_features,
+        max_features=max_features,
+        where=where,
+        bbox=bbox,
+        fids=fids,
+        sql=sql,
+        sql_dialect=sql_dialect,
+        return_fids=return_fids,
     )
+    # TODO: check for metadata['geometry_type'] not Unknown for whether to cast to
+    # geoarrow
+
+    geometry_name = metadata["geometry_name"] or "wkb_geometry"
+    # Note: we're passing in a pyarrow.Table so the result will always be a
+    # DataFrame, not series
+    df = cast(DataFrame, pl.from_arrow(table))
+    if geometry_name not in table.column_names:
+        return df
+
+    return GeoDataFrame(df)
