@@ -3,7 +3,7 @@ use crate::ops::affine::TransformOrigin;
 use crate::ops::length::GeodesicLengthMethod;
 #[cfg(feature = "proj")]
 use crate::ops::proj::ProjOptions;
-use crate::util::struct_series_from_chunks;
+use crate::util::{series_from_any_chunks, struct_series_from_chunks};
 use geo::algorithm::affine_ops::AffineTransform;
 use geopolars_arrow::util::array_to_geometry_array;
 use polars::export::arrow::array::Array;
@@ -296,7 +296,17 @@ impl GeoSeries for Series {
     }
 
     fn simplify(&self, tolerance: f64) -> Result<Series> {
-        crate::ops::simplify::simplify(self, tolerance)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .into_iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::simplify::simplify(geo_arr, &tolerance).unwrap();
+                result_arr.into_arrow()
+            })
+            .collect();
+
+        series_from_any_chunks(output_chunks)
     }
 
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series> {

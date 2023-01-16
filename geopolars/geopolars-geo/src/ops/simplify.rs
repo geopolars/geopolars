@@ -1,81 +1,65 @@
 use crate::error::Result;
-use crate::util::iter_geom;
 use geo::algorithm::simplify::Simplify;
-use geo::{Geometry, LineString, Polygon};
-use geopolars_arrow::linestring::LineStringSeries;
-use geopolars_arrow::linestring::MutableLineStringArray;
-use geopolars_arrow::polygon::MutablePolygonArray;
-use geopolars_arrow::polygon::PolygonSeries;
-use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
-use geozero::{CoordDimensions, ToWkb};
-use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
-use polars::prelude::{ListChunked, Series};
-use polars::series::IntoSeries;
+use geo::{Geometry, LineString, MultiLineString, MultiPolygon, Polygon};
+use geopolars_arrow::GeometryArrayEnum;
 
-pub(crate) fn simplify(series: &Series, tolerance: f64) -> Result<Series> {
-    match get_geoarrow_type(series) {
-        GeoArrowType::WKB => simplify_wkb(series, tolerance),
-        GeoArrowType::Point => Ok(series.clone()),
-        GeoArrowType::LineString => simplify_geoarrow_linestring(series, tolerance),
-        GeoArrowType::Polygon => simplify_geoarrow_polygon(series, tolerance),
+pub(crate) fn simplify(array: GeometryArrayEnum, tolerance: &f64) -> Result<GeometryArrayEnum> {
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            let output_geoms: Vec<Option<Geometry>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| simplify_geometry(geom, tolerance)))
+                .collect();
+
+            Ok(GeometryArrayEnum::WKB(output_geoms.into()))
+        }
+        GeometryArrayEnum::Point(arr) => Ok(GeometryArrayEnum::Point(arr)),
+        GeometryArrayEnum::MultiPoint(arr) => Ok(GeometryArrayEnum::MultiPoint(arr)),
+        GeometryArrayEnum::LineString(arr) => {
+            let output_geoms: Vec<Option<LineString>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
+                .collect();
+
+            Ok(GeometryArrayEnum::LineString(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            let output_geoms: Vec<Option<MultiLineString>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
+                .collect();
+
+            Ok(GeometryArrayEnum::MultiLineString(output_geoms.into()))
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            let output_geoms: Vec<Option<MultiPolygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
+                .collect();
+
+            Ok(GeometryArrayEnum::MultiPolygon(output_geoms.into()))
+        }
     }
 }
 
-fn simplify_wkb(series: &Series, tolerance: f64) -> Result<Series> {
-    let mut output_array = MutableBinaryArray::<i32>::with_capacity(series.len());
-
-    for geom in iter_geom(series) {
-        let value = match geom {
-            Geometry::Point(g) => Geometry::Point(g),
-            Geometry::MultiPoint(g) => Geometry::MultiPoint(g),
-            Geometry::LineString(g) => Geometry::LineString(g.simplify(&tolerance)),
-            Geometry::MultiLineString(g) => Geometry::MultiLineString(g.simplify(&tolerance)),
-            Geometry::Polygon(g) => Geometry::Polygon(g.simplify(&tolerance)),
-            Geometry::MultiPolygon(g) => Geometry::MultiPolygon(g.simplify(&tolerance)),
-            _ => unimplemented!(),
-        };
-
-        let wkb = value
-            .to_wkb(CoordDimensions::xy())
-            .expect("Unable to create wkb");
-
-        output_array.push(Some(wkb));
+fn simplify_geometry(geom: Geometry, tolerance: &f64) -> Geometry {
+    match geom {
+        Geometry::Point(g) => Geometry::Point(g),
+        Geometry::MultiPoint(g) => Geometry::MultiPoint(g),
+        Geometry::LineString(g) => Geometry::LineString(g.simplify(&tolerance)),
+        Geometry::MultiLineString(g) => Geometry::MultiLineString(g.simplify(&tolerance)),
+        Geometry::Polygon(g) => Geometry::Polygon(g.simplify(&tolerance)),
+        Geometry::MultiPolygon(g) => Geometry::MultiPolygon(g.simplify(&tolerance)),
+        _ => unimplemented!(),
     }
-
-    let result: BinaryArray<i32> = output_array.into();
-
-    let series = Series::try_from(("geometry", Box::new(result) as Box<dyn Array>))?;
-    Ok(series)
-}
-
-fn simplify_geoarrow_linestring(series: &Series, tolerance: f64) -> Result<Series> {
-    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
-    for chunk in LineStringSeries(series).chunks() {
-        let out: Vec<Option<LineString>> = chunk
-            .parts()
-            .iter_geo()
-            .map(|maybe_geo| maybe_geo.map(|g| g.simplify(&tolerance)))
-            .collect();
-        let mut_arr: MutableLineStringArray = out.into();
-        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
-    }
-
-    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
-}
-
-fn simplify_geoarrow_polygon(series: &Series, tolerance: f64) -> Result<Series> {
-    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
-    for chunk in PolygonSeries(series).chunks() {
-        let out: Vec<Option<Polygon>> = chunk
-            .parts()
-            .iter_geo()
-            .map(|maybe_geo| maybe_geo.map(|g| g.simplify(&tolerance)))
-            .collect();
-        let mut_arr: MutablePolygonArray = out.into();
-        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
-    }
-
-    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
 }
 
 #[cfg(test)]

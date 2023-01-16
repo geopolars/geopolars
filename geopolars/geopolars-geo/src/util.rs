@@ -42,3 +42,12 @@ pub(crate) fn struct_series_from_chunks(chunks: Vec<Box<dyn Array>>) -> Result<S
     let output = concatenate(refs.as_slice()).unwrap();
     Ok(Series::try_from(("geometry", output))?)
 }
+
+// This is a temporary workaround instead of remembering when to call StructChunked::from_chunks,
+// ListChunked::from_chunks, and BinaryChunked::from_chunks depending on the geometry type of the
+// column returned from a generic operation like simplify
+pub(crate) fn series_from_any_chunks(chunks: Vec<Box<dyn Array>>) -> Result<Series> {
+    let refs: Vec<&dyn Array> = chunks.iter().map(|chunk| chunk.as_ref()).collect();
+    let output = concatenate(refs.as_slice()).unwrap();
+    Ok(Series::try_from(("geometry", output))?)
+}
