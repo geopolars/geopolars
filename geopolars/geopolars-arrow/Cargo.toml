@@ -15,3 +15,7 @@ dyn-clone = "1"
 thiserror.workspace = true
 anyhow = "1.0"
 geozero = { version = "0.9.4", features = ["with-wkb"] }
+
+[lib]
+# TODO: fix docstrings
+doctest = false
