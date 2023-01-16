@@ -12,7 +12,7 @@ pub(crate) fn x(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
             arr.validity().cloned(),
         )),
         GeometryArrayEnum::WKB(arr) => {
-            let output_arr = MutablePrimitiveArray::<f64>::with_capacity(arr.len());
+            let mut output_arr = MutablePrimitiveArray::<f64>::with_capacity(arr.len());
             arr.iter_geo().for_each(|maybe_geom| {
                 let maybe_point = maybe_geom.map(|geom| match geom {
                     Geometry::Point(pt) => pt,
@@ -34,7 +34,7 @@ pub(crate) fn y(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
             arr.validity().cloned(),
         )),
         GeometryArrayEnum::WKB(arr) => {
-            let output_arr = MutablePrimitiveArray::<f64>::with_capacity(arr.len());
+            let mut output_arr = MutablePrimitiveArray::<f64>::with_capacity(arr.len());
             arr.iter_geo().for_each(|maybe_geom| {
                 let maybe_point = maybe_geom.map(|geom| match geom {
                     Geometry::Point(pt) => pt,

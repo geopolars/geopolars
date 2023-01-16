@@ -60,9 +60,9 @@ pub(crate) fn euclidean_length(array: GeometryArrayEnum) -> Result<PrimitiveArra
 
 pub(crate) fn geodesic_length(
     array: GeometryArrayEnum,
-    method: GeodesicLengthMethod,
+    method: &GeodesicLengthMethod,
 ) -> Result<PrimitiveArray<f64>> {
-    match &method {
+    match method {
         GeodesicLengthMethod::Geodesic => _geodesic_length(array),
         GeodesicLengthMethod::Haversine => haversine_length(array),
         GeodesicLengthMethod::Vincenty => vincenty_length(array),

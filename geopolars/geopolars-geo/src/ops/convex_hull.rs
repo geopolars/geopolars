@@ -96,7 +96,7 @@ mod tests {
             Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
 
         let result_series = input_series.convex_hull().unwrap();
-        let result_array: PolygonArray = result_series.chunks()[0].try_into().unwrap();
+        let result_array: PolygonArray = result_series.chunks()[0].clone().try_into().unwrap();
 
         let expected = polygon![
             (x:0.0, y: -10.0),
@@ -127,7 +127,7 @@ mod tests {
             Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
 
         let result_series = input_series.convex_hull().unwrap();
-        let result_array: PolygonArray = result_series.chunks()[0].try_into().unwrap();
+        let result_array: PolygonArray = result_series.chunks()[0].clone().try_into().unwrap();
 
         let expected = polygon![
             (x: 0.0, y: -10.0),

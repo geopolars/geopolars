@@ -49,6 +49,8 @@ impl From<ProjError> for GeopolarsError {
     }
 }
 
+// TODO: remove?
+#[allow(dead_code)]
 /// Helper to go from geometry object to string name of geometry type
 /// Copied from
 /// https://github.com/georust/geo/blob/a1226940a674c7ac5d1db43d495520e418af8907/geo-types/src/geometry/mod.rs#L253-L269

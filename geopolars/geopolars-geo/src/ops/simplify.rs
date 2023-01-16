@@ -54,10 +54,10 @@ fn simplify_geometry(geom: Geometry, tolerance: &f64) -> Geometry {
     match geom {
         Geometry::Point(g) => Geometry::Point(g),
         Geometry::MultiPoint(g) => Geometry::MultiPoint(g),
-        Geometry::LineString(g) => Geometry::LineString(g.simplify(&tolerance)),
-        Geometry::MultiLineString(g) => Geometry::MultiLineString(g.simplify(&tolerance)),
-        Geometry::Polygon(g) => Geometry::Polygon(g.simplify(&tolerance)),
-        Geometry::MultiPolygon(g) => Geometry::MultiPolygon(g.simplify(&tolerance)),
+        Geometry::LineString(g) => Geometry::LineString(g.simplify(tolerance)),
+        Geometry::MultiLineString(g) => Geometry::MultiLineString(g.simplify(tolerance)),
+        Geometry::Polygon(g) => Geometry::Polygon(g.simplify(tolerance)),
+        Geometry::MultiPolygon(g) => Geometry::MultiPolygon(g.simplify(tolerance)),
         _ => unimplemented!(),
     }
 }
@@ -83,7 +83,7 @@ mod tests {
             Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
 
         let result_series = input_series.simplify(1.0).unwrap();
-        let result_array: LineStringArray = result_series.chunks()[0].try_into().unwrap();
+        let result_array: LineStringArray = result_series.chunks()[0].clone().try_into().unwrap();
 
         let expected = line_string![
             ( x: 0.0, y: 0.0 ),
@@ -110,7 +110,7 @@ mod tests {
             Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
 
         let result_series = input_series.simplify(2.0).unwrap();
-        let result_array: PolygonArray = result_series.chunks()[0].try_into().unwrap();
+        let result_array: PolygonArray = result_series.chunks()[0].clone().try_into().unwrap();
 
         let expected = polygon![
             (x: 0., y: 0.),
