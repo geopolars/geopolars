@@ -227,7 +227,7 @@ impl LineStringArray {
         let list_data_type = DataType::LargeList(Box::new(ArrowField::new(
             "vertices",
             struct_data_type.clone(),
-            false,
+            true,
         )));
 
         // Validity
@@ -238,16 +238,10 @@ impl LineStringArray {
         };
 
         // Array data
-        let array_x =
-            Box::new(PrimitiveArray::new(DataType::Float64, self.x, None)) as Box<dyn Array>;
-        let array_y =
-            Box::new(PrimitiveArray::new(DataType::Float64, self.y, None)) as Box<dyn Array>;
+        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
+        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
 
-        let coord_array = Box::new(StructArray::new(
-            struct_data_type,
-            vec![array_x, array_y],
-            None,
-        )) as Box<dyn Array>;
+        let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
 
         ListArray::new(list_data_type, self.geom_offsets, coord_array, validity)
     }

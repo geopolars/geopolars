@@ -3,11 +3,15 @@ use crate::error::GeoArrowError;
 use crate::polygon::array::parse_polygon;
 use crate::trait_::GeometryArray;
 use geo::{MultiPolygon, Polygon};
-use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
+use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
+use polars::export::arrow::datatypes::DataType;
 use polars::export::arrow::offset::OffsetsBuffer;
+use polars::prelude::ArrowField;
+
+use super::MutableMultiPolygonArray;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<MultiPolygon>>` using Arrow's
 /// in-memory representation.
@@ -239,6 +243,63 @@ impl MultiPolygonArray {
     // ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
     //     ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     // }
+
+    pub fn into_arrow(self) -> ListArray<i64> {
+        // Data type
+        let coord_field_x = ArrowField::new("x", DataType::Float64, false);
+        let coord_field_y = ArrowField::new("y", DataType::Float64, false);
+        let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
+        let inner_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+            "vertices",
+            struct_data_type.clone(),
+            false,
+        )));
+        let middle_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+            "rings",
+            inner_list_data_type.clone(),
+            false,
+        )));
+        let outer_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+            "polygons",
+            middle_list_data_type.clone(),
+            true,
+        )));
+
+        // Validity
+        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        // Array data
+        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
+        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
+
+        // Coord struct array
+        let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
+
+        // Rings array
+        let inner_list_array =
+            ListArray::new(inner_list_data_type, self.ring_offsets, coord_array, None).boxed();
+
+        // Polygons array
+        let middle_list_array = ListArray::new(
+            middle_list_data_type,
+            self.polygon_offsets,
+            inner_list_array,
+            None,
+        )
+        .boxed();
+
+        // Geometry array
+        ListArray::new(
+            outer_list_data_type,
+            self.geom_offsets,
+            middle_list_array,
+            validity,
+        )
+    }
 }
 
 impl TryFrom<ListArray<i64>> for MultiPolygonArray {
@@ -288,6 +349,15 @@ impl TryFrom<ListArray<i64>> for MultiPolygonArray {
     }
 }
 
+impl TryFrom<Box<dyn Array>> for MultiPolygonArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
+        let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
+        arr.clone().try_into()
+    }
+}
+
 impl GeometryArray for MultiPolygonArray {
     #[inline]
     fn as_any(&self) -> &dyn std::any::Any {
@@ -323,5 +393,19 @@ impl GeometryArray for MultiPolygonArray {
 
     fn to_boxed(&self) -> Box<dyn GeometryArray> {
         Box::new(self.clone())
+    }
+}
+
+impl From<Vec<Option<MultiPolygon>>> for MultiPolygonArray {
+    fn from(other: Vec<Option<MultiPolygon>>) -> Self {
+        let mut_arr: MutableMultiPolygonArray = other.into();
+        mut_arr.into()
+    }
+}
+
+impl From<Vec<MultiPolygon>> for MultiPolygonArray {
+    fn from(other: Vec<MultiPolygon>) -> Self {
+        let mut_arr: MutableMultiPolygonArray = other.into();
+        mut_arr.into()
     }
 }

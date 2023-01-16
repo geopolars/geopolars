@@ -196,10 +196,8 @@ impl PointArray {
         let field_x = ArrowField::new("x", DataType::Float64, false);
         let field_y = ArrowField::new("y", DataType::Float64, false);
 
-        let array_x =
-            Box::new(PrimitiveArray::new(DataType::Float64, self.x, None)) as Box<dyn Array>;
-        let array_y =
-            Box::new(PrimitiveArray::new(DataType::Float64, self.y, None)) as Box<dyn Array>;
+        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
+        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
 
         let struct_data_type = DataType::Struct(vec![field_x, field_y]);
         let struct_values = vec![array_x, array_y];
