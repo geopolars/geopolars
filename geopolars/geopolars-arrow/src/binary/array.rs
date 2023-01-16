@@ -1,9 +1,10 @@
-use crate::MutableWKBArray;
 use crate::enum_::GeometryType;
+use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
+use crate::MutableWKBArray;
 use geo::Geometry;
 use geozero::{wkb::Wkb, ToGeo};
-use polars::export::arrow::array::BinaryArray;
+use polars::export::arrow::array::{Array, BinaryArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 
@@ -99,6 +100,15 @@ impl WKBArray {
 impl From<BinaryArray<i64>> for WKBArray {
     fn from(other: BinaryArray<i64>) -> Self {
         Self(other)
+    }
+}
+
+impl TryFrom<Box<dyn Array>> for WKBArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
+        let arr = value.as_any().downcast_ref::<BinaryArray<i64>>().unwrap();
+        Ok(arr.clone().into())
     }
 }
 

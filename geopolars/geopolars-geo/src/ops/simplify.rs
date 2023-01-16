@@ -66,29 +66,24 @@ fn simplify_geometry(geom: Geometry, tolerance: &f64) -> Geometry {
 mod tests {
     use crate::geoseries::GeoSeries;
     use geo::{line_string, polygon};
-    use geopolars_arrow::linestring::LineStringSeries;
-    use geopolars_arrow::linestring::MutableLineStringArray;
-    use geopolars_arrow::polygon::MutablePolygonArray;
-    use geopolars_arrow::polygon::PolygonSeries;
-    use polars::export::arrow::array::{Array, ListArray};
+    use geopolars_arrow::{LineStringArray, PolygonArray};
     use polars::prelude::Series;
 
     #[test]
     fn rdp_test() {
-        let line_strings = vec![line_string![
+        let input_geom = line_string![
             (x: 0.0, y: 0.0 ),
             (x: 5.0, y: 4.0 ),
             (x: 11.0, y: 5.5 ),
             (x: 17.3, y: 3.2 ),
             (x: 27.8, y: 0.1 ),
-        ]];
-        let mut_line_string_arr: MutableLineStringArray = line_strings.into();
-        let line_string_arr: ListArray<i64> = mut_line_string_arr.into();
-        let series =
-            Series::try_from(("geometry", Box::new(line_string_arr) as Box<dyn Array>)).unwrap();
+        ];
+        let input_array: LineStringArray = vec![input_geom].into();
+        let input_series =
+            Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
 
-        let actual = series.simplify(1.0).unwrap();
-        let actual_geo = LineStringSeries(&actual).get_as_geo(0).unwrap();
+        let result_series = input_series.simplify(1.0).unwrap();
+        let result_array: LineStringArray = result_series.chunks()[0].try_into().unwrap();
 
         let expected = line_string![
             ( x: 0.0, y: 0.0 ),
@@ -96,26 +91,26 @@ mod tests {
             ( x: 11.0, y: 5.5 ),
             ( x: 27.8, y: 0.1 ),
         ];
-        assert_eq!(actual_geo, expected);
+
+        assert_eq!(expected, result_array.get_as_geo(0).unwrap());
     }
 
     #[test]
     fn polygon() {
-        let polys = vec![polygon![
+        let input_geom = polygon![
             (x: 0., y: 0.),
             (x: 0., y: 10.),
             (x: 5., y: 11.),
             (x: 10., y: 10.),
             (x: 10., y: 0.),
             (x: 0., y: 0.),
-        ]];
-        let mut_poly_arr: MutablePolygonArray = polys.into();
+        ];
+        let input_array: PolygonArray = vec![input_geom].into();
+        let input_series =
+            Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
 
-        let poly_arr = mut_poly_arr.into_arrow();
-        let series = Series::try_from(("geometry", Box::new(poly_arr) as Box<dyn Array>)).unwrap();
-
-        let actual = series.simplify(2.0).unwrap();
-        let actual_geo = PolygonSeries(&actual).get_as_geo(0).unwrap();
+        let result_series = input_series.simplify(2.0).unwrap();
+        let result_array: PolygonArray = result_series.chunks()[0].try_into().unwrap();
 
         let expected = polygon![
             (x: 0., y: 0.),
@@ -125,6 +120,6 @@ mod tests {
             (x: 0., y: 0.),
         ];
 
-        assert_eq!(actual_geo, expected);
+        assert_eq!(expected, result_array.get_as_geo(0).unwrap());
     }
 }

@@ -283,6 +283,15 @@ impl TryFrom<ListArray<i64>> for LineStringArray {
     }
 }
 
+impl TryFrom<Box<dyn Array>> for LineStringArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
+        let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
+        arr.clone().try_into()
+    }
+}
+
 impl GeometryArray for LineStringArray {
     #[inline]
     fn as_any(&self) -> &dyn std::any::Any {

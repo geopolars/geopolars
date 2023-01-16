@@ -75,6 +75,9 @@ mod tests {
 
     #[test]
     fn convex_hull_for_multipoint() {
+        // NOTE: this actually gets interpreted as a LineString not MultiPoint due to inferring
+        // type from arrow schema when parsing from a series
+
         // Values borrowed from this test in geo crate: https://docs.rs/geo/0.14.2/src/geo/algorithm/convexhull.rs.html#323
         let input_geom: MultiPoint = vec![
             Point::new(0.0, 10.0),

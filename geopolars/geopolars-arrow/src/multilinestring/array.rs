@@ -3,7 +3,7 @@ use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use crate::PolygonArray;
 use geo::{Coord, LineString, MultiLineString};
-use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
+use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
@@ -238,7 +238,6 @@ impl MultiLineStringArray {
         let polygon_array: PolygonArray = self.into();
         polygon_array.into_arrow()
     }
-
 }
 
 impl TryFrom<ListArray<i64>> for MultiLineStringArray {
@@ -277,6 +276,15 @@ impl TryFrom<ListArray<i64>> for MultiLineStringArray {
             ring_offsets.clone(),
             validity.cloned(),
         ))
+    }
+}
+
+impl TryFrom<Box<dyn Array>> for MultiLineStringArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
+        let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
+        arr.clone().try_into()
     }
 }
 

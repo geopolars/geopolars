@@ -1,9 +1,9 @@
-use crate::LineStringArray;
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
+use crate::LineStringArray;
 use geo::{MultiPoint, Point};
-use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
+use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
@@ -249,6 +249,15 @@ impl TryFrom<ListArray<i64>> for MultiPointArray {
             geom_offsets.clone(),
             validity.cloned(),
         ))
+    }
+}
+
+impl TryFrom<Box<dyn Array>> for MultiPointArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
+        let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
+        arr.clone().try_into()
     }
 }
 

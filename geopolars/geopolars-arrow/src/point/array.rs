@@ -244,6 +244,15 @@ impl TryFrom<StructArray> for PointArray {
     }
 }
 
+impl TryFrom<Box<dyn Array>> for PointArray {
+    type Error = GeoArrowError;
+
+    fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
+        let arr = value.as_any().downcast_ref::<StructArray>().unwrap();
+        arr.clone().try_into()
+    }
+}
+
 impl From<PointArray> for StructArray {
     fn from(value: PointArray) -> Self {
         let field_x = ArrowField::new("x", DataType::Float64, false);
