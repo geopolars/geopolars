@@ -95,7 +95,7 @@ impl MultiLineStringArray {
     /// Returns the number of geometries in this array
     #[inline]
     pub fn len(&self) -> usize {
-        self.geom_offsets.len() - 1
+        self.geom_offsets.len()
     }
 
     /// Returns true if the array is empty

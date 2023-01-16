@@ -90,7 +90,7 @@ impl LineStringArray {
     /// Returns the number of geometries in this array
     #[inline]
     pub fn len(&self) -> usize {
-        self.geom_offsets.len() - 1
+        self.geom_offsets.len()
     }
 
     /// Returns true if the array is empty
@@ -155,6 +155,7 @@ impl LineStringArray {
 impl LineStringArray {
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> LineString {
+        println!("value_as_geo");
         let (start_idx, end_idx) = self.geom_offsets.start_end(i);
         let mut coords: Vec<Coord> = Vec::with_capacity(end_idx - start_idx);
 
@@ -179,6 +180,8 @@ impl LineStringArray {
 
     /// Iterator over geo Geometry objects, not looking at validity
     pub fn iter_geo_values(&self) -> impl Iterator<Item = LineString> + '_ {
+        println!("iter_geo_values");
+        dbg!(&self.len());
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
