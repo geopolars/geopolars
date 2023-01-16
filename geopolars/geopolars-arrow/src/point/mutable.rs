@@ -87,7 +87,7 @@ impl MutablePointArray {
 
         self.validity
             .as_mut()
-            .map(|x| x.pop()?.then(|| pt))
+            .map(|x| x.pop()?.then_some(pt))
             .unwrap_or_else(|| Some(pt))
     }
 

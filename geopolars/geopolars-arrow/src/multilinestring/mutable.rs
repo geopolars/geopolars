@@ -22,6 +22,14 @@ pub struct MutableMultiLineStringArray {
     validity: Option<MutableBitmap>,
 }
 
+pub type MultiLineStringInner = (
+    Vec<f64>,
+    Vec<f64>,
+    Offsets<i64>,
+    Offsets<i64>,
+    Option<MutableBitmap>,
+);
+
 impl MutableMultiLineStringArray {
     /// Creates a new empty [`MutableLineStringArray`].
     pub fn new() -> Self {
@@ -56,15 +64,7 @@ impl MutableMultiLineStringArray {
     }
 
     /// Extract the low-level APIs from the [`MutableLineStringArray`].
-    pub fn into_inner(
-        self,
-    ) -> (
-        Vec<f64>,
-        Vec<f64>,
-        Offsets<i64>,
-        Offsets<i64>,
-        Option<MutableBitmap>,
-    ) {
+    pub fn into_inner(self) -> MultiLineStringInner {
         (
             self.x,
             self.y,
@@ -77,6 +77,12 @@ impl MutableMultiLineStringArray {
     pub fn into_arrow(self) -> ListArray<i64> {
         let arr: MultiLineStringArray = self.into();
         arr.into_arrow()
+    }
+}
+
+impl Default for MutableMultiLineStringArray {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

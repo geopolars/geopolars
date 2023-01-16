@@ -3,9 +3,9 @@ use crate::linestring::array::check;
 use crate::multipoint::MutableMultiPointArray;
 use crate::LineStringArray;
 use geo::{CoordsIter, LineString};
-use polars::export::arrow::array::{ListArray};
+use polars::export::arrow::array::ListArray;
 use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
-use polars::export::arrow::offset::{Offsets};
+use polars::export::arrow::offset::Offsets;
 use polars::export::arrow::types::Index;
 use std::convert::From;
 
