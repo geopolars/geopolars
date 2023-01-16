@@ -52,7 +52,7 @@ impl GeometryArrayEnum {
             GeometryArrayEnum::Polygon(arr) => arr.into_arrow().boxed(),
             GeometryArrayEnum::MultiPoint(arr) => arr.into_arrow().boxed(),
             GeometryArrayEnum::MultiLineString(arr) => arr.into_arrow().boxed(),
-            GeometryArrayEnum::MultiPolygon(arr) => todo!(),
+            GeometryArrayEnum::MultiPolygon(arr) => arr.into_arrow().boxed(),
             GeometryArrayEnum::WKB(arr) => arr.into_arrow().boxed(),
         }
     }
