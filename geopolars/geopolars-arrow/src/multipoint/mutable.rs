@@ -64,8 +64,8 @@ impl MutableMultiPointArray {
     }
 
     pub fn into_arrow(self) -> ListArray<i64> {
-        let mutable_line_string_array: MutableLineStringArray = self.into();
-        mutable_line_string_array.into_arrow()
+        let arr: MultiPointArray = self.into();
+        arr.into_arrow()
     }
 
     /// Adds a new value to the array.

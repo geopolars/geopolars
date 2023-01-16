@@ -1,78 +1,68 @@
 use crate::error::Result;
-use crate::util::iter_geom;
 use geo::algorithm::convex_hull::ConvexHull;
-use geo::{Geometry, Polygon};
-use geopolars_arrow::linestring::LineStringSeries;
-use geopolars_arrow::polygon::{MutablePolygonArray, PolygonSeries};
-use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
-use geozero::{CoordDimensions, ToWkb};
-use polars::error::ErrString;
-use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
-use polars::prelude::{ListChunked, PolarsError, Series};
-use polars::series::IntoSeries;
+use geo::Polygon;
+use geopolars_arrow::GeometryArrayEnum;
 
-pub(crate) fn convex_hull(series: &Series) -> Result<Series> {
-    match get_geoarrow_type(series) {
-        GeoArrowType::WKB => convex_hull_wkb(series),
-        GeoArrowType::LineString => convex_hull_geoarrow_linestring(series),
-        GeoArrowType::Polygon => convex_hull_geoarrow_polygon(series),
-        _ => panic!("convex hull not supported for this geometry type"),
+pub(crate) fn convex_hull(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::Point(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+
+        GeometryArrayEnum::MultiPoint(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
     }
-}
-
-fn convex_hull_wkb(series: &Series) -> Result<Series> {
-    let mut output_array = MutableBinaryArray::<i32>::with_capacity(series.len());
-
-    for geom in iter_geom(series) {
-        let hull = match geom {
-            Geometry::Polygon(polygon) => Ok(polygon.convex_hull()),
-            Geometry::MultiPolygon(multi_poly) => Ok(multi_poly.convex_hull()),
-            Geometry::MultiPoint(points) => Ok(points.convex_hull()),
-            Geometry::LineString(line_string) => Ok(line_string.convex_hull()),
-            Geometry::MultiLineString(multi_line_string) => Ok(multi_line_string.convex_hull()),
-            _ => Err(PolarsError::ComputeError(ErrString::from(
-                "ConvexHull not supported for this geometry type",
-            ))),
-        }?;
-        let hull: Geometry<f64> = hull.into();
-        let hull_wkb = hull.to_wkb(CoordDimensions::xy()).unwrap();
-
-        output_array.push(Some(hull_wkb));
-    }
-
-    let result: BinaryArray<i32> = output_array.into();
-    let series = Series::try_from(("geometry", Box::new(result) as Box<dyn Array>))?;
-    Ok(series)
-}
-
-fn convex_hull_geoarrow_linestring(series: &Series) -> Result<Series> {
-    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
-    for chunk in LineStringSeries(series).chunks() {
-        let out: Vec<Option<Polygon>> = chunk
-            .parts()
-            .iter_geo()
-            .map(|maybe_geo| maybe_geo.map(|g| g.convex_hull()))
-            .collect();
-        let mut_arr: MutablePolygonArray = out.into();
-        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
-    }
-
-    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
-}
-
-fn convex_hull_geoarrow_polygon(series: &Series) -> Result<Series> {
-    let mut output_chunks: Vec<Box<dyn Array>> = vec![];
-    for chunk in PolygonSeries(series).chunks() {
-        let out: Vec<Option<Polygon>> = chunk
-            .parts()
-            .iter_geo()
-            .map(|maybe_geo| maybe_geo.map(|g| g.convex_hull()))
-            .collect();
-        let mut_arr: MutablePolygonArray = out.into();
-        output_chunks.push(Box::new(mut_arr.into_arrow()) as Box<dyn Array>);
-    }
-
-    Ok(ListChunked::from_chunks("result", output_chunks).into_series())
 }
 
 #[cfg(test)]

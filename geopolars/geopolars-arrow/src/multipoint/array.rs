@@ -215,6 +215,11 @@ impl MultiPointArray {
     // ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
     //     ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     // }
+
+    pub fn into_arrow(self) -> ListArray<i64> {
+        let linestring_array: LineStringArray = self.into();
+        linestring_array.into_arrow()
+    }
 }
 
 impl TryFrom<ListArray<i64>> for MultiPointArray {

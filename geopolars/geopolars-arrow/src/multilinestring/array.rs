@@ -233,6 +233,12 @@ impl MultiLineStringArray {
     // ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
     //     ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     // }
+
+    pub fn into_arrow(self) -> ListArray<i64> {
+        let polygon_array: PolygonArray = self.into();
+        polygon_array.into_arrow()
+    }
+
 }
 
 impl TryFrom<ListArray<i64>> for MultiLineStringArray {

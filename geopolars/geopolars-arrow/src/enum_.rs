@@ -1,3 +1,5 @@
+use polars::export::arrow::array::Array;
+
 use crate::{
     LineStringArray, MultiLineStringArray, MultiPointArray, MultiPolygonArray, PointArray,
     PolygonArray, WKBArray,
@@ -41,5 +43,17 @@ impl GeometryArrayEnum {
     /// Returns true if the array is empty
     pub fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+
+    pub fn into_arrow(self) -> Box<dyn Array> {
+        match self {
+            GeometryArrayEnum::Point(arr) => arr.into_arrow().boxed(),
+            GeometryArrayEnum::LineString(arr) => arr.into_arrow().boxed(),
+            GeometryArrayEnum::Polygon(arr) => arr.into_arrow().boxed(),
+            GeometryArrayEnum::MultiPoint(arr) => arr.into_arrow().boxed(),
+            GeometryArrayEnum::MultiLineString(arr) => arr.into_arrow().boxed(),
+            GeometryArrayEnum::MultiPolygon(arr) => todo!(),
+            GeometryArrayEnum::WKB(arr) => arr.into_arrow().boxed(),
+        }
     }
 }

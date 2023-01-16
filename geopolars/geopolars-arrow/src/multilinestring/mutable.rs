@@ -75,8 +75,8 @@ impl MutableMultiLineStringArray {
     }
 
     pub fn into_arrow(self) -> ListArray<i64> {
-        let mutable_polygon_array: MutablePolygonArray = self.into();
-        mutable_polygon_array.into_arrow()
+        let arr: MultiLineStringArray = self.into();
+        arr.into_arrow()
     }
 }
 
