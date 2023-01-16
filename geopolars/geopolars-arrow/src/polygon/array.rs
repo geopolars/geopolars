@@ -3,11 +3,14 @@ use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use crate::MultiLineStringArray;
 use geo::{Coord, LineString, Polygon};
+use polars::export::arrow::array::Array;
 use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
+use polars::export::arrow::datatypes::DataType;
 use polars::export::arrow::offset::OffsetsBuffer;
+use polars::prelude::ArrowField;
 
 use super::MutablePolygonArray;
 
@@ -254,6 +257,56 @@ impl PolygonArray {
         &self,
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
+    }
+
+    pub fn into_arrow(self) -> ListArray<i64> {
+        // Data type
+        let coord_field_x = ArrowField::new("x", DataType::Float64, false);
+        let coord_field_y = ArrowField::new("y", DataType::Float64, false);
+        let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
+        let inner_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+            "vertices",
+            struct_data_type.clone(),
+            false,
+        )));
+        let outer_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+            "rings",
+            inner_list_data_type.clone(),
+            false,
+        )));
+
+        // Validity
+        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        // Array data
+        let array_x =
+            Box::new(PrimitiveArray::new(DataType::Float64, self.x, None)) as Box<dyn Array>;
+        let array_y =
+            Box::new(PrimitiveArray::new(DataType::Float64, self.y, None)) as Box<dyn Array>;
+
+        let coord_array = Box::new(StructArray::new(
+            struct_data_type,
+            vec![array_x, array_y],
+            None,
+        )) as Box<dyn Array>;
+
+        let inner_list_array = Box::new(ListArray::new(
+            inner_list_data_type,
+            self.ring_offsets,
+            coord_array,
+            None,
+        )) as Box<dyn Array>;
+
+        ListArray::new(
+            outer_list_data_type,
+            self.geom_offsets,
+            inner_list_array,
+            validity,
+        )
     }
 }
 
