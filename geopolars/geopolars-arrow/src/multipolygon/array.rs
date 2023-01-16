@@ -1,10 +1,9 @@
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
+use crate::polygon::array::parse_polygon;
 use crate::trait_::GeometryArray;
-use crate::MultiLineStringArray;
-use geo::{Coord, LineString, Polygon};
-use polars::export::arrow::array::Array;
-use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
+use geo::{MultiPolygon, Polygon};
+use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
 use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
 use polars::export::arrow::bitmap::Bitmap;
 use polars::export::arrow::buffer::Buffer;
@@ -12,20 +11,23 @@ use polars::export::arrow::datatypes::DataType;
 use polars::export::arrow::offset::OffsetsBuffer;
 use polars::prelude::ArrowField;
 
-use super::MutablePolygonArray;
+use super::MutableMultiPolygonArray;
 
-/// A [`GeometryArray`] semantically equivalent to `Vec<Option<Polygon>>` using Arrow's
+/// A [`GeometryArray`] semantically equivalent to `Vec<Option<MultiPolygon>>` using Arrow's
 /// in-memory representation.
 #[derive(Debug, Clone)]
-pub struct PolygonArray {
+pub struct MultiPolygonArray {
     /// Buffer of x coordinates
     x: Buffer<f64>,
 
     /// Buffer of y coordinates
     y: Buffer<f64>,
 
-    /// Offsets into the ring array where each geometry starts
+    /// Offsets into the polygon array where each geometry starts
     geom_offsets: OffsetsBuffer<i64>,
+
+    /// Offsets into the ring array where each polygon starts
+    polygon_offsets: OffsetsBuffer<i64>,
 
     /// Offsets into the coordinate array where each ring starts
     ring_offsets: OffsetsBuffer<i64>,
@@ -54,14 +56,15 @@ pub(super) fn check(
     Ok(())
 }
 
-impl PolygonArray {
-    /// Create a new PolygonArray from parts
+impl MultiPolygonArray {
+    /// Create a new MultiPolygonArray from parts
     /// # Implementation
     /// This function is `O(1)`.
     pub fn new(
         x: Buffer<f64>,
         y: Buffer<f64>,
         geom_offsets: OffsetsBuffer<i64>,
+        polygon_offsets: OffsetsBuffer<i64>,
         ring_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Self {
@@ -70,18 +73,20 @@ impl PolygonArray {
             x,
             y,
             geom_offsets,
+            polygon_offsets,
             ring_offsets,
             validity,
         }
     }
 
-    /// Create a new PolygonArray from parts
+    /// Create a new MultiPolygonArray from parts
     /// # Implementation
     /// This function is `O(1)`.
     pub fn try_new(
         x: Buffer<f64>,
         y: Buffer<f64>,
         geom_offsets: OffsetsBuffer<i64>,
+        polygon_offsets: OffsetsBuffer<i64>,
         ring_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Result<Self, GeoArrowError> {
@@ -90,6 +95,7 @@ impl PolygonArray {
             x,
             y,
             geom_offsets,
+            polygon_offsets,
             ring_offsets,
             validity,
         })
@@ -154,64 +160,39 @@ impl PolygonArray {
             x: self.x.clone().slice_unchecked(offset, length),
             y: self.y.clone().slice_unchecked(offset, length),
             geom_offsets: self.geom_offsets.clone().slice_unchecked(offset, length),
+            polygon_offsets: self.polygon_offsets.clone().slice_unchecked(offset, length),
             ring_offsets: self.ring_offsets.clone().slice_unchecked(offset, length),
             validity,
         }
     }
 }
 
-pub(crate) fn parse_polygon(
-    x: &Buffer<f64>,
-    y: &Buffer<f64>,
-    polygon_offsets: &OffsetsBuffer<i64>,
-    ring_offsets: &OffsetsBuffer<i64>,
-    i: usize,
-) -> Polygon {
-    // Start and end indices into the ring_offsets buffer
-    let (start_geom_idx, end_geom_idx) = polygon_offsets.start_end(i);
-
-    // Parse exterior ring first
-    let (start_ext_ring_idx, end_ext_ring_idx) = ring_offsets.start_end(start_geom_idx);
-    let mut exterior_coords: Vec<Coord> = Vec::with_capacity(end_ext_ring_idx - start_ext_ring_idx);
-
-    for i in start_ext_ring_idx..end_ext_ring_idx {
-        exterior_coords.push(Coord { x: x[i], y: y[i] })
-    }
-    let exterior_ring: LineString = exterior_coords.into();
-
-    // Parse any interior rings
-    // Note: need to check if interior rings exist otherwise the subtraction below can overflow
-    let has_interior_rings = end_geom_idx - start_geom_idx > 1;
-    let n_interior_rings = if has_interior_rings {
-        end_geom_idx - start_geom_idx - 2
-    } else {
-        0
-    };
-    let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings);
-    for ring_idx in start_geom_idx + 1..end_geom_idx {
-        let (start_coord_idx, end_coord_idx) = ring_offsets.start_end(ring_idx);
-        let mut ring: Vec<Coord> = Vec::with_capacity(end_coord_idx - start_coord_idx);
-        for coord_idx in start_coord_idx..end_coord_idx {
-            ring.push(Coord {
-                x: x[coord_idx],
-                y: y[coord_idx],
-            })
-        }
-        interior_rings.push(ring.into());
-    }
-
-    Polygon::new(exterior_ring, interior_rings)
-}
-
 // Implement geometry accessors
-impl PolygonArray {
+impl MultiPolygonArray {
+    // TODO: Need to test this
     /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> Polygon {
-        parse_polygon(&self.x, &self.y, &self.geom_offsets, &self.ring_offsets, i)
+    pub fn value_as_geo(&self, i: usize) -> MultiPolygon {
+        // Start and end indices into the polygon_offsets buffer
+        let (start_geom_idx, end_geom_idx) = self.geom_offsets.start_end(i);
+
+        let mut polygons: Vec<Polygon> = Vec::with_capacity(end_geom_idx - start_geom_idx);
+
+        for geom_idx in start_geom_idx..end_geom_idx {
+            let poly = parse_polygon(
+                &self.x,
+                &self.y,
+                &self.polygon_offsets,
+                &self.ring_offsets,
+                geom_idx,
+            );
+            polygons.push(poly);
+        }
+
+        MultiPolygon::new(polygons)
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
+    pub fn get_as_geo(&self, i: usize) -> Option<MultiPolygon> {
         if self.is_null(i) {
             return None;
         }
@@ -220,44 +201,48 @@ impl PolygonArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    pub fn iter_geo_values(&self) -> impl Iterator<Item = Polygon> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = MultiPolygon> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
-    pub fn iter_geo(&self) -> ZipValidity<Polygon, impl Iterator<Item = Polygon> + '_, BitmapIter> {
+    pub fn iter_geo(
+        &self,
+    ) -> ZipValidity<MultiPolygon, impl Iterator<Item = MultiPolygon> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
-    /// Returns the value at slot `i` as a GEOS geometry.
-    #[cfg(feature = "geos")]
-    pub fn value_as_geos(&self, i: usize) -> geos::Geometry {
-        (&self.value_as_geo(i)).try_into().unwrap()
-    }
+    // GEOS from not implemented for MultiLineString I suppose
+    //
+    // /// Returns the value at slot `i` as a GEOS geometry.
+    // #[cfg(feature = "geos")]
+    // pub fn value_as_geos(&self, i: usize) -> geos::Geometry {
+    //     (&self.value_as_geo(i)).try_into().unwrap()
+    // }
 
-    /// Gets the value at slot `i` as a GEOS geometry, additionally checking the validity bitmap
-    #[cfg(feature = "geos")]
-    pub fn get_as_geos(&self, i: usize) -> Option<geos::Geometry> {
-        if self.is_null(i) {
-            return None;
-        }
+    // /// Gets the value at slot `i` as a GEOS geometry, additionally checking the validity bitmap
+    // #[cfg(feature = "geos")]
+    // pub fn get_as_geos(&self, i: usize) -> Option<geos::Geometry> {
+    //     if self.is_null(i) {
+    //         return None;
+    //     }
 
-        self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
-    }
+    //     self.get_as_geo(i).as_ref().map(|g| g.try_into().unwrap())
+    // }
 
-    /// Iterator over GEOS geometry objects
-    #[cfg(feature = "geos")]
-    pub fn iter_geos_values(&self) -> impl Iterator<Item = geos::Geometry> + '_ {
-        (0..self.len()).map(|i| self.value_as_geos(i))
-    }
+    // /// Iterator over GEOS geometry objects
+    // #[cfg(feature = "geos")]
+    // pub fn iter_geos_values(&self) -> impl Iterator<Item = geos::Geometry> + '_ {
+    //     (0..self.len()).map(|i| self.value_as_geos(i))
+    // }
 
-    /// Iterator over GEOS geometry objects, taking validity into account
-    #[cfg(feature = "geos")]
-    pub fn iter_geos(
-        &self,
-    ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
-        ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
-    }
+    // /// Iterator over GEOS geometry objects, taking validity into account
+    // #[cfg(feature = "geos")]
+    // pub fn iter_geos(
+    //     &self,
+    // ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
+    //     ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
+    // }
 
     pub fn into_arrow(self) -> ListArray<i64> {
         // Data type
@@ -269,9 +254,14 @@ impl PolygonArray {
             struct_data_type.clone(),
             false,
         )));
-        let outer_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+        let middle_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
             "rings",
             inner_list_data_type.clone(),
+            false,
+        )));
+        let outer_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+            "polygons",
+            middle_list_data_type.clone(),
             true,
         )));
 
@@ -286,35 +276,54 @@ impl PolygonArray {
         let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
         let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
 
+        // Coord struct array
         let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
 
+        // Rings array
         let inner_list_array =
             ListArray::new(inner_list_data_type, self.ring_offsets, coord_array, None).boxed();
 
+        // Polygons array
+        let middle_list_array = ListArray::new(
+            middle_list_data_type,
+            self.polygon_offsets,
+            inner_list_array,
+            None,
+        )
+        .boxed();
+
+        // Geometry array
         ListArray::new(
             outer_list_data_type,
             self.geom_offsets,
-            inner_list_array,
+            middle_list_array,
             validity,
         )
     }
 }
 
-impl TryFrom<ListArray<i64>> for PolygonArray {
+impl TryFrom<ListArray<i64>> for MultiPolygonArray {
     type Error = GeoArrowError;
 
     fn try_from(value: ListArray<i64>) -> Result<Self, Self::Error> {
         let geom_offsets = value.offsets();
         let validity = value.validity();
 
-        let inner_dyn_array = value.values();
-        let inner_array = inner_dyn_array
+        let first_level_dyn_array = value.values();
+        let first_level_array = first_level_dyn_array
             .as_any()
             .downcast_ref::<ListArray<i64>>()
             .unwrap();
 
-        let ring_offsets = inner_array.offsets();
-        let coords_dyn_array = inner_array.values();
+        let polygon_offsets = first_level_array.offsets();
+        let second_level_dyn_array = first_level_array.values();
+        let second_level_array = second_level_dyn_array
+            .as_any()
+            .downcast_ref::<ListArray<i64>>()
+            .unwrap();
+
+        let ring_offsets = second_level_array.offsets();
+        let coords_dyn_array = second_level_array.values();
         let coords_array = coords_dyn_array
             .as_any()
             .downcast_ref::<StructArray>()
@@ -333,13 +342,14 @@ impl TryFrom<ListArray<i64>> for PolygonArray {
             x_array_values.values().clone(),
             y_array_values.values().clone(),
             geom_offsets.clone(),
+            polygon_offsets.clone(),
             ring_offsets.clone(),
             validity.cloned(),
         ))
     }
 }
 
-impl TryFrom<Box<dyn Array>> for PolygonArray {
+impl TryFrom<Box<dyn Array>> for MultiPolygonArray {
     type Error = GeoArrowError;
 
     fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
@@ -348,7 +358,7 @@ impl TryFrom<Box<dyn Array>> for PolygonArray {
     }
 }
 
-impl GeometryArray for PolygonArray {
+impl GeometryArray for MultiPolygonArray {
     #[inline]
     fn as_any(&self) -> &dyn std::any::Any {
         self
@@ -386,30 +396,16 @@ impl GeometryArray for PolygonArray {
     }
 }
 
-impl From<Vec<Option<Polygon>>> for PolygonArray {
-    fn from(other: Vec<Option<Polygon>>) -> Self {
-        let mut_arr: MutablePolygonArray = other.into();
+impl From<Vec<Option<MultiPolygon>>> for MultiPolygonArray {
+    fn from(other: Vec<Option<MultiPolygon>>) -> Self {
+        let mut_arr: MutableMultiPolygonArray = other.into();
         mut_arr.into()
     }
 }
 
-impl From<Vec<Polygon>> for PolygonArray {
-    fn from(other: Vec<Polygon>) -> Self {
-        let mut_arr: MutablePolygonArray = other.into();
+impl From<Vec<MultiPolygon>> for MultiPolygonArray {
+    fn from(other: Vec<MultiPolygon>) -> Self {
+        let mut_arr: MutableMultiPolygonArray = other.into();
         mut_arr.into()
-    }
-}
-
-/// Polygon and MultiLineString have the same layout, so enable conversions between the two to
-/// change the semantic type
-impl From<PolygonArray> for MultiLineStringArray {
-    fn from(value: PolygonArray) -> Self {
-        Self::new(
-            value.x,
-            value.y,
-            value.geom_offsets,
-            value.ring_offsets,
-            value.validity,
-        )
     }
 }

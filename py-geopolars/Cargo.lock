@@ -645,8 +645,12 @@ dependencies = [
 name = "geopolars-arrow"
 version = "0.1.0-alpha.4"
 dependencies = [
+ "anyhow",
+ "dyn-clone",
  "geo",
+ "geozero",
  "polars",
+ "thiserror",
 ]
 
 [[package]]

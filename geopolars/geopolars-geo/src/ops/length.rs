@@ -1,16 +1,15 @@
 use crate::error::Result;
-use crate::util::{
-    iter_geom, map_linestring_series_to_float_series, map_polygon_series_to_float_series,
-};
 use geo::algorithm::euclidean_length::EuclideanLength;
 use geo::algorithm::geodesic_length::GeodesicLength;
 use geo::algorithm::haversine_length::HaversineLength;
 use geo::algorithm::vincenty_length::VincentyLength;
 use geo::Geometry;
-use geopolars_arrow::util::{get_geoarrow_type, GeoArrowType};
+use geopolars_arrow::GeometryArrayEnum;
 use polars::error::ErrString;
-use polars::export::arrow::array::{Array, MutablePrimitiveArray, PrimitiveArray};
-use polars::prelude::{PolarsError, Series};
+use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
+use polars::export::arrow::bitmap::Bitmap;
+use polars::export::arrow::datatypes::DataType as ArrowDataType;
+use polars::prelude::PolarsError;
 
 pub enum GeodesicLengthMethod {
     Haversine,
@@ -18,200 +17,310 @@ pub enum GeodesicLengthMethod {
     Vincenty,
 }
 
-pub(crate) fn euclidean_length(series: &Series) -> Result<Series> {
-    match get_geoarrow_type(series) {
-        GeoArrowType::WKB => euclidean_length_wkb(series),
-        GeoArrowType::Point => length_geoarrow_point(series),
-        GeoArrowType::LineString => {
-            map_linestring_series_to_float_series(series, |ls| ls.euclidean_length())
+pub(crate) fn euclidean_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+    let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
+
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_euclidean_length)));
         }
-        _ => panic!("Unexpected geometry type for operation euclidean_length"),
+        GeometryArrayEnum::Point(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.euclidean_length())));
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(maybe_g.map(|g| g.exterior().euclidean_length()))
+            });
+        }
+        GeometryArrayEnum::MultiPoint(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.euclidean_length())));
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(maybe_g.map(|g| {
+                    g.iter()
+                        .map(|poly| poly.exterior().euclidean_length())
+                        .sum()
+                }))
+            });
+        }
+    }
+
+    Ok(output_array.into())
+}
+
+pub(crate) fn geodesic_length(
+    array: GeometryArrayEnum,
+    method: &GeodesicLengthMethod,
+) -> Result<PrimitiveArray<f64>> {
+    match method {
+        GeodesicLengthMethod::Geodesic => _geodesic_length(array),
+        GeodesicLengthMethod::Haversine => haversine_length(array),
+        GeodesicLengthMethod::Vincenty => vincenty_length(array),
     }
 }
 
-pub(crate) fn geodesic_length(series: &Series, method: GeodesicLengthMethod) -> Result<Series> {
+fn _geodesic_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+    let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
+
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_geodesic_length)));
+        }
+        GeometryArrayEnum::Point(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.geodesic_length())));
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(maybe_g.map(|g| g.exterior().geodesic_length()))
+            });
+        }
+        GeometryArrayEnum::MultiPoint(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.geodesic_length())));
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(
+                    maybe_g.map(|g| g.iter().map(|poly| poly.exterior().geodesic_length()).sum()),
+                )
+            });
+        }
+    }
+
+    Ok(output_array.into())
+}
+
+fn haversine_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+    let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
+
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_haversine_length)));
+        }
+        GeometryArrayEnum::Point(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.haversine_length())));
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(maybe_g.map(|g| g.exterior().haversine_length()))
+            });
+        }
+        GeometryArrayEnum::MultiPoint(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.haversine_length())));
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(maybe_g.map(|g| {
+                    g.iter()
+                        .map(|poly| poly.exterior().haversine_length())
+                        .sum()
+                }))
+            });
+        }
+    }
+
+    Ok(output_array.into())
+}
+
+fn vincenty_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+    let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
     let map_vincenty_error =
         |_| PolarsError::ComputeError(ErrString::from("Failed to calculate vincenty length"));
 
-    match (&method, get_geoarrow_type(series)) {
-        (_, GeoArrowType::Point) => length_geoarrow_point(series),
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_vincenty_length)));
+        }
+        GeometryArrayEnum::Point(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array
+                    .push(maybe_g.map(|g| g.vincenty_length().map_err(map_vincenty_error).unwrap()))
+            });
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(maybe_g.map(|g| {
+                    g.exterior()
+                        .vincenty_length()
+                        .map_err(map_vincenty_error)
+                        .unwrap()
+                }))
+            });
+        }
+        GeometryArrayEnum::MultiPoint(arr) => {
+            return Ok(zero_arr(arr.len(), arr.validity()));
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array
+                    .push(maybe_g.map(|g| g.vincenty_length().map_err(map_vincenty_error).unwrap()))
+            });
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            arr.iter_geo().for_each(|maybe_g| {
+                output_array.push(maybe_g.map(|g| {
+                    g.iter()
+                        .map(|poly| {
+                            poly.exterior()
+                                .vincenty_length()
+                                .map_err(map_vincenty_error)
+                                .unwrap()
+                        })
+                        .sum()
+                }))
+            });
+        }
+    }
 
-        (GeodesicLengthMethod::Geodesic, GeoArrowType::LineString) => {
-            map_linestring_series_to_float_series(series, |ls| ls.geodesic_length())
-        }
-        (GeodesicLengthMethod::Haversine, GeoArrowType::LineString) => {
-            map_linestring_series_to_float_series(series, |ls| ls.haversine_length())
-        }
-        (GeodesicLengthMethod::Vincenty, GeoArrowType::LineString) => {
-            map_linestring_series_to_float_series(series, |ls| {
-                ls.vincenty_length().map_err(map_vincenty_error).unwrap()
-            })
-        }
+    Ok(output_array.into())
+}
 
-        (GeodesicLengthMethod::Geodesic, GeoArrowType::Polygon) => {
-            map_polygon_series_to_float_series(series, |p| p.exterior().geodesic_length())
+/// Create a Float64Array with given length and validity
+fn zero_arr(len: usize, validity: Option<&Bitmap>) -> PrimitiveArray<f64> {
+    PrimitiveArray::<f64>::new(
+        ArrowDataType::Float64,
+        vec![0.; len].into(),
+        validity.cloned(),
+    )
+}
+
+fn geometry_euclidean_length(geom: Geometry) -> f64 {
+    match geom {
+        Geometry::Point(_) => 0.0,
+        Geometry::Line(line) => line.euclidean_length(),
+        Geometry::LineString(line_string) => line_string.euclidean_length(),
+        Geometry::Polygon(polygon) => polygon.exterior().euclidean_length(),
+        Geometry::MultiPoint(_) => 0.0,
+        Geometry::MultiLineString(multi_line_string) => multi_line_string.euclidean_length(),
+        Geometry::MultiPolygon(mutli_polygon) => mutli_polygon
+            .iter()
+            .map(|poly| poly.exterior().euclidean_length())
+            .sum(),
+        Geometry::GeometryCollection(_) => {
+            panic!("Length methods are not implemented for geometry collection")
         }
-        (GeodesicLengthMethod::Haversine, GeoArrowType::Polygon) => {
-            map_polygon_series_to_float_series(series, |p| p.exterior().haversine_length())
+        Geometry::Rect(rec) => rec.to_polygon().exterior().euclidean_length(),
+        Geometry::Triangle(triangle) => triangle.to_polygon().exterior().euclidean_length(),
+    }
+}
+
+fn geometry_geodesic_length(geom: Geometry) -> f64 {
+    match geom {
+        Geometry::Point(_) => 0.0,
+        Geometry::Line(line) => line.geodesic_length(),
+        Geometry::LineString(line_string) => line_string.geodesic_length(),
+        Geometry::Polygon(polygon) => polygon.exterior().geodesic_length(),
+        Geometry::MultiPoint(_) => 0.0,
+        Geometry::MultiLineString(multi_line_string) => multi_line_string.geodesic_length(),
+        Geometry::MultiPolygon(mutli_polygon) => mutli_polygon
+            .iter()
+            .map(|poly| poly.exterior().geodesic_length())
+            .sum(),
+        Geometry::GeometryCollection(_) => {
+            panic!("Length methods are not implemented for geometry collection")
         }
-        (GeodesicLengthMethod::Vincenty, GeoArrowType::Polygon) => {
-            map_polygon_series_to_float_series(series, |p| {
-                p.exterior()
+        Geometry::Rect(rec) => rec.to_polygon().exterior().geodesic_length(),
+        Geometry::Triangle(triangle) => triangle.to_polygon().exterior().geodesic_length(),
+    }
+}
+
+fn geometry_haversine_length(geom: Geometry) -> f64 {
+    match geom {
+        Geometry::Point(_) => 0.0,
+        Geometry::Line(line) => line.haversine_length(),
+        Geometry::LineString(line_string) => line_string.haversine_length(),
+        Geometry::Polygon(polygon) => polygon.exterior().haversine_length(),
+        Geometry::MultiPoint(_) => 0.0,
+        Geometry::MultiLineString(multi_line_string) => multi_line_string.haversine_length(),
+        Geometry::MultiPolygon(mutli_polygon) => mutli_polygon
+            .iter()
+            .map(|poly| poly.exterior().haversine_length())
+            .sum(),
+        Geometry::GeometryCollection(_) => {
+            panic!("Length methods are not implemented for geometry collection")
+        }
+        Geometry::Rect(rec) => rec.to_polygon().exterior().haversine_length(),
+        Geometry::Triangle(triangle) => triangle.to_polygon().exterior().haversine_length(),
+    }
+}
+
+fn geometry_vincenty_length(geom: Geometry) -> f64 {
+    let map_vincenty_error =
+        |_| PolarsError::ComputeError(ErrString::from("Failed to calculate vincenty length"));
+
+    match geom {
+        Geometry::Point(_) => 0.0,
+        Geometry::Line(line) => line.vincenty_length().map_err(map_vincenty_error).unwrap(),
+        Geometry::LineString(line_string) => line_string
+            .vincenty_length()
+            .map_err(map_vincenty_error)
+            .unwrap(),
+        Geometry::Polygon(polygon) => polygon
+            .exterior()
+            .vincenty_length()
+            .map_err(map_vincenty_error)
+            .unwrap(),
+        Geometry::MultiPoint(_) => 0.0,
+        Geometry::MultiLineString(multi_line_string) => multi_line_string
+            .vincenty_length()
+            .map_err(map_vincenty_error)
+            .unwrap(),
+        Geometry::MultiPolygon(mutli_polygon) => mutli_polygon
+            .iter()
+            .map(|poly| {
+                poly.exterior()
                     .vincenty_length()
                     .map_err(map_vincenty_error)
                     .unwrap()
             })
+            .sum(),
+        Geometry::GeometryCollection(_) => {
+            panic!("Length methods are not implemented for geometry collection")
         }
-
-        (_, GeoArrowType::WKB) => geodesic_length_wkb(series, method),
+        Geometry::Rect(rec) => rec
+            .to_polygon()
+            .exterior()
+            .vincenty_length()
+            .map_err(map_vincenty_error)
+            .unwrap(),
+        Geometry::Triangle(triangle) => triangle
+            .to_polygon()
+            .exterior()
+            .vincenty_length()
+            .map_err(map_vincenty_error)
+            .unwrap(),
     }
-}
-
-fn euclidean_length_wkb(series: &Series) -> Result<Series> {
-    let mut result = MutablePrimitiveArray::<f64>::with_capacity(series.len());
-
-    for geom in iter_geom(series) {
-        let length: f64 = match geom {
-            Geometry::Point(_) => Ok(0.0),
-            Geometry::Line(line) => Ok(line.euclidean_length()),
-            Geometry::LineString(line_string) => Ok(line_string.euclidean_length()),
-            Geometry::Polygon(polygon) => Ok(polygon.exterior().euclidean_length()),
-            Geometry::MultiPoint(_) => Ok(0.0),
-            Geometry::MultiLineString(multi_line_string) => {
-                Ok(multi_line_string.euclidean_length())
-            }
-            Geometry::MultiPolygon(mutli_polygon) => Ok(mutli_polygon
-                .iter()
-                .map(|poly| poly.exterior().euclidean_length())
-                .sum()),
-            Geometry::GeometryCollection(_) => Err(PolarsError::ComputeError(ErrString::from(
-                "Length methods are not implemented for geometry collection",
-            ))),
-            Geometry::Rect(rec) => Ok(rec.to_polygon().exterior().euclidean_length()),
-            Geometry::Triangle(triangle) => Ok(triangle.to_polygon().exterior().euclidean_length()),
-        }?;
-        result.push(Some(length));
-    }
-
-    let result: PrimitiveArray<f64> = result.into();
-    let series = Series::try_from(("geometry", Box::new(result) as Box<dyn Array>))?;
-    Ok(series)
-}
-
-fn length_geoarrow_point(series: &Series) -> Result<Series> {
-    // Length of point geometries is always 0
-    // TODO: correct validity
-    let result: Vec<f64> = vec![0.0; series.len()];
-    let series = Series::try_from((
-        "geometry",
-        Box::new(PrimitiveArray::from_vec(result)) as Box<dyn Array>,
-    ))?;
-    Ok(series)
-}
-
-fn geodesic_length_wkb(series: &Series, method: GeodesicLengthMethod) -> Result<Series> {
-    let mut result = MutablePrimitiveArray::<f64>::with_capacity(series.len());
-
-    let map_vincenty_error =
-        |_| PolarsError::ComputeError(ErrString::from("Failed to calculate vincenty length"));
-
-    for geom in iter_geom(series) {
-        let length: f64 = match (&method, geom) {
-            (_, Geometry::Point(_)) => Ok(0.0),
-
-            (GeodesicLengthMethod::Haversine, Geometry::Line(line)) => Ok(line.haversine_length()),
-            (GeodesicLengthMethod::Geodesic, Geometry::Line(line)) => Ok(line.geodesic_length()),
-            (GeodesicLengthMethod::Vincenty, Geometry::Line(line)) => {
-                line.vincenty_length().map_err(map_vincenty_error)
-            }
-
-            (GeodesicLengthMethod::Haversine, Geometry::LineString(line_string)) => {
-                Ok(line_string.haversine_length())
-            }
-            (GeodesicLengthMethod::Geodesic, Geometry::LineString(line_string)) => {
-                Ok(line_string.geodesic_length())
-            }
-            (GeodesicLengthMethod::Vincenty, Geometry::LineString(line_string)) => {
-                line_string.vincenty_length().map_err(map_vincenty_error)
-            }
-
-            (GeodesicLengthMethod::Haversine, Geometry::Polygon(polygon)) => {
-                Ok(polygon.exterior().haversine_length())
-            }
-            (GeodesicLengthMethod::Geodesic, Geometry::Polygon(polygon)) => {
-                Ok(polygon.exterior().geodesic_length())
-            }
-            (GeodesicLengthMethod::Vincenty, Geometry::Polygon(polygon)) => polygon
-                .exterior()
-                .vincenty_length()
-                .map_err(map_vincenty_error),
-
-            (_, Geometry::MultiPoint(_)) => Ok(0.0),
-
-            (GeodesicLengthMethod::Haversine, Geometry::MultiLineString(multi_line_string)) => {
-                Ok(multi_line_string.haversine_length())
-            }
-
-            (GeodesicLengthMethod::Geodesic, Geometry::MultiLineString(multi_line_string)) => {
-                Ok(multi_line_string.geodesic_length())
-            }
-            (GeodesicLengthMethod::Vincenty, Geometry::MultiLineString(multi_line_string)) => {
-                multi_line_string
-                    .vincenty_length()
-                    .map_err(map_vincenty_error)
-            }
-            (GeodesicLengthMethod::Haversine, Geometry::MultiPolygon(mutli_polygon)) => {
-                Ok(mutli_polygon
-                    .iter()
-                    .map(|poly| poly.exterior().haversine_length())
-                    .sum())
-            }
-            (GeodesicLengthMethod::Geodesic, Geometry::MultiPolygon(mutli_polygon)) => {
-                Ok(mutli_polygon
-                    .iter()
-                    .map(|poly| poly.exterior().geodesic_length())
-                    .sum())
-            }
-
-            (GeodesicLengthMethod::Vincenty, Geometry::MultiPolygon(mutli_polygon)) => {
-                let result: std::result::Result<Vec<f64>, _> = mutli_polygon
-                    .iter()
-                    .map(|poly| poly.exterior().vincenty_length())
-                    .collect();
-                result.map(|v| v.iter().sum()).map_err(map_vincenty_error)
-            }
-            (_, Geometry::GeometryCollection(_)) => Err(PolarsError::ComputeError(
-                ErrString::from("Length methods are not implemented for geometry collection"),
-            )),
-            (GeodesicLengthMethod::Haversine, Geometry::Rect(rec)) => {
-                Ok(rec.to_polygon().exterior().haversine_length())
-            }
-            (GeodesicLengthMethod::Geodesic, Geometry::Rect(rec)) => {
-                Ok(rec.to_polygon().exterior().geodesic_length())
-            }
-            (GeodesicLengthMethod::Vincenty, Geometry::Rect(rec)) => rec
-                .to_polygon()
-                .exterior()
-                .vincenty_length()
-                .map_err(map_vincenty_error),
-            (GeodesicLengthMethod::Haversine, Geometry::Triangle(triangle)) => {
-                Ok(triangle.to_polygon().exterior().haversine_length())
-            }
-            (GeodesicLengthMethod::Geodesic, Geometry::Triangle(triangle)) => {
-                Ok(triangle.to_polygon().exterior().geodesic_length())
-            }
-            (GeodesicLengthMethod::Vincenty, Geometry::Triangle(triangle)) => triangle
-                .to_polygon()
-                .exterior()
-                .vincenty_length()
-                .map_err(map_vincenty_error),
-        }?;
-        result.push(Some(length));
-    }
-
-    let result: PrimitiveArray<f64> = result.into();
-    let series = Series::try_from(("result", Box::new(result) as Box<dyn Array>))?;
-    Ok(series)
 }
 
 #[cfg(test)]

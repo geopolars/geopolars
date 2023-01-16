@@ -3,8 +3,12 @@ use crate::ops::affine::TransformOrigin;
 use crate::ops::length::GeodesicLengthMethod;
 #[cfg(feature = "proj")]
 use crate::ops::proj::ProjOptions;
+use crate::util::{series_from_any_chunks, struct_series_from_chunks};
 use geo::algorithm::affine_ops::AffineTransform;
-use polars::prelude::Series;
+use geopolars_arrow::util::array_to_geometry_array;
+use polars::export::arrow::array::Array;
+use polars::prelude::{Float64Chunked, ListChunked, Series};
+use polars::series::IntoSeries;
 use std::convert::Into;
 
 pub trait GeoSeries {
@@ -181,20 +185,54 @@ pub trait GeoSeries {
 }
 
 impl GeoSeries for Series {
+    #[allow(unused_variables)]
     fn affine_transform(&self, matrix: impl Into<AffineTransform<f64>>) -> Result<Series> {
-        crate::ops::affine::affine_transform(self, matrix)
+        unimplemented!()
+        // crate::ops::affine::affine_transform(self, matrix)
     }
 
     fn area(&self) -> Result<Series> {
-        crate::ops::area::area(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::area::area(geo_arr).unwrap();
+                result_arr.boxed()
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn centroid(&self) -> Result<Series> {
-        crate::ops::centroid::centroid(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::centroid::centroid(geo_arr).unwrap();
+                result_arr.into_arrow().boxed()
+            })
+            .collect();
+
+        // Need a workaround because StructChunked::from_chunks doesn't exist
+        // Ok(StructChunked::from_chunks("result", output_chunks).into_series())
+        struct_series_from_chunks(output_chunks)
     }
 
     fn convex_hull(&self) -> Result<Series> {
-        crate::ops::convex_hull::convex_hull(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::convex_hull::convex_hull(geo_arr).unwrap();
+                result_arr.into_arrow()
+            })
+            .collect();
+
+        Ok(ListChunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn envelope(&self) -> Result<Series> {
@@ -202,7 +240,17 @@ impl GeoSeries for Series {
     }
 
     fn euclidean_length(&self) -> Result<Series> {
-        crate::ops::length::euclidean_length(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::length::euclidean_length(geo_arr).unwrap();
+                result_arr.boxed()
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn explode(&self) -> Result<Series> {
@@ -214,7 +262,17 @@ impl GeoSeries for Series {
     }
 
     fn geodesic_length(&self, method: GeodesicLengthMethod) -> Result<Series> {
-        crate::ops::length::geodesic_length(self, method)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::length::geodesic_length(geo_arr, &method).unwrap();
+                result_arr.boxed()
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn geom_type(&self) -> Result<Series> {
@@ -229,20 +287,36 @@ impl GeoSeries for Series {
         crate::ops::is_ring::is_ring(self)
     }
 
+    #[allow(unused_variables)]
     fn rotate(&self, angle: f64, origin: TransformOrigin) -> Result<Series> {
-        crate::ops::affine::rotate(self, angle, origin)
+        todo!()
+        // crate::ops::affine::rotate(self, angle, origin)
     }
 
+    #[allow(unused_variables)]
     fn scale(&self, xfact: f64, yfact: f64, origin: TransformOrigin) -> Result<Series> {
-        crate::ops::affine::scale(self, xfact, yfact, origin)
+        unimplemented!()
+        // crate::ops::affine::scale(self, xfact, yfact, origin)
     }
 
     fn simplify(&self, tolerance: f64) -> Result<Series> {
-        crate::ops::simplify::simplify(self, tolerance)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::simplify::simplify(geo_arr, &tolerance).unwrap();
+                result_arr.into_arrow()
+            })
+            .collect();
+
+        series_from_any_chunks(output_chunks)
     }
 
+    #[allow(unused_variables)]
     fn skew(&self, xs: f64, ys: f64, origin: TransformOrigin) -> Result<Series> {
-        crate::ops::affine::skew(self, xs, ys, origin)
+        unimplemented!()
+        // crate::ops::affine::skew(self, xs, ys, origin)
     }
 
     fn distance(&self, other: &Series) -> Result<Series> {
@@ -264,15 +338,37 @@ impl GeoSeries for Series {
         crate::ops::proj::to_crs_with_options(self, from, to, proj_options)
     }
 
+    #[allow(unused_variables)]
     fn translate(&self, x: f64, y: f64) -> Result<Series> {
-        crate::ops::affine::translate(self, x, y)
+        unimplemented!()
+        // crate::ops::affine::translate(self, x, y)
     }
 
     fn x(&self) -> Result<Series> {
-        crate::ops::point::x(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::point::x(geo_arr).unwrap();
+                result_arr.boxed()
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn y(&self) -> Result<Series> {
-        crate::ops::point::y(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::point::y(geo_arr).unwrap();
+                result_arr.boxed()
+            })
+            .collect();
+
+        Ok(Float64Chunked::from_chunks("result", output_chunks).into_series())
     }
 }
