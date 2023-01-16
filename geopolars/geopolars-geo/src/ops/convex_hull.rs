@@ -67,17 +67,12 @@ pub(crate) fn convex_hull(array: GeometryArrayEnum) -> Result<GeometryArrayEnum>
 
 #[cfg(test)]
 mod tests {
-    use crate::geoseries::GeoSeries;
+    use super::convex_hull;
     use geo::{line_string, polygon, MultiPoint, Point};
-    use geopolars_arrow::polygon::PolygonArray;
-    use geopolars_arrow::{LineStringArray, MultiPointArray};
-    use polars::prelude::Series;
+    use geopolars_arrow::{GeometryArrayEnum, LineStringArray, MultiPointArray};
 
     #[test]
     fn convex_hull_for_multipoint() {
-        // NOTE: this actually gets interpreted as a LineString not MultiPoint due to inferring
-        // type from arrow schema when parsing from a series
-
         // Values borrowed from this test in geo crate: https://docs.rs/geo/0.14.2/src/geo/algorithm/convexhull.rs.html#323
         let input_geom: MultiPoint = vec![
             Point::new(0.0, 10.0),
@@ -92,11 +87,12 @@ mod tests {
         ]
         .into();
         let input_array: MultiPointArray = vec![input_geom].into();
-        let input_series =
-            Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
+        let result_array = convex_hull(GeometryArrayEnum::MultiPoint(input_array)).unwrap();
 
-        let result_series = input_series.convex_hull().unwrap();
-        let result_array: PolygonArray = result_series.chunks()[0].clone().try_into().unwrap();
+        let result_array = match result_array {
+            GeometryArrayEnum::Polygon(arr) => arr,
+            _ => panic!(),
+        };
 
         let expected = polygon![
             (x:0.0, y: -10.0),
@@ -122,12 +118,14 @@ mod tests {
             (x: -1.0, y: 1.0),
             (x: 0.0, y: 10.0),
         ];
-        let input_array: LineStringArray = vec![input_geom].into();
-        let input_series =
-            Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
 
-        let result_series = input_series.convex_hull().unwrap();
-        let result_array: PolygonArray = result_series.chunks()[0].clone().try_into().unwrap();
+        let input_array: LineStringArray = vec![input_geom].into();
+        let result_array = convex_hull(GeometryArrayEnum::LineString(input_array)).unwrap();
+
+        let result_array = match result_array {
+            GeometryArrayEnum::Polygon(arr) => arr,
+            _ => panic!(),
+        };
 
         let expected = polygon![
             (x: 0.0, y: -10.0),
