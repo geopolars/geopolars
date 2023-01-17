@@ -205,6 +205,20 @@ pub(crate) fn parse_polygon(
 
 // Implement geometry accessors
 impl PolygonArray {
+    pub fn get(&self, i: usize) -> Option<crate::Polygon> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(crate::Polygon {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            ring_offsets: &self.ring_offsets,
+            geom_index: i,
+        })
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> Polygon {
         parse_polygon(&self.x, &self.y, &self.geom_offsets, &self.ring_offsets, i)

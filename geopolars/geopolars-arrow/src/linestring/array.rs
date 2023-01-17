@@ -153,6 +153,19 @@ impl LineStringArray {
 
 // Implement geometry accessors
 impl LineStringArray {
+    pub fn get(&self, i: usize) -> Option<crate::LineString> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(crate::LineString {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            geom_index: i,
+        })
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> LineString {
         println!("value_as_geo");

@@ -1,6 +1,6 @@
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::polygon::array::parse_polygon;
+use crate::polygon::parse_polygon;
 use crate::trait_::GeometryArray;
 use geo::{MultiPolygon, Polygon};
 use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
@@ -169,6 +169,21 @@ impl MultiPolygonArray {
 
 // Implement geometry accessors
 impl MultiPolygonArray {
+    pub fn get(&self, i: usize) -> Option<crate::MultiPolygon> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(crate::MultiPolygon {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            polygon_offsets: &self.polygon_offsets,
+            ring_offsets: &self.ring_offsets,
+            geom_index: i,
+        })
+    }
+
     // TODO: Need to test this
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> MultiPolygon {
