@@ -1,21 +1,41 @@
 use crate::error::Result;
-use crate::util::iter_geom;
 use geo::dimensions::HasDimensions;
-use polars::export::arrow::array::{Array, BooleanArray, MutableBooleanArray};
-use polars::prelude::Series;
+use geopolars_arrow::GeometryArrayEnum;
+use polars::export::arrow::array::{BooleanArray, MutableBooleanArray};
 
-pub(crate) fn is_empty(series: &Series) -> Result<Series> {
-    is_empty_wkb(series)
-}
+pub(crate) fn is_empty(array: GeometryArrayEnum) -> Result<BooleanArray> {
+    let mut output_array = MutableBooleanArray::with_capacity(array.len());
 
-fn is_empty_wkb(series: &Series) -> Result<Series> {
-    let mut result = MutableBooleanArray::with_capacity(series.len());
-
-    for geom in iter_geom(series) {
-        result.push(Some(geom.is_empty()));
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.is_empty())));
+        }
+        GeometryArrayEnum::Point(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.is_empty())));
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.is_empty())));
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.is_empty())));
+        }
+        GeometryArrayEnum::MultiPoint(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.is_empty())));
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.is_empty())));
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            arr.iter_geo()
+                .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.is_empty())));
+        }
     }
 
-    let result: BooleanArray = result.into();
-    let series = Series::try_from(("result", Box::new(result) as Box<dyn Array>))?;
-    Ok(series)
+    Ok(output_array.into())
 }

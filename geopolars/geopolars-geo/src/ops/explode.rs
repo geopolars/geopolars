@@ -1,66 +1,69 @@
 use crate::error::Result;
-use crate::util::{from_geom_vec, iter_geom};
 use geo::Geometry;
-use polars::prelude::Series;
+use geopolars_arrow::{GeometryArrayEnum, WKBArray};
 
-pub(crate) fn explode(series: &Series) -> Result<Series> {
-    explode_wkb(series)
+pub(crate) fn explode(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
+    match array {
+        GeometryArrayEnum::WKB(arr) => Ok(GeometryArrayEnum::WKB(explode_wkb(arr)?)),
+        GeometryArrayEnum::Point(arr) => Ok(GeometryArrayEnum::Point(arr)),
+        GeometryArrayEnum::LineString(arr) => Ok(GeometryArrayEnum::LineString(arr)),
+        GeometryArrayEnum::Polygon(arr) => Ok(GeometryArrayEnum::Polygon(arr)),
+        _ => todo!(),
+    }
 }
 
-fn explode_wkb(series: &Series) -> Result<Series> {
+fn explode_wkb(array: WKBArray) -> Result<WKBArray> {
     let mut exploded_vector = Vec::new();
 
-    for geometry in iter_geom(series) {
+    for geometry in array.iter_geo().flatten() {
         match geometry {
             Geometry::Point(geometry) => {
                 let point = Geometry::Point(geometry);
-                exploded_vector.push(point)
+                exploded_vector.push(Some(point))
             }
             Geometry::MultiPoint(geometry) => {
                 for geom in geometry.into_iter() {
                     let point = Geometry::Point(geom);
-                    exploded_vector.push(point)
+                    exploded_vector.push(Some(point))
                 }
             }
             Geometry::Line(geometry) => {
                 let line = Geometry::Line(geometry);
-                exploded_vector.push(line)
+                exploded_vector.push(Some(line))
             }
             Geometry::LineString(geometry) => {
                 let line_string = Geometry::LineString(geometry);
-                exploded_vector.push(line_string)
+                exploded_vector.push(Some(line_string))
             }
             Geometry::MultiLineString(geometry) => {
                 for geom in geometry.into_iter() {
                     let line_string = Geometry::LineString(geom);
-                    exploded_vector.push(line_string)
+                    exploded_vector.push(Some(line_string))
                 }
             }
             Geometry::Polygon(geometry) => {
                 let polygon = Geometry::Polygon(geometry);
-                exploded_vector.push(polygon)
+                exploded_vector.push(Some(polygon))
             }
             Geometry::MultiPolygon(geometry) => {
                 for geom in geometry.into_iter() {
                     let polygon = Geometry::Polygon(geom);
-                    exploded_vector.push(polygon)
+                    exploded_vector.push(Some(polygon))
                 }
             }
             Geometry::Rect(geometry) => {
                 let rectangle = Geometry::Rect(geometry);
-                exploded_vector.push(rectangle)
+                exploded_vector.push(Some(rectangle))
             }
             Geometry::Triangle(geometry) => {
                 let triangle = Geometry::Triangle(geometry);
-                exploded_vector.push(triangle)
+                exploded_vector.push(Some(triangle))
             }
             _ => unimplemented!(),
         };
     }
 
-    let exploded_series = from_geom_vec(&exploded_vector)?;
-
-    Ok(exploded_series)
+    Ok(exploded_vector.into())
 }
 
 #[cfg(test)]
