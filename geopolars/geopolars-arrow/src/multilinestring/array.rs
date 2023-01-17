@@ -159,6 +159,20 @@ impl MultiLineStringArray {
 
 // Implement geometry accessors
 impl MultiLineStringArray {
+    pub fn get(&self, i: usize) -> Option<crate::MultiLineString> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(crate::MultiLineString {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            ring_offsets: &self.ring_offsets,
+            geom_index: i,
+        })
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> MultiLineString {
         // Start and end indices into the ring_offsets buffer

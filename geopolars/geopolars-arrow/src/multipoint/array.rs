@@ -49,6 +49,19 @@ pub(super) fn check(
 }
 
 impl MultiPointArray {
+    pub fn get(&self, i: usize) -> Option<crate::MultiPoint> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(crate::MultiPoint {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            geom_index: i,
+        })
+    }
+
     /// Create a new MultiPointArray from parts
     /// # Implementation
     /// This function is `O(1)`.

@@ -138,6 +138,18 @@ impl PointArray {
 
 // Implement geometry accessors
 impl PointArray {
+    pub fn get(&self, i: usize) -> Option<crate::Point> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(crate::Point {
+            x: &self.x,
+            y: &self.y,
+            geom_index: i,
+        })
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> Point {
         Point::new(self.x[i], self.y[i])

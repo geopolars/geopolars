@@ -5,21 +5,22 @@
 
 pub use binary::{MutableWKBArray, WKBArray};
 pub use enum_::{GeometryArrayEnum, GeometryType};
-pub use linestring::{LineStringArray, MutableLineStringArray};
-pub use multilinestring::{MultiLineStringArray, MutableMultiLineStringArray};
-pub use multipoint::{MultiPointArray, MutableMultiPointArray};
-pub use multipolygon::{MultiPolygonArray, MutableMultiPolygonArray};
-pub use point::{MutablePointArray, PointArray};
-pub use polygon::{MutablePolygonArray, PolygonArray};
+pub use linestring::{LineString, LineStringArray, MutableLineStringArray};
+pub use multilinestring::{MultiLineString, MultiLineStringArray, MutableMultiLineStringArray};
+pub use multipoint::{MultiPoint, MultiPointArray, MutableMultiPointArray};
+pub use multipolygon::{MultiPolygon, MultiPolygonArray, MutableMultiPolygonArray};
+pub use point::{MutablePointArray, Point, PointArray};
+pub use polygon::{MutablePolygonArray, Polygon, PolygonArray};
 pub use trait_::GeometryArray;
 
 pub mod binary;
 pub mod enum_;
 pub mod error;
+pub mod geo_traits;
 pub mod linestring;
-mod multilinestring;
-mod multipoint;
-mod multipolygon;
+pub mod multilinestring;
+pub mod multipoint;
+pub mod multipolygon;
 pub mod point;
 pub mod polygon;
 pub mod trait_;
