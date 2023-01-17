@@ -13,6 +13,7 @@ dependencies = [
   "importlib_resources; python_version < '3.11'",
   # For easy interop with geoarrow
   "shapely >= 2.0",
+  "pyogrio >= 0.5",
 ]
 requires-python = ">=3.8"
 description = "Geospatial extensions for Polars"
@@ -36,6 +37,9 @@ classifiers = [
 [project.urls]
 repository = "https://github.com/geopolars/geopolars"
 
+[tool.maturin]
+python-source = "python"
+
 [tool.isort]
 profile = "black"
 known_first_party = ["geopolars"]
@@ -47,7 +51,7 @@ warn_unused_ignores = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ["pyarrow.*", "geopandas.*", "importlib_resources.*", "shapely.*"]
+module = ["pyarrow.*", "geopandas.*", "importlib_resources.*", "shapely.*", "pyogrio.*"]
 ignore_missing_imports = true
 
 # [tool.coverage.report]

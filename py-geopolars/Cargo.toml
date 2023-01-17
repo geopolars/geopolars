@@ -21,5 +21,4 @@ geopolars = { path = "../geopolars" }
 thiserror = "1.0"
 
 [package.metadata.maturin]
-python-source = "python"
 name = "geopolars._geopolars"
