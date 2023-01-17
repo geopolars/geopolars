@@ -1,40 +1,46 @@
-use geo::{Coord, Point};
+use geo::{Coord, CoordNum, Point};
 
-pub trait PointTrait: Send + Sync {
+pub trait PointTrait {
+    type Scalar: CoordNum;
+
     /// x component of this point
-    fn x(&self) -> f64;
+    fn x(&self) -> Self::Scalar;
 
     /// y component of this point
-    fn y(&self) -> f64;
+    fn y(&self) -> Self::Scalar;
 
     /// Returns a tuple that contains the x/horizontal & y/vertical component of the point.
-    fn x_y(&self) -> (f64, f64);
+    fn x_y(&self) -> (Self::Scalar, Self::Scalar);
 }
 
-impl PointTrait for Point<f64> {
-    fn x(&self) -> f64 {
+impl<T: CoordNum> PointTrait for Point<T> {
+    type Scalar = T;
+
+    fn x(&self) -> T {
         self.0.x
     }
 
-    fn y(&self) -> f64 {
+    fn y(&self) -> T {
         self.0.y
     }
 
-    fn x_y(&self) -> (f64, f64) {
+    fn x_y(&self) -> (T, T) {
         (self.0.x, self.0.y)
     }
 }
 
-impl PointTrait for Coord<f64> {
-    fn x(&self) -> f64 {
+impl<T: CoordNum> PointTrait for Coord<T> {
+    type Scalar = T;
+
+    fn x(&self) -> T {
         self.x
     }
 
-    fn y(&self) -> f64 {
+    fn y(&self) -> T {
         self.y
     }
 
-    fn x_y(&self) -> (f64, f64) {
+    fn x_y(&self) -> (T, T) {
         (self.x, self.y)
     }
 }
@@ -46,19 +52,19 @@ mod tests {
 
     #[test]
     fn test_point_function_geo() {
-        fn identity(point: &impl PointTrait) -> &impl PointTrait {
-            point
+        fn identity(point: &impl PointTrait<Scalar = f64>) -> (f64, f64) {
+            point.x_y()
         }
 
         let point = geo::point!(x: 1., y: 2.);
         let output = identity(&point);
 
-        assert_eq!(point.x_y(), output.x_y());
+        assert_eq!(point.x_y(), output);
 
         let arrow_point_array: PointArray = vec![point].into();
         let arrow_point_scalar = &arrow_point_array.get(0).unwrap();
         let output_arrow_point_scalar = identity(arrow_point_scalar);
 
-        assert_eq!(arrow_point_scalar.x(), output_arrow_point_scalar.x());
+        assert_eq!(arrow_point_scalar.x(), output_arrow_point_scalar.0);
     }
 }

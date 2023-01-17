@@ -10,6 +10,8 @@ pub struct Point<'a> {
 }
 
 impl PointTrait for Point<'_> {
+    type Scalar = f64;
+
     fn x(&self) -> f64 {
         self.x[self.geom_index]
     }
