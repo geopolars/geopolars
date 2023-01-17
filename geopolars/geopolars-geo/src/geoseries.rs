@@ -7,7 +7,7 @@ use crate::util::{series_from_any_chunks, struct_series_from_chunks};
 use geo::algorithm::affine_ops::AffineTransform;
 use geopolars_arrow::util::array_to_geometry_array;
 use polars::export::arrow::array::Array;
-use polars::prelude::{Float64Chunked, ListChunked, Series};
+use polars::prelude::{BooleanChunked, Float64Chunked, ListChunked, Series};
 use polars::series::IntoSeries;
 use std::convert::Into;
 
@@ -236,7 +236,17 @@ impl GeoSeries for Series {
     }
 
     fn envelope(&self) -> Result<Series> {
-        crate::ops::envelope::envelope(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::envelope::envelope(geo_arr).unwrap();
+                result_arr.into_arrow()
+            })
+            .collect();
+
+        series_from_any_chunks(output_chunks)
     }
 
     fn euclidean_length(&self) -> Result<Series> {
@@ -254,7 +264,17 @@ impl GeoSeries for Series {
     }
 
     fn explode(&self) -> Result<Series> {
-        crate::ops::explode::explode(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::explode::explode(geo_arr).unwrap();
+                result_arr.into_arrow()
+            })
+            .collect();
+
+        series_from_any_chunks(output_chunks)
     }
 
     fn exterior(&self) -> Result<Series> {
@@ -280,7 +300,17 @@ impl GeoSeries for Series {
     }
 
     fn is_empty(&self) -> Result<Series> {
-        crate::ops::is_empty::is_empty(self)
+        let output_chunks: Vec<Box<dyn Array>> = self
+            .chunks()
+            .iter()
+            .map(|chunk| {
+                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let result_arr = crate::ops::is_empty::is_empty(geo_arr).unwrap();
+                result_arr.boxed()
+            })
+            .collect();
+
+        Ok(BooleanChunked::from_chunks("result", output_chunks).into_series())
     }
 
     fn is_ring(&self) -> Result<Series> {

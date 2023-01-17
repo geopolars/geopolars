@@ -1,29 +1,70 @@
 use crate::error::Result;
-use crate::util::iter_geom;
 use geo::algorithm::bounding_rect::BoundingRect;
-use geo::Geometry;
-use geozero::{CoordDimensions, ToWkb};
-use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
-use polars::prelude::Series;
+use geo::Polygon;
+use geopolars_arrow::GeometryArrayEnum;
 
-pub(crate) fn envelope(series: &Series) -> Result<Series> {
-    envelope_wkb(series)
-}
+pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
+    match array {
+        GeometryArrayEnum::WKB(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| {
+                    maybe_g.and_then(|geom| geom.bounding_rect().map(|rect| rect.to_polygon()))
+                })
+                .collect();
 
-fn envelope_wkb(series: &Series) -> Result<Series> {
-    let mut output_array = MutableBinaryArray::<i32>::with_capacity(series.len());
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::Point(arr) => Ok(GeometryArrayEnum::Point(arr)),
+        GeometryArrayEnum::MultiPoint(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| {
+                    maybe_g.and_then(|geom| geom.bounding_rect().map(|rect| rect.to_polygon()))
+                })
+                .collect();
 
-    for geom in iter_geom(series) {
-        let value: Geometry<f64> = geom.bounding_rect().unwrap().into();
-        let wkb = value
-            .to_wkb(CoordDimensions::xy())
-            .expect("Unable to create wkb");
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::LineString(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| {
+                    maybe_g.and_then(|geom| geom.bounding_rect().map(|rect| rect.to_polygon()))
+                })
+                .collect();
 
-        output_array.push(Some(wkb));
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiLineString(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| {
+                    maybe_g.and_then(|geom| geom.bounding_rect().map(|rect| rect.to_polygon()))
+                })
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::Polygon(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| {
+                    maybe_g.and_then(|geom| geom.bounding_rect().map(|rect| rect.to_polygon()))
+                })
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
+        GeometryArrayEnum::MultiPolygon(arr) => {
+            let output_geoms: Vec<Option<Polygon>> = arr
+                .iter_geo()
+                .map(|maybe_g| {
+                    maybe_g.and_then(|geom| geom.bounding_rect().map(|rect| rect.to_polygon()))
+                })
+                .collect();
+
+            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+        }
     }
-
-    let result: BinaryArray<i32> = output_array.into();
-
-    let series = Series::try_from(("geometry", Box::new(result) as Box<dyn Array>))?;
-    Ok(series)
 }
