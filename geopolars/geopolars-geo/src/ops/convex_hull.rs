@@ -68,7 +68,7 @@ pub(crate) fn convex_hull(array: GeometryArrayEnum) -> Result<GeometryArrayEnum>
 #[cfg(test)]
 mod tests {
     use super::convex_hull;
-    use geo::{line_string, polygon, MultiPoint, Point};
+    use geo::{line_string, polygon, Geometry, MultiPoint, Point};
     use geopolars_arrow::{GeometryArrayEnum, LineStringArray, MultiPointArray};
 
     #[test]
@@ -89,11 +89,6 @@ mod tests {
         let input_array: MultiPointArray = vec![input_geom].into();
         let result_array = convex_hull(GeometryArrayEnum::MultiPoint(input_array)).unwrap();
 
-        let result_array = match result_array {
-            GeometryArrayEnum::Polygon(arr) => arr,
-            _ => panic!(),
-        };
-
         let expected = polygon![
             (x:0.0, y: -10.0),
             (x:10.0, y: 0.0),
@@ -102,7 +97,10 @@ mod tests {
             (x:0.0, y:-10.0),
         ];
 
-        assert_eq!(expected, result_array.get_as_geo(0).unwrap());
+        assert_eq!(
+            Geometry::Polygon(expected),
+            result_array.get_as_geo(0).unwrap()
+        );
     }
 
     #[test]
@@ -122,11 +120,6 @@ mod tests {
         let input_array: LineStringArray = vec![input_geom].into();
         let result_array = convex_hull(GeometryArrayEnum::LineString(input_array)).unwrap();
 
-        let result_array = match result_array {
-            GeometryArrayEnum::Polygon(arr) => arr,
-            _ => panic!(),
-        };
-
         let expected = polygon![
             (x: 0.0, y: -10.0),
             (x: 10.0, y: 0.0),
@@ -135,6 +128,9 @@ mod tests {
             (x: 0.0, y: -10.0),
         ];
 
-        assert_eq!(expected, result_array.get_as_geo(0).unwrap());
+        assert_eq!(
+            Geometry::Polygon(expected),
+            result_array.get_as_geo(0).unwrap()
+        );
     }
 }

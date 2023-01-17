@@ -64,10 +64,9 @@ fn simplify_geometry(geom: Geometry, tolerance: &f64) -> Geometry {
 
 #[cfg(test)]
 mod tests {
-    use crate::geoseries::GeoSeries;
-    use geo::{line_string, polygon};
-    use geopolars_arrow::{LineStringArray, PolygonArray};
-    use polars::prelude::Series;
+    use super::simplify;
+    use geo::{line_string, polygon, Geometry};
+    use geopolars_arrow::{GeometryArrayEnum, LineStringArray, PolygonArray};
 
     #[test]
     fn rdp_test() {
@@ -79,11 +78,7 @@ mod tests {
             (x: 27.8, y: 0.1 ),
         ];
         let input_array: LineStringArray = vec![input_geom].into();
-        let input_series =
-            Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
-
-        let result_series = input_series.simplify(1.0).unwrap();
-        let result_array: LineStringArray = result_series.chunks()[0].clone().try_into().unwrap();
+        let result_array = simplify(GeometryArrayEnum::LineString(input_array), &1.0).unwrap();
 
         let expected = line_string![
             ( x: 0.0, y: 0.0 ),
@@ -92,7 +87,10 @@ mod tests {
             ( x: 27.8, y: 0.1 ),
         ];
 
-        assert_eq!(expected, result_array.get_as_geo(0).unwrap());
+        assert_eq!(
+            Geometry::LineString(expected),
+            result_array.get_as_geo(0).unwrap()
+        );
     }
 
     #[test]
@@ -106,11 +104,7 @@ mod tests {
             (x: 0., y: 0.),
         ];
         let input_array: PolygonArray = vec![input_geom].into();
-        let input_series =
-            Series::try_from(("geometry", input_array.into_arrow().boxed())).unwrap();
-
-        let result_series = input_series.simplify(2.0).unwrap();
-        let result_array: PolygonArray = result_series.chunks()[0].clone().try_into().unwrap();
+        let result_array = simplify(GeometryArrayEnum::Polygon(input_array), &2.0).unwrap();
 
         let expected = polygon![
             (x: 0., y: 0.),
@@ -120,6 +114,9 @@ mod tests {
             (x: 0., y: 0.),
         ];
 
-        assert_eq!(expected, result_array.get_as_geo(0).unwrap());
+        assert_eq!(
+            Geometry::Polygon(expected),
+            result_array.get_as_geo(0).unwrap()
+        );
     }
 }

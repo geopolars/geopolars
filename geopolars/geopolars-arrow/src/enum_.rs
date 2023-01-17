@@ -1,3 +1,4 @@
+use geo::Geometry;
 use polars::export::arrow::array::Array;
 
 use crate::{
@@ -54,6 +55,21 @@ impl GeometryArrayEnum {
             GeometryArrayEnum::MultiLineString(arr) => arr.into_arrow().boxed(),
             GeometryArrayEnum::MultiPolygon(arr) => arr.into_arrow().boxed(),
             GeometryArrayEnum::WKB(arr) => arr.into_arrow().boxed(),
+        }
+    }
+
+    /// Get as geo Geometry object
+    pub fn get_as_geo(self, i: usize) -> Option<Geometry> {
+        match self {
+            GeometryArrayEnum::Point(arr) => arr.get_as_geo(i).map(Geometry::Point),
+            GeometryArrayEnum::LineString(arr) => arr.get_as_geo(i).map(Geometry::LineString),
+            GeometryArrayEnum::Polygon(arr) => arr.get_as_geo(i).map(Geometry::Polygon),
+            GeometryArrayEnum::MultiPoint(arr) => arr.get_as_geo(i).map(Geometry::MultiPoint),
+            GeometryArrayEnum::MultiLineString(arr) => {
+                arr.get_as_geo(i).map(Geometry::MultiLineString)
+            }
+            GeometryArrayEnum::MultiPolygon(arr) => arr.get_as_geo(i).map(Geometry::MultiPolygon),
+            GeometryArrayEnum::WKB(arr) => arr.get_as_geo(i),
         }
     }
 }
