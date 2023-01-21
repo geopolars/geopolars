@@ -8,6 +8,7 @@ use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use geo::Point;
+use geozero::{GeomProcessor, GeozeroGeometry};
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Point>>` using Arrow's
 /// in-memory representation.
@@ -332,5 +333,52 @@ impl From<Vec<Point>> for PointArray {
     fn from(other: Vec<Point>) -> Self {
         let mut_arr: MutablePointArray = other.into();
         mut_arr.into()
+    }
+}
+
+impl GeozeroGeometry for PointArray {
+    fn process_geom<P: GeomProcessor>(&self, processor: &mut P) -> geozero::error::Result<()>
+    where
+        Self: Sized,
+    {
+        let num_geometries = self.len();
+        processor.geometrycollection_begin(num_geometries, 0)?;
+
+        for idx in 0..num_geometries {
+            processor.point_begin(idx)?;
+            processor.xy(self.x[idx], self.y[idx], 0)?;
+            processor.point_end(idx)?;
+        }
+
+        processor.geometrycollection_end(num_geometries)?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use geo::{point, Point};
+    use geozero::ToWkt;
+
+    #[test]
+    fn geozero_process_geom() -> geozero::error::Result<()> {
+        let points: Vec<Point> = vec![
+            point!(
+                x: 0., y: 1.
+            ),
+            point!(
+                x: 1., y: 2.
+            ),
+            point!(
+                x: 2., y: 3.
+            ),
+        ];
+
+        let point_array: PointArray = points.into();
+        let wkt = point_array.to_wkt()?;
+        let expected = "GEOMETRYCOLLECTION(POINT(0 1),POINT(1 2),POINT(2 3))";
+        assert_eq!(wkt, expected);
+        Ok(())
     }
 }

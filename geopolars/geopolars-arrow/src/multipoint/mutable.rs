@@ -180,14 +180,12 @@ impl From<MutableMultiPointArray> for ListArray<i64> {
 pub(crate) fn line_string_from_geo_vec(geoms: Vec<MultiPoint>) -> MutableMultiPointArray {
     let mut geom_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
-    let mut current_offset = 0;
     for geom in &geoms {
-        current_offset += geom.0.len();
-        geom_offsets.try_push_usize(current_offset).unwrap();
+        geom_offsets.try_push_usize(geom.0.len()).unwrap();
     }
 
-    let mut x_arr = Vec::<f64>::with_capacity(current_offset);
-    let mut y_arr = Vec::<f64>::with_capacity(current_offset);
+    let mut x_arr = Vec::<f64>::with_capacity(geom_offsets.last().to_usize());
+    let mut y_arr = Vec::<f64>::with_capacity(geom_offsets.last().to_usize());
 
     for geom in geoms {
         for point in geom.iter() {
@@ -210,22 +208,17 @@ pub(crate) fn line_string_from_geo_option_vec(
     geoms: Vec<Option<MultiPoint>>,
 ) -> MutableMultiPointArray {
     let mut geom_offsets = Offsets::<i64>::with_capacity(geoms.len());
-
     let mut validity = MutableBitmap::with_capacity(geoms.len());
 
-    let mut current_offset = 0;
     for maybe_geom in &geoms {
-        if let Some(geom) = maybe_geom {
-            current_offset += geom.0.len();
-            validity.push(true);
-        } else {
-            validity.push(false);
-        }
-        geom_offsets.try_push_usize(current_offset).unwrap();
+        validity.push(maybe_geom.is_some());
+        geom_offsets
+            .try_push_usize(maybe_geom.as_ref().map_or(0, |geom| geom.0.len()))
+            .unwrap();
     }
 
-    let mut x_arr = Vec::<f64>::with_capacity(current_offset);
-    let mut y_arr = Vec::<f64>::with_capacity(current_offset);
+    let mut x_arr = Vec::<f64>::with_capacity(geom_offsets.last().to_usize());
+    let mut y_arr = Vec::<f64>::with_capacity(geom_offsets.last().to_usize());
 
     for geom in geoms.into_iter().flatten() {
         for point in geom.iter() {
