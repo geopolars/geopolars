@@ -381,14 +381,14 @@ mod test {
     }
 
     #[test]
-    fn geo_roundtrip_accurate() -> () {
+    fn geo_roundtrip_accurate() {
         let arr: LineStringArray = vec![ls0(), ls1()].into();
         assert_eq!(arr.value_as_geo(0), ls0());
         assert_eq!(arr.value_as_geo(1), ls1());
     }
 
     #[test]
-    fn geo_roundtrip_accurate_option_vec() -> () {
+    fn geo_roundtrip_accurate_option_vec() {
         let arr: LineStringArray = vec![Some(ls0()), Some(ls1()), None].into();
         assert_eq!(arr.get_as_geo(0), Some(ls0()));
         assert_eq!(arr.get_as_geo(1), Some(ls1()));

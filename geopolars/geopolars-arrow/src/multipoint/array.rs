@@ -393,14 +393,14 @@ mod test {
     }
 
     #[test]
-    fn geo_roundtrip_accurate() -> () {
+    fn geo_roundtrip_accurate() {
         let arr: MultiPointArray = vec![mp0(), mp1()].into();
         assert_eq!(arr.value_as_geo(0), mp0());
         assert_eq!(arr.value_as_geo(1), mp1());
     }
 
     #[test]
-    fn geo_roundtrip_accurate_option_vec() -> () {
+    fn geo_roundtrip_accurate_option_vec() {
         let arr: MultiPointArray = vec![Some(mp0()), Some(mp1()), None].into();
         assert_eq!(arr.get_as_geo(0), Some(mp0()));
         assert_eq!(arr.get_as_geo(1), Some(mp1()));

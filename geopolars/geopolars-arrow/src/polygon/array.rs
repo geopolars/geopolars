@@ -462,14 +462,14 @@ mod test {
     }
 
     #[test]
-    fn geo_roundtrip_accurate() -> () {
+    fn geo_roundtrip_accurate() {
         let arr: PolygonArray = vec![p0(), p1()].into();
         assert_eq!(arr.value_as_geo(0), p0());
         assert_eq!(arr.value_as_geo(1), p1());
     }
 
     #[test]
-    fn geo_roundtrip_accurate_option_vec() -> () {
+    fn geo_roundtrip_accurate_option_vec() {
         let arr: PolygonArray = vec![Some(p0()), Some(p1()), None].into();
         assert_eq!(arr.get_as_geo(0), Some(p0()));
         assert_eq!(arr.get_as_geo(1), Some(p1()));
