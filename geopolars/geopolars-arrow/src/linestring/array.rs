@@ -6,10 +6,9 @@ use arrow2::array::{Array, ListArray, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
-use arrow2::datatypes::DataType;
+use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
 use geo::{Coord, LineString};
-use polars::prelude::ArrowField;
 
 use super::MutableLineStringArray;
 
@@ -237,10 +236,10 @@ impl LineStringArray {
 
     pub fn into_arrow(self) -> ListArray<i64> {
         // Data type
-        let coord_field_x = ArrowField::new("x", DataType::Float64, false);
-        let coord_field_y = ArrowField::new("y", DataType::Float64, false);
+        let coord_field_x = Field::new("x", DataType::Float64, false);
+        let coord_field_y = Field::new("y", DataType::Float64, false);
         let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
-        let list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+        let list_data_type = DataType::LargeList(Box::new(Field::new(
             "vertices",
             struct_data_type.clone(),
             true,

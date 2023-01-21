@@ -6,9 +6,8 @@ use arrow2::array::{Array, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
-use arrow2::datatypes::DataType;
+use arrow2::datatypes::{DataType, Field};
 use geo::Point;
-use polars::prelude::ArrowField;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Point>>` using Arrow's
 /// in-memory representation.
@@ -205,8 +204,8 @@ impl PointArray {
     }
 
     pub fn into_arrow(self) -> StructArray {
-        let field_x = ArrowField::new("x", DataType::Float64, false);
-        let field_y = ArrowField::new("y", DataType::Float64, false);
+        let field_x = Field::new("x", DataType::Float64, false);
+        let field_y = Field::new("y", DataType::Float64, false);
 
         let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
         let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
@@ -265,8 +264,8 @@ impl TryFrom<Box<dyn Array>> for PointArray {
 
 impl From<PointArray> for StructArray {
     fn from(value: PointArray) -> Self {
-        let field_x = ArrowField::new("x", DataType::Float64, false);
-        let field_y = ArrowField::new("y", DataType::Float64, false);
+        let field_x = Field::new("x", DataType::Float64, false);
+        let field_y = Field::new("y", DataType::Float64, false);
 
         let array_x = PrimitiveArray::<f64>::new(DataType::Float64, value.x, None);
         let array_y = PrimitiveArray::<f64>::new(DataType::Float64, value.y, None);
