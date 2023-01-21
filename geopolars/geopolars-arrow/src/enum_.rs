@@ -1,5 +1,5 @@
+use arrow2::array::Array;
 use geo::Geometry;
-use polars::export::arrow::array::Array;
 
 use crate::{
     LineStringArray, MultiLineStringArray, MultiPointArray, MultiPolygonArray, PointArray,

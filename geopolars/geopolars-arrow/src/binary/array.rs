@@ -2,11 +2,11 @@ use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use crate::MutableWKBArray;
+use arrow2::array::{Array, BinaryArray};
+use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
+use arrow2::bitmap::Bitmap;
 use geo::Geometry;
 use geozero::{wkb::Wkb, ToGeo};
-use polars::export::arrow::array::{Array, BinaryArray};
-use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
-use polars::export::arrow::bitmap::Bitmap;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Geometry>>` using Arrow's
 /// in-memory representation.

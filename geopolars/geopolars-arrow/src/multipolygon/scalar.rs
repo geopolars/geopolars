@@ -1,7 +1,7 @@
 use crate::geo_traits::MultiPolygonTrait;
 use crate::Polygon;
-use polars::export::arrow::buffer::Buffer;
-use polars::export::arrow::offset::OffsetsBuffer;
+use arrow2::buffer::Buffer;
+use arrow2::offset::OffsetsBuffer;
 
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]

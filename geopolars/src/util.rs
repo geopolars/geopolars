@@ -7,6 +7,12 @@ use polars::prelude::{PolarsError, PolarsResult, Series};
 use std::convert::Into;
 
 // TODO: the rest of the code here can probably be removed
+pub enum GeoArrowType {
+    Point,
+    LineString,
+    Polygon,
+    WKB,
+}
 
 /// Helper function to iterate over geometries from polars Series
 pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> + '_ {
@@ -201,4 +207,18 @@ pub(crate) fn _index_to_chunked_index<
         }
     }
     (current_chunk_idx, index_remainder)
+}
+
+pub fn get_geoarrow_type(series: &Series) -> GeoArrowType {
+    match series.dtype() {
+        DataType::Binary => GeoArrowType::WKB,
+        DataType::Struct(_) => GeoArrowType::Point,
+        DataType::List(dt) => match *dt.clone() {
+            DataType::Struct(_) => GeoArrowType::LineString,
+            DataType::List(_) => GeoArrowType::Polygon,
+            _ => panic!("Unexpected inner list type: {}", dt),
+        },
+
+        dt => panic!("Unexpected geoarrow type: {}", dt),
+    }
 }

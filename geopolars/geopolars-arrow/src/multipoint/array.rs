@@ -2,12 +2,12 @@ use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use crate::LineStringArray;
+use arrow2::array::{Array, ListArray, PrimitiveArray, StructArray};
+use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
+use arrow2::bitmap::Bitmap;
+use arrow2::buffer::Buffer;
+use arrow2::offset::OffsetsBuffer;
 use geo::{MultiPoint, Point};
-use polars::export::arrow::array::{Array, ListArray, PrimitiveArray, StructArray};
-use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
-use polars::export::arrow::bitmap::Bitmap;
-use polars::export::arrow::buffer::Buffer;
-use polars::export::arrow::offset::OffsetsBuffer;
 
 use super::MutableMultiPointArray;
 

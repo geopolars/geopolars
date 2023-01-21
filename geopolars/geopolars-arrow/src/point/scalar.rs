@@ -1,5 +1,5 @@
 use crate::geo_traits::PointTrait;
-use polars::export::arrow::buffer::Buffer;
+use arrow2::buffer::Buffer;
 
 /// An arrow equivalent of a Point
 #[derive(Debug, Clone)]

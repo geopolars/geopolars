@@ -1,7 +1,7 @@
 use crate::geo_traits::MultiLineStringTrait;
 use crate::LineString;
-use polars::export::arrow::buffer::Buffer;
-use polars::export::arrow::offset::OffsetsBuffer;
+use arrow2::buffer::Buffer;
+use arrow2::offset::OffsetsBuffer;
 
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]

@@ -750,11 +750,11 @@ name = "geopolars-arrow"
 version = "0.1.0-alpha.4"
 dependencies = [
  "anyhow",
+ "arrow2",
  "dyn-clone",
  "geo",
  "geos",
  "geozero",
- "polars",
  "thiserror",
 ]
 

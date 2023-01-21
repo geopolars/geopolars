@@ -2,15 +2,14 @@ use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
 use crate::MultiLineStringArray;
+use arrow2::array::Array;
+use arrow2::array::{ListArray, PrimitiveArray, StructArray};
+use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
+use arrow2::bitmap::Bitmap;
+use arrow2::buffer::Buffer;
+use arrow2::datatypes::{DataType, Field};
+use arrow2::offset::OffsetsBuffer;
 use geo::{Coord, LineString, Polygon};
-use polars::export::arrow::array::Array;
-use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
-use polars::export::arrow::bitmap::utils::{BitmapIter, ZipValidity};
-use polars::export::arrow::bitmap::Bitmap;
-use polars::export::arrow::buffer::Buffer;
-use polars::export::arrow::datatypes::DataType;
-use polars::export::arrow::offset::OffsetsBuffer;
-use polars::prelude::ArrowField;
 
 use super::MutablePolygonArray;
 
@@ -275,15 +274,15 @@ impl PolygonArray {
 
     pub fn into_arrow(self) -> ListArray<i64> {
         // Data type
-        let coord_field_x = ArrowField::new("x", DataType::Float64, false);
-        let coord_field_y = ArrowField::new("y", DataType::Float64, false);
+        let coord_field_x = Field::new("x", DataType::Float64, false);
+        let coord_field_y = Field::new("y", DataType::Float64, false);
         let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
-        let inner_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+        let inner_list_data_type = DataType::LargeList(Box::new(Field::new(
             "vertices",
             struct_data_type.clone(),
             false,
         )));
-        let outer_list_data_type = DataType::LargeList(Box::new(ArrowField::new(
+        let outer_list_data_type = DataType::LargeList(Box::new(Field::new(
             "rings",
             inner_list_data_type.clone(),
             true,

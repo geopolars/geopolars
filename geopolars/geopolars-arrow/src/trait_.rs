@@ -1,5 +1,5 @@
 use crate::enum_::GeometryType;
-use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
+use arrow2::bitmap::{Bitmap, MutableBitmap};
 use std::any::Any;
 
 /// A trait representing an immutable Arrow geometry array. Arrow arrays are trait objects

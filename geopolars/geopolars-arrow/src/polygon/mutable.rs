@@ -1,8 +1,8 @@
 use super::array::check;
+use arrow2::array::ListArray;
+use arrow2::bitmap::{Bitmap, MutableBitmap};
+use arrow2::offset::{Offsets, OffsetsBuffer};
 use geo::Polygon;
-use polars::export::arrow::array::ListArray;
-use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
-use polars::export::arrow::offset::{Offsets, OffsetsBuffer};
 
 use crate::error::GeoArrowError;
 use crate::multilinestring::MutableMultiLineStringArray;

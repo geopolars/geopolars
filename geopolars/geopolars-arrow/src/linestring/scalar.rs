@@ -1,7 +1,7 @@
 use crate::geo_traits::LineStringTrait;
 use crate::Point;
-use polars::export::arrow::buffer::Buffer;
-use polars::export::arrow::offset::OffsetsBuffer;
+use arrow2::buffer::Buffer;
+use arrow2::offset::OffsetsBuffer;
 
 /// An arrow equivalent of a LineString
 #[derive(Debug, Clone)]
