@@ -1,3 +1,4 @@
+use super::MutableMultiPointArray;
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::GeometryArray;
@@ -8,8 +9,7 @@ use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
 use geo::{MultiPoint, Point};
-
-use super::MutableMultiPointArray;
+use geozero::{GeomProcessor, GeozeroGeometry};
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<MultiPoint>>` using Arrow's
 /// in-memory representation.
@@ -32,9 +32,10 @@ pub(super) fn check(
     x: &[f64],
     y: &[f64],
     validity_len: Option<usize>,
+    geom_offsets: &OffsetsBuffer<i64>,
 ) -> Result<(), GeoArrowError> {
     // TODO: check geom offsets?
-    if validity_len.map_or(false, |len| len != x.len()) {
+    if validity_len.map_or(false, |len| len != geom_offsets.len()) {
         return Err(GeoArrowError::General(
             "validity mask length must match the number of values".to_string(),
         ));
@@ -71,7 +72,7 @@ impl MultiPointArray {
         geom_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Self {
-        check(&x, &y, validity.as_ref().map(|v| v.len())).unwrap();
+        check(&x, &y, validity.as_ref().map(|v| v.len()), &geom_offsets).unwrap();
         Self {
             x,
             y,
@@ -89,7 +90,7 @@ impl MultiPointArray {
         geom_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Result<Self, GeoArrowError> {
-        check(&x, &y, validity.as_ref().map(|v| v.len()))?;
+        check(&x, &y, validity.as_ref().map(|v| v.len()), &geom_offsets)?;
         Ok(Self {
             x,
             y,
@@ -331,5 +332,87 @@ impl From<Vec<MultiPoint>> for MultiPointArray {
 impl From<MultiPointArray> for LineStringArray {
     fn from(value: MultiPointArray) -> Self {
         Self::new(value.x, value.y, value.geom_offsets, value.validity)
+    }
+}
+
+impl GeozeroGeometry for MultiPointArray {
+    fn process_geom<P: GeomProcessor>(&self, processor: &mut P) -> geozero::error::Result<()>
+    where
+        Self: Sized,
+    {
+        let num_geometries = self.len();
+        processor.geometrycollection_begin(num_geometries, 0)?;
+
+        for geom_idx in 0..num_geometries {
+            let (start_coord_idx, end_coord_idx) = self.geom_offsets.start_end(geom_idx);
+
+            processor.multipoint_begin(end_coord_idx - start_coord_idx, geom_idx)?;
+
+            for coord_idx in start_coord_idx..end_coord_idx {
+                processor.xy(
+                    self.x[coord_idx],
+                    self.y[coord_idx],
+                    coord_idx - start_coord_idx,
+                )?;
+            }
+
+            processor.multipoint_end(geom_idx)?;
+        }
+
+        processor.geometrycollection_end(num_geometries - 1)?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use geo::{point, MultiPoint};
+    use geozero::ToWkt;
+
+    fn mp0() -> MultiPoint {
+        MultiPoint::new(vec![
+            point!(
+                x: 0., y: 1.
+            ),
+            point!(
+                x: 1., y: 2.
+            ),
+        ])
+    }
+
+    fn mp1() -> MultiPoint {
+        MultiPoint::new(vec![
+            point!(
+                x: 3., y: 4.
+            ),
+            point!(
+                x: 5., y: 6.
+            ),
+        ])
+    }
+
+    #[test]
+    fn geo_roundtrip_accurate() {
+        let arr: MultiPointArray = vec![mp0(), mp1()].into();
+        assert_eq!(arr.value_as_geo(0), mp0());
+        assert_eq!(arr.value_as_geo(1), mp1());
+    }
+
+    #[test]
+    fn geo_roundtrip_accurate_option_vec() {
+        let arr: MultiPointArray = vec![Some(mp0()), Some(mp1()), None].into();
+        assert_eq!(arr.get_as_geo(0), Some(mp0()));
+        assert_eq!(arr.get_as_geo(1), Some(mp1()));
+        assert_eq!(arr.get_as_geo(2), None);
+    }
+
+    #[test]
+    fn geozero_process_geom() -> geozero::error::Result<()> {
+        let arr: MultiPointArray = vec![mp0(), mp1()].into();
+        let wkt = arr.to_wkt()?;
+        let expected = "GEOMETRYCOLLECTION(MULTIPOINT(0 1,1 2),MULTIPOINT(3 4,5 6))";
+        assert_eq!(wkt, expected);
+        Ok(())
     }
 }

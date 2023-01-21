@@ -33,9 +33,10 @@ pub(super) fn check(
     x: &[f64],
     y: &[f64],
     validity_len: Option<usize>,
+    geom_offsets: &OffsetsBuffer<i64>,
 ) -> Result<(), GeoArrowError> {
     // TODO: check geom offsets?
-    if validity_len.map_or(false, |len| len != x.len()) {
+    if validity_len.map_or(false, |len| len != geom_offsets.len()) {
         return Err(GeoArrowError::General(
             "validity mask length must match the number of values".to_string(),
         ));
@@ -59,7 +60,7 @@ impl LineStringArray {
         geom_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Self {
-        check(&x, &y, validity.as_ref().map(|v| v.len())).unwrap();
+        check(&x, &y, validity.as_ref().map(|v| v.len()), &geom_offsets).unwrap();
         Self {
             x,
             y,
@@ -77,7 +78,7 @@ impl LineStringArray {
         geom_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Result<Self, GeoArrowError> {
-        check(&x, &y, validity.as_ref().map(|v| v.len()))?;
+        check(&x, &y, validity.as_ref().map(|v| v.len()), &geom_offsets)?;
         Ok(Self {
             x,
             y,
@@ -167,7 +168,6 @@ impl LineStringArray {
 
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> LineString {
-        println!("value_as_geo");
         let (start_idx, end_idx) = self.geom_offsets.start_end(i);
         let mut coords: Vec<Coord> = Vec::with_capacity(end_idx - start_idx);
 
@@ -358,5 +358,40 @@ impl From<Vec<LineString>> for LineStringArray {
 impl From<LineStringArray> for MultiPointArray {
     fn from(value: LineStringArray) -> Self {
         Self::new(value.x, value.y, value.geom_offsets, value.validity)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use geo::{line_string, LineString};
+
+    fn ls0() -> LineString {
+        line_string![
+            (x: 0., y: 1.),
+            (x: 1., y: 2.)
+        ]
+    }
+
+    fn ls1() -> LineString {
+        line_string![
+            (x: 3., y: 4.),
+            (x: 5., y: 6.)
+        ]
+    }
+
+    #[test]
+    fn geo_roundtrip_accurate() {
+        let arr: LineStringArray = vec![ls0(), ls1()].into();
+        assert_eq!(arr.value_as_geo(0), ls0());
+        assert_eq!(arr.value_as_geo(1), ls1());
+    }
+
+    #[test]
+    fn geo_roundtrip_accurate_option_vec() {
+        let arr: LineStringArray = vec![Some(ls0()), Some(ls1()), None].into();
+        assert_eq!(arr.get_as_geo(0), Some(ls0()));
+        assert_eq!(arr.get_as_geo(1), Some(ls1()));
+        assert_eq!(arr.get_as_geo(2), None);
     }
 }

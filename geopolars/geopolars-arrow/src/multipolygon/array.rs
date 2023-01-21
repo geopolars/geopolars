@@ -39,9 +39,10 @@ pub(super) fn check(
     x: &[f64],
     y: &[f64],
     validity_len: Option<usize>,
+    geom_offsets: &OffsetsBuffer<i64>,
 ) -> Result<(), GeoArrowError> {
     // TODO: check geom offsets and ring_offsets?
-    if validity_len.map_or(false, |len| len != x.len()) {
+    if validity_len.map_or(false, |len| len != geom_offsets.len()) {
         return Err(GeoArrowError::General(
             "validity mask length must match the number of values".to_string(),
         ));
@@ -67,7 +68,7 @@ impl MultiPolygonArray {
         ring_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Self {
-        check(&x, &y, validity.as_ref().map(|v| v.len())).unwrap();
+        check(&x, &y, validity.as_ref().map(|v| v.len()), &geom_offsets).unwrap();
         Self {
             x,
             y,
@@ -89,7 +90,7 @@ impl MultiPolygonArray {
         ring_offsets: OffsetsBuffer<i64>,
         validity: Option<Bitmap>,
     ) -> Result<Self, GeoArrowError> {
-        check(&x, &y, validity.as_ref().map(|v| v.len()))?;
+        check(&x, &y, validity.as_ref().map(|v| v.len()), &geom_offsets)?;
         Ok(Self {
             x,
             y,
@@ -421,5 +422,70 @@ impl From<Vec<MultiPolygon>> for MultiPolygonArray {
     fn from(other: Vec<MultiPolygon>) -> Self {
         let mut_arr: MutableMultiPolygonArray = other.into();
         mut_arr.into()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use geo::{polygon, MultiPolygon};
+
+    fn mp0() -> MultiPolygon {
+        MultiPolygon::new(vec![
+            polygon![
+                (x: -111., y: 45.),
+                (x: -111., y: 41.),
+                (x: -104., y: 41.),
+                (x: -104., y: 45.),
+            ],
+            polygon!(
+                exterior: [
+                    (x: -111., y: 45.),
+                    (x: -111., y: 41.),
+                    (x: -104., y: 41.),
+                    (x: -104., y: 45.),
+                ],
+                interiors: [
+                    [
+                        (x: -110., y: 44.),
+                        (x: -110., y: 42.),
+                        (x: -105., y: 42.),
+                        (x: -105., y: 44.),
+                    ],
+                ],
+            ),
+        ])
+    }
+
+    fn mp1() -> MultiPolygon {
+        MultiPolygon::new(vec![
+            polygon![
+                (x: -111., y: 45.),
+                (x: -111., y: 41.),
+                (x: -104., y: 41.),
+                (x: -104., y: 45.),
+            ],
+            polygon![
+                (x: -110., y: 44.),
+                (x: -110., y: 42.),
+                (x: -105., y: 42.),
+                (x: -105., y: 44.),
+            ],
+        ])
+    }
+
+    #[test]
+    fn geo_roundtrip_accurate() {
+        let arr: MultiPolygonArray = vec![mp0(), mp1()].into();
+        assert_eq!(arr.value_as_geo(0), mp0());
+        assert_eq!(arr.value_as_geo(1), mp1());
+    }
+
+    #[test]
+    fn geo_roundtrip_accurate_option_vec() {
+        let arr: MultiPolygonArray = vec![Some(mp0()), Some(mp1()), None].into();
+        assert_eq!(arr.get_as_geo(0), Some(mp0()));
+        assert_eq!(arr.get_as_geo(1), Some(mp1()));
+        assert_eq!(arr.get_as_geo(2), None);
     }
 }

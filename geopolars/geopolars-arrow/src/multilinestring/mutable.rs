@@ -1,6 +1,7 @@
 use arrow2::array::ListArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
 use arrow2::offset::{Offsets, OffsetsBuffer};
+use arrow2::types::Index;
 use geo::MultiLineString;
 
 use crate::error::GeoArrowError;
@@ -122,26 +123,20 @@ impl From<Vec<MultiLineString>> for MutableMultiLineStringArray {
         // linestring
         let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
-        // Current offset into ring array
-        let mut current_geom_offset = 0;
-
-        // Current offset into coord array
-        let mut current_ring_offset = 0;
-
         for geom in &geoms {
             // Total number of linestrings in this multilinestring
-            current_geom_offset += geom.0.len();
-            geom_offsets.try_push_usize(current_geom_offset).unwrap();
+            geom_offsets.try_push_usize(geom.0.len()).unwrap();
 
             // Number of coords for each ring
             for linestring in geom.0.iter() {
-                current_ring_offset += linestring.coords_count();
-                ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                ring_offsets
+                    .try_push_usize(linestring.coords_count())
+                    .unwrap();
             }
         }
 
-        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut x_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
+        let mut y_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
 
         for geom in geoms {
             for coord in geom.coords_iter() {
@@ -174,33 +169,27 @@ impl From<Vec<Option<MultiLineString>>> for MutableMultiLineStringArray {
         // linestring
         let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
-        // Current offset into ring array
-        let mut current_geom_offset = 0;
-
-        // Current offset into coord array
-        let mut current_ring_offset = 0;
-
         for geom in &geoms {
             if let Some(geom) = geom {
                 validity.push(true);
 
                 // Total number of linestrings in this multilinestring
-                current_geom_offset += geom.0.len();
-                geom_offsets.try_push_usize(current_geom_offset).unwrap();
+                geom_offsets.try_push_usize(geom.0.len()).unwrap();
 
                 // Number of coords for each ring
                 for linestring in geom.0.iter() {
-                    current_ring_offset += linestring.coords_count();
-                    ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                    ring_offsets
+                        .try_push_usize(linestring.coords_count())
+                        .unwrap();
                 }
             } else {
                 validity.push(false);
-                geom_offsets.try_push_usize(current_geom_offset).unwrap();
+                geom_offsets.try_push_usize(0).unwrap();
             }
         }
 
-        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut x_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
+        let mut y_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
 
         for geom in geoms.into_iter().flatten() {
             for coord in geom.coords_iter() {
