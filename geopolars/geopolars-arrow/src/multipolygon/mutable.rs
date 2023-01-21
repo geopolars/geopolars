@@ -1,7 +1,7 @@
-use super::array::check;
 use arrow2::array::ListArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
 use arrow2::offset::{Offsets, OffsetsBuffer};
+use arrow2::types::Index;
 use geo::MultiPolygon;
 
 use crate::error::GeoArrowError;
@@ -74,7 +74,7 @@ impl MutableMultiPolygonArray {
         ring_offsets: Offsets<i64>,
         validity: Option<MutableBitmap>,
     ) -> Result<Self, GeoArrowError> {
-        check(&x, &y, validity.as_ref().map(|x| x.len()))?;
+        // check(&x, &y, validity.as_ref().map(|x| x.len()))?;
         Ok(Self {
             x,
             y,
@@ -151,40 +151,31 @@ impl From<Vec<MultiPolygon>> for MutableMultiPolygonArray {
         // This capacity will only be enough in the case where each polygon has only a single ring
         let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
-        // Current offset into polygon array
-        let mut current_geom_offset = 0;
-
-        // Current offset into ring array
-        let mut current_polygon_offset = 0;
-
-        // Current offset into coord array
-        let mut current_ring_offset = 0;
-
         for multipolygon in &geoms {
             // Total number of polygons in this MultiPolygon
-            current_geom_offset += multipolygon.0.len();
-            geom_offsets.try_push_usize(current_geom_offset).unwrap();
+            geom_offsets.try_push_usize(multipolygon.0.len()).unwrap();
 
             for polygon in multipolygon {
                 // Total number of rings in this Multipolygon
-                current_polygon_offset += polygon.interiors().len() + 1;
                 polygon_offsets
-                    .try_push_usize(current_polygon_offset)
+                    .try_push_usize(polygon.interiors().len() + 1)
                     .unwrap();
 
                 // Number of coords for each ring
-                current_ring_offset += polygon.exterior().coords_count();
-                ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                ring_offsets
+                    .try_push_usize(polygon.exterior().coords_count())
+                    .unwrap();
 
                 for int_ring in polygon.interiors() {
-                    current_ring_offset += int_ring.coords_count();
-                    ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                    ring_offsets
+                        .try_push_usize(int_ring.coords_count())
+                        .unwrap();
                 }
             }
         }
 
-        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut x_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
+        let mut y_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
 
         for multipolygon in geoms {
             for polygon in multipolygon {
@@ -232,47 +223,38 @@ impl From<Vec<Option<MultiPolygon>>> for MutableMultiPolygonArray {
         // This capacity will only be enough in the case where each polygon has only a single ring
         let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
-        // Current offset into polygon array
-        let mut current_geom_offset = 0;
-
-        // Current offset into ring array
-        let mut current_polygon_offset = 0;
-
-        // Current offset into coord array
-        let mut current_ring_offset = 0;
-
         for maybe_multipolygon in &geoms {
             if let Some(multipolygon) = maybe_multipolygon {
                 validity.push(true);
 
                 // Total number of polygons in this MultiPolygon
-                current_geom_offset += multipolygon.0.len();
-                geom_offsets.try_push_usize(current_geom_offset).unwrap();
+                geom_offsets.try_push_usize(multipolygon.0.len()).unwrap();
 
                 for polygon in multipolygon {
                     // Total number of rings in this Multipolygon
-                    current_polygon_offset += polygon.interiors().len() + 1;
                     polygon_offsets
-                        .try_push_usize(current_polygon_offset)
+                        .try_push_usize(polygon.interiors().len() + 1)
                         .unwrap();
 
                     // Number of coords for each ring
-                    current_ring_offset += polygon.exterior().coords_count();
-                    ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                    ring_offsets
+                        .try_push_usize(polygon.exterior().coords_count())
+                        .unwrap();
 
                     for int_ring in polygon.interiors() {
-                        current_ring_offset += int_ring.coords_count();
-                        ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                        ring_offsets
+                            .try_push_usize(int_ring.coords_count())
+                            .unwrap();
                     }
                 }
             } else {
                 validity.push(false);
-                geom_offsets.try_push_usize(current_geom_offset).unwrap();
+                geom_offsets.try_push_usize(0).unwrap();
             }
         }
 
-        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut x_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
+        let mut y_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
 
         for multipolygon in geoms.into_iter().flatten() {
             for polygon in multipolygon {
