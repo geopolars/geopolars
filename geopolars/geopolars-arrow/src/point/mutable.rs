@@ -1,10 +1,10 @@
-use arrow2::array::StructArray;
-use arrow2::bitmap::{Bitmap, MutableBitmap};
-use geo::Point;
-
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::trait_::MutableGeometryArray;
+use arrow2::array::StructArray;
+use arrow2::bitmap::{Bitmap, MutableBitmap};
+use geo::Point;
+use geozero::{GeomProcessor, GeozeroGeometry};
 
 use super::array::{check, PointArray};
 
@@ -198,5 +198,62 @@ impl From<Vec<Option<Point>>> for MutablePointArray {
             y: y_arr,
             validity: Some(validity),
         }
+    }
+}
+
+/// Convert to GeoArrow PointArray
+pub trait ToGeoArrowPoint {
+    /// Convert to GeoArrow PointArray
+    fn to_geoarrow(&self) -> geozero::error::Result<PointArray>;
+}
+
+impl<T: GeozeroGeometry> ToGeoArrowPoint for T {
+    fn to_geoarrow(&self) -> geozero::error::Result<PointArray> {
+        let mut mutable_point_array = MutablePointArray::new();
+        self.process_geom(&mut mutable_point_array)?;
+        Ok(mutable_point_array.into())
+    }
+}
+
+impl GeomProcessor for MutablePointArray {
+    fn xy(&mut self, x: f64, y: f64, _idx: usize) -> geozero::error::Result<()> {
+        self.x.push(x);
+        self.y.push(y);
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use geo::{point, Geometry, GeometryCollection, Point};
+
+    fn p0() -> Point {
+        point!(
+            x: 0., y: 1.
+        )
+    }
+
+    fn p1() -> Point {
+        point!(
+            x: 1., y: 2.
+        )
+    }
+
+    fn p2() -> Point {
+        point!(
+            x: 2., y: 3.
+        )
+    }
+
+    #[test]
+    fn from_geozero() {
+        let geo = Geometry::GeometryCollection(GeometryCollection(vec![
+            Geometry::Point(p0()),
+            Geometry::Point(p1()),
+            Geometry::Point(p2()),
+        ]));
+        let point_array = geo.to_geoarrow().unwrap();
+        dbg!(point_array);
     }
 }
