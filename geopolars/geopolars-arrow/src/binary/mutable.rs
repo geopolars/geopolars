@@ -1,7 +1,7 @@
+use arrow2::array::{MutableArray, MutableBinaryArray};
+use arrow2::bitmap::MutableBitmap;
 use geo::Geometry;
 use geozero::{CoordDimensions, ToWkb};
-use polars::export::arrow::array::{MutableArray, MutableBinaryArray};
-use polars::export::arrow::bitmap::MutableBitmap;
 
 use crate::enum_::GeometryType;
 use crate::trait_::MutableGeometryArray;

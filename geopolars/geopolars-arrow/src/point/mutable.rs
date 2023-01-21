@@ -1,6 +1,6 @@
+use arrow2::array::StructArray;
+use arrow2::bitmap::{Bitmap, MutableBitmap};
 use geo::Point;
-use polars::export::arrow::array::StructArray;
-use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
 
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;

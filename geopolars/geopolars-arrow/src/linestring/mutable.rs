@@ -2,11 +2,11 @@ use crate::error::GeoArrowError;
 use crate::linestring::array::check;
 use crate::multipoint::MutableMultiPointArray;
 use crate::LineStringArray;
+use arrow2::array::ListArray;
+use arrow2::bitmap::{Bitmap, MutableBitmap};
+use arrow2::offset::Offsets;
+use arrow2::types::Index;
 use geo::{CoordsIter, LineString};
-use polars::export::arrow::array::ListArray;
-use polars::export::arrow::bitmap::{Bitmap, MutableBitmap};
-use polars::export::arrow::offset::Offsets;
-use polars::export::arrow::types::Index;
 use std::convert::From;
 
 /// The Arrow equivalent to `Vec<Option<LineString>>`.

@@ -1,7 +1,7 @@
 use crate::geo_traits::MultiPointTrait;
 use crate::Point;
-use polars::export::arrow::buffer::Buffer;
-use polars::export::arrow::offset::OffsetsBuffer;
+use arrow2::buffer::Buffer;
+use arrow2::offset::OffsetsBuffer;
 use std::slice::Iter;
 
 /// An arrow equivalent of a MultiPoint

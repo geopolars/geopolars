@@ -1,6 +1,6 @@
 use crate::GeometryArrayEnum;
+use arrow2::array::{Array, BinaryArray, ListArray, StructArray};
 use polars::datatypes::DataType;
-use polars::export::arrow::array::{Array, BinaryArray, ListArray, StructArray};
 use polars::prelude::{ArrowDataType, Series};
 
 pub enum GeoArrowType {
