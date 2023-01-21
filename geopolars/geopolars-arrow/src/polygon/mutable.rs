@@ -1,7 +1,7 @@
-use super::array::check;
 use arrow2::array::ListArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
 use arrow2::offset::{Offsets, OffsetsBuffer};
+use arrow2::types::Index;
 use geo::Polygon;
 
 use crate::error::GeoArrowError;
@@ -68,7 +68,7 @@ impl MutablePolygonArray {
         ring_offsets: Offsets<i64>,
         validity: Option<MutableBitmap>,
     ) -> Result<Self, GeoArrowError> {
-        check(&x, &y, validity.as_ref().map(|x| x.len()))?;
+        // check(&x, &y, validity.as_ref().map(|x| x.len()))?;
         Ok(Self {
             x,
             y,
@@ -136,29 +136,26 @@ impl From<Vec<Polygon>> for MutablePolygonArray {
         // This capacity will only be enough in the case where each geometry has only a single ring
         let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
-        // Current offset into ring array
-        let mut current_geom_offset = 0;
-
-        // Current offset into coord array
-        let mut current_ring_offset = 0;
-
         for geom in &geoms {
             // Total number of rings in this polygon
-            current_geom_offset += geom.interiors().len() + 1;
-            geom_offsets.try_push_usize(current_geom_offset).unwrap();
+            geom_offsets
+                .try_push_usize(geom.interiors().len() + 1)
+                .unwrap();
 
             // Number of coords for each ring
-            current_ring_offset += geom.exterior().coords_count();
-            ring_offsets.try_push_usize(current_ring_offset).unwrap();
+            ring_offsets
+                .try_push_usize(geom.exterior().coords_count())
+                .unwrap();
 
             for int_ring in geom.interiors() {
-                current_ring_offset += int_ring.coords_count();
-                ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                ring_offsets
+                    .try_push_usize(int_ring.coords_count())
+                    .unwrap();
             }
         }
 
-        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut x_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
+        let mut y_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
 
         for geom in geoms {
             let ext_ring = geom.exterior();
@@ -198,36 +195,33 @@ impl From<Vec<Option<Polygon>>> for MutablePolygonArray {
         // This capacity will only be enough in the case where each geometry has only a single ring
         let mut ring_offsets = Offsets::<i64>::with_capacity(geoms.len());
 
-        // Current offset into ring array
-        let mut current_geom_offset = 0;
-
-        // Current offset into coord array
-        let mut current_ring_offset = 0;
-
         for geom in &geoms {
             if let Some(geom) = geom {
                 validity.push(true);
 
                 // Total number of rings in this polygon
-                current_geom_offset += geom.interiors().len() + 1;
-                geom_offsets.try_push_usize(current_geom_offset).unwrap();
+                geom_offsets
+                    .try_push_usize(geom.interiors().len() + 1)
+                    .unwrap();
 
                 // Number of coords for each ring
-                current_ring_offset += geom.exterior().coords_count();
-                ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                ring_offsets
+                    .try_push_usize(geom.exterior().coords_count())
+                    .unwrap();
 
                 for int_ring in geom.interiors() {
-                    current_ring_offset += int_ring.coords_count();
-                    ring_offsets.try_push_usize(current_ring_offset).unwrap();
+                    ring_offsets
+                        .try_push_usize(int_ring.coords_count())
+                        .unwrap();
                 }
             } else {
                 validity.push(false);
-                geom_offsets.try_push_usize(current_geom_offset).unwrap();
+                geom_offsets.try_push_usize(0).unwrap();
             }
         }
 
-        let mut x_arr = Vec::<f64>::with_capacity(current_ring_offset);
-        let mut y_arr = Vec::<f64>::with_capacity(current_ring_offset);
+        let mut x_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
+        let mut y_arr = Vec::<f64>::with_capacity(ring_offsets.last().to_usize());
 
         for geom in geoms.into_iter().flatten() {
             let ext_ring = geom.exterior();
