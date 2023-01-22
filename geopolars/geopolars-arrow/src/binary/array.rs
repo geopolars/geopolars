@@ -3,7 +3,6 @@ use crate::{GeometryArrayTrait, MutableWKBArray, WKB};
 use arrow2::array::{Array, BinaryArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
-use geozero::{wkb::Wkb, ToGeo};
 use rstar::RTree;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Geometry>>` using Arrow's
@@ -100,16 +99,6 @@ impl<'a> GeometryArrayTrait<'a> for WKBArray {
 }
 
 impl WKBArray {
-    pub fn iter_values(&self) -> impl Iterator<Item = crate::WKB> + '_ {
-        (0..self.len()).map(|i| self.value(i))
-    }
-
-    pub fn iter(
-        &self,
-    ) -> ZipValidity<crate::WKB, impl Iterator<Item = crate::WKB> + '_, BitmapIter> {
-        ZipValidity::new_with_validity(self.iter_values(), self.validity())
-    }
-
     /// Returns the value at slot `i` as a GEOS geometry.
     #[cfg(feature = "geos")]
     pub fn value_as_geos(&self, i: usize) -> geos::Geometry {
