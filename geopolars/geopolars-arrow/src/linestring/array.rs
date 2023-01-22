@@ -207,17 +207,6 @@ impl<'a> GeometryArrayTrait<'a> for LineStringArray {
 
 // Implement geometry accessors
 impl LineStringArray {
-    pub fn iter_values(&self) -> impl Iterator<Item = crate::LineString> + '_ {
-        (0..self.len()).map(|i| self.value(i))
-    }
-
-    pub fn iter(
-        &self,
-    ) -> ZipValidity<crate::LineString, impl Iterator<Item = crate::LineString> + '_, BitmapIter>
-    {
-        ZipValidity::new_with_validity(self.iter_values(), self.validity())
-    }
-
     /// Iterator over geo Geometry objects, not looking at validity
     pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::LineString> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
