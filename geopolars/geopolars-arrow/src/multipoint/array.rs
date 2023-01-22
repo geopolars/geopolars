@@ -181,31 +181,6 @@ impl<'a> GeometryArrayTrait<'a> for MultiPointArray {
 
 // Implement geometry accessors
 impl MultiPointArray {
-    pub fn iter_values(&self) -> impl Iterator<Item = crate::MultiPoint> + '_ {
-        (0..self.len()).map(|i| self.value(i))
-    }
-
-    pub fn iter(
-        &self,
-    ) -> ZipValidity<crate::MultiPoint, impl Iterator<Item = crate::MultiPoint> + '_, BitmapIter>
-    {
-        ZipValidity::new_with_validity(self.iter_values(), self.validity())
-    }
-
-    /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> geo::MultiPoint {
-        self.value(i).into()
-    }
-
-    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<geo::MultiPoint> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value_as_geo(i))
-    }
-
     /// Iterator over geo Geometry objects, not looking at validity
     pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::MultiPoint> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))

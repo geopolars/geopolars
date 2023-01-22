@@ -110,23 +110,6 @@ impl WKBArray {
         ZipValidity::new_with_validity(self.iter_values(), self.validity())
     }
 
-    /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> geo::Geometry {
-        let buf = self.0.value(i);
-        Wkb(buf.to_vec())
-            .to_geo()
-            .expect("unable to convert to geo")
-    }
-
-    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<geo::Geometry> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value_as_geo(i))
-    }
-
     /// Returns the value at slot `i` as a GEOS geometry.
     #[cfg(feature = "geos")]
     pub fn value_as_geos(&self, i: usize) -> geos::Geometry {
