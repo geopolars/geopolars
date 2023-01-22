@@ -124,10 +124,7 @@ impl WKBArray {
     /// Build a spatial index containing this array's geometries
     pub fn rstar_tree(&self) -> RTree<crate::WKB> {
         let mut tree = RTree::new();
-        for geom in self.iter().flatten() {
-            tree.insert(geom);
-        }
-
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
         tree
     }
 }
