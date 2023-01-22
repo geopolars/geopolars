@@ -104,8 +104,6 @@ pub trait GeometryArrayTrait<'a> {
     fn to_boxed(&self) -> Box<Self>;
 }
 
-// dyn_clone::clone_trait_object!(GeometryArray);
-
 /// A trait describing a mutable geometry array; i.e. an array whose values can be changed.
 /// Mutable arrays cannot be cloned but can be mutated in place,
 /// thereby making them useful to perform numeric operations without allocations.
