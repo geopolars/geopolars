@@ -21,7 +21,6 @@ rstar = { version = "0.9.3" }
 [dev-dependencies]
 arrow2 = { version = "0.15", features = ["io_parquet", "io_parquet_compression"]}
 criterion = { version = "0.4", features = ["html_reports"] }
-better-panic = "0.3"
 
 [lib]
 # TODO: fix docstrings
