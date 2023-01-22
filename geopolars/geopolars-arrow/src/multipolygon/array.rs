@@ -8,7 +8,7 @@ use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
 use geozero::{GeomProcessor, GeozeroGeometry};
-use rstar::{Envelope, RTree, RTreeObject};
+use rstar::RTree;
 
 use super::MutableMultiPolygonArray;
 
