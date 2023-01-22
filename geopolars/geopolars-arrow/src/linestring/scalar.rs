@@ -1,7 +1,9 @@
+use crate::algorithm::bounding_rect::bounding_rect_linestring;
 use crate::geo_traits::LineStringTrait;
 use crate::Point;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
+use rstar::{RTreeObject, AABB};
 
 /// An arrow equivalent of a LineString
 #[derive(Debug, Clone)]
@@ -66,5 +68,14 @@ impl From<&LineString<'_>> for geo::LineString {
         }
 
         geo::LineString::new(coords)
+    }
+}
+
+impl RTreeObject for LineString<'_> {
+    type Envelope = AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        let (lower, upper) = bounding_rect_linestring(self);
+        AABB::from_corners(lower, upper)
     }
 }

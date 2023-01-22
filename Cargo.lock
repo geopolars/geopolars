@@ -755,6 +755,7 @@ dependencies = [
  "geo",
  "geos",
  "geozero",
+ "rstar",
  "thiserror",
 ]
 

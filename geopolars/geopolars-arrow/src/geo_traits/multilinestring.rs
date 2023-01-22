@@ -17,7 +17,7 @@ pub trait MultiLineStringTrait<'a>: Send + Sync {
 }
 
 impl<'a> MultiLineStringTrait<'a> for MultiLineString<f64> {
-    type ItemType = LineString;
+    type ItemType = &'a LineString;
     // type Iter = Iter<'a, Self::ItemType>;
 
     // fn lines(&'a self) -> Self::Iter {
@@ -29,6 +29,6 @@ impl<'a> MultiLineStringTrait<'a> for MultiLineString<f64> {
     }
 
     fn line(&'a self, i: usize) -> Option<Self::ItemType> {
-        self.0.get(i).cloned()
+        self.0.get(i)
     }
 }

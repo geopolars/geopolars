@@ -1,7 +1,9 @@
+use crate::algorithm::bounding_rect::bounding_rect_multipolygon;
 use crate::geo_traits::MultiPolygonTrait;
 use crate::Polygon;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
+use rstar::{RTreeObject, AABB};
 
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]
@@ -74,5 +76,14 @@ impl From<&MultiPolygon<'_>> for geo::MultiPolygon {
         }
 
         geo::MultiPolygon::new(polygons)
+    }
+}
+
+impl RTreeObject for MultiPolygon<'_> {
+    type Envelope = AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        let (lower, upper) = bounding_rect_multipolygon(self);
+        AABB::from_corners(lower, upper)
     }
 }

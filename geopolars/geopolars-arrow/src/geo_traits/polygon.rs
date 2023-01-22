@@ -35,3 +35,20 @@ impl<'a> PolygonTrait<'a> for Polygon<f64> {
         self.interiors().get(i)
     }
 }
+
+impl<'a> PolygonTrait<'a> for &Polygon<f64> {
+    type ItemType = &'a LineString;
+    // type Iter = Iter<'a, Self::ItemType>;
+
+    fn exterior(&'a self) -> Self::ItemType {
+        (*self).exterior()
+    }
+
+    fn num_interiors(&'a self) -> usize {
+        self.interiors().len()
+    }
+
+    fn interior(&'a self, i: usize) -> Option<Self::ItemType> {
+        self.interiors().get(i)
+    }
+}

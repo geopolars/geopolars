@@ -1,15 +1,14 @@
+use super::array::MultiPointArray;
+use crate::enum_::GeometryType;
+use crate::error::GeoArrowError;
+use crate::linestring::MutableLineStringArray;
+use crate::trait_::MutableGeometryArray;
 use arrow2::array::ListArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
 use arrow2::offset::Offsets;
 use arrow2::types::Index;
 use geo::MultiPoint;
-
-use crate::enum_::GeometryType;
-use crate::error::GeoArrowError;
-use crate::linestring::MutableLineStringArray;
-use crate::trait_::MutableGeometryArray;
-
-use super::array::MultiPointArray;
+use geozero::{GeomProcessor, GeozeroGeometry};
 
 /// The Arrow equivalent to `Vec<Option<MultiPoint>>`.
 /// Converting a [`MutableMultiPointArray`] into a [`MultiPointArray`] is `O(1)`.
@@ -148,7 +147,7 @@ impl MutableGeometryArray for MutableMultiPointArray {
 }
 
 impl From<MutableMultiPointArray> for MultiPointArray {
-    fn from(other: MutableMultiPointArray) -> Self {
+    fn from(mut other: MutableMultiPointArray) -> Self {
         let validity = other.validity.and_then(|x| {
             let bitmap: Bitmap = x.into();
             if bitmap.unset_bits() == 0 {
@@ -157,6 +156,11 @@ impl From<MutableMultiPointArray> for MultiPointArray {
                 Some(bitmap)
             }
         });
+
+        // TODO: impl shrink_to_fit for all mutable -> * impls
+        other.x.shrink_to_fit();
+        other.y.shrink_to_fit();
+        other.geom_offsets.shrink_to_fit();
 
         Self::new(
             other.x.into(),
@@ -253,4 +257,135 @@ impl From<MutableMultiPointArray> for MutableLineStringArray {
     fn from(value: MutableMultiPointArray) -> Self {
         Self::try_new(value.x, value.y, value.geom_offsets, value.validity).unwrap()
     }
+}
+
+/// Convert to GeoArrow MultiPointArray
+pub trait ToGeoArrowMultiPoint {
+    /// Convert to GeoArrow MultiPointArray
+    fn to_geoarrow(&self) -> geozero::error::Result<MultiPointArray>;
+
+    /// Convert to a GeoArrow MutableMultiPointArray
+    fn to_mutable_geoarrow(&self) -> geozero::error::Result<MutableMultiPointArray>;
+}
+
+impl<T: GeozeroGeometry> ToGeoArrowMultiPoint for T {
+    fn to_geoarrow(&self) -> geozero::error::Result<MultiPointArray> {
+        println!("to_geoarrow");
+        Ok(self.to_mutable_geoarrow()?.into())
+    }
+
+    fn to_mutable_geoarrow(&self) -> geozero::error::Result<MutableMultiPointArray> {
+        println!("to_mutable_geoarrow");
+        let mut mutable_point_array = MutableMultiPointArray::new();
+        self.process_geom(&mut mutable_point_array)?;
+        print!("processed");
+        Ok(mutable_point_array.into())
+    }
+}
+
+// impl GeomProcessor for MutableMultiPointArray {
+//     fn xy(&mut self, x: f64, y: f64, idx: usize) -> geozero::error::Result<()> {
+//         self.x.push(x);
+//         self.y.push(y);
+//         Ok(())
+//     }
+// }
+
+#[allow(unused_variables)]
+impl GeomProcessor for MutableMultiPointArray {
+    // TODO: are geometries allowed to be pushed out of order?
+    fn xy(&mut self, x: f64, y: f64, idx: usize) -> geozero::error::Result<()> {
+        // dbg!(&self);
+        // dbg!(x);
+        // dbg!(y);
+
+        // self.x.push(x);
+        // self.y.push(y);
+        Ok(())
+    }
+
+    fn geometrycollection_begin(&mut self, size: usize, idx: usize) -> geozero::error::Result<()> {
+        // println!("geometrycollection_begin");
+        // self.x.reserve(size);
+        // self.y.reserve(size);
+        // self.geom_offsets.reserve(size);
+        Ok(())
+    }
+
+    fn point_end(&mut self, idx: usize) -> geozero::error::Result<()> {
+        // println!("point_end");
+        // self.geom_offsets
+        //     .try_push_usize(1)
+        //     .unwrap();
+        Ok(())
+    }
+
+    fn multipoint_end(&mut self, idx: usize) -> geozero::error::Result<()> {
+        // println!("multipoint_end");
+        // dbg!(&self);
+
+        // let geom_len = self.x.len() - self.geom_offsets.last().to_usize();
+        // self.geom_offsets.try_push_usize(geom_len).unwrap();
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::ToGeoArrowMultiPoint;
+    use geo::{line_string, point, Geometry, GeometryCollection, LineString, MultiPoint, Point};
+    use geozero::wkt::{WktReader, WktStr};
+    use geozero::ToWkt;
+
+    fn mp0() -> MultiPoint {
+        MultiPoint::new(vec![
+            point!(
+                x: 0., y: 1.
+            ),
+            point!(
+                x: 1., y: 2.
+            ),
+        ])
+    }
+
+    fn mp1() -> MultiPoint {
+        MultiPoint::new(vec![
+            point!(
+                x: 3., y: 4.
+            ),
+            point!(
+                x: 5., y: 6.
+            ),
+        ])
+    }
+
+    fn p0() -> Point {
+        point!(
+            x: 0., y: 1.
+        )
+    }
+
+    #[test]
+    fn from_geozero() {
+        let geo = Geometry::GeometryCollection(GeometryCollection(vec![
+            Geometry::MultiPoint(mp0()),
+            Geometry::MultiPoint(mp1()),
+        ]));
+        let wkt = geo.to_wkt();
+        dbg!(wkt);
+        // dbg!(&geo);
+        // let point_array = geo.to_mutable_geoarrow();
+        // assert_eq!(point_array.value_as_geo(0), mp0());
+        // assert_eq!(point_array.value_as_geo(1), mp1());
+    }
+
+    // #[test]
+    // fn from_geozero_error_multiple_geom_types() {
+    //     let geo = Geometry::GeometryCollection(GeometryCollection(vec![
+    //         Geometry::Point(p0()),
+    //         Geometry::MultiPoint(mp0()),
+    //     ]));
+    //     let err = geo.to_geoarrow().unwrap_err();
+    //     assert!(matches!(err, geozero::error::GeozeroError::Geometry(..)));
+    // }
 }

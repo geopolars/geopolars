@@ -39,6 +39,20 @@ impl PointTrait for Coord<f64> {
     }
 }
 
+impl PointTrait for &Coord<f64> {
+    fn x(&self) -> f64 {
+        self.x
+    }
+
+    fn y(&self) -> f64 {
+        self.y
+    }
+
+    fn x_y(&self) -> (f64, f64) {
+        (self.x, self.y)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::PointTrait;

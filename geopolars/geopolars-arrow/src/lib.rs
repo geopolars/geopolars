@@ -3,7 +3,7 @@
 //! At some point in the future, this will likely become a public standalone geoarrow module, or be
 //! integrated into geozero
 
-pub use binary::{MutableWKBArray, WKBArray};
+pub use binary::{MutableWKBArray, WKBArray, WKB};
 pub use enum_::{GeometryArrayEnum, GeometryType};
 pub use linestring::{LineString, LineStringArray, MutableLineStringArray};
 pub use multilinestring::{MultiLineString, MultiLineStringArray, MutableMultiLineStringArray};
@@ -13,6 +13,7 @@ pub use point::{MutablePointArray, Point, PointArray};
 pub use polygon::{MutablePolygonArray, Polygon, PolygonArray};
 pub use trait_::GeometryArray;
 
+pub mod algorithm;
 pub mod binary;
 pub mod enum_;
 pub mod error;
