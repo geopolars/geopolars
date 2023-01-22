@@ -361,20 +361,27 @@ mod test {
     use geo::{point, Point};
     use geozero::ToWkt;
 
+    fn p0() -> Point {
+        point!(
+            x: 0., y: 1.
+        )
+    }
+
+    fn p1() -> Point {
+        point!(
+            x: 1., y: 2.
+        )
+    }
+
+    fn p2() -> Point {
+        point!(
+            x: 2., y: 3.
+        )
+    }
+
     #[test]
     fn geozero_process_geom() -> geozero::error::Result<()> {
-        let points: Vec<Point> = vec![
-            point!(
-                x: 0., y: 1.
-            ),
-            point!(
-                x: 1., y: 2.
-            ),
-            point!(
-                x: 2., y: 3.
-            ),
-        ];
-
+        let points: Vec<Point> = vec![p0(), p1(), p2()];
         let point_array: PointArray = points.into();
         let wkt = point_array.to_wkt()?;
         let expected = "GEOMETRYCOLLECTION(POINT(0 1),POINT(1 2),POINT(2 3))";
