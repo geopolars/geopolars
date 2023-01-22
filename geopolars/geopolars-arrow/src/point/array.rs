@@ -411,4 +411,13 @@ mod test {
         assert_eq!(wkt, expected);
         Ok(())
     }
+
+    #[test]
+    fn slice() {
+        let points: Vec<Point> = vec![p0(), p1(), p2()];
+        let point_array: PointArray = points.into();
+        let sliced = point_array.slice(1, 1);
+        assert_eq!(sliced.len(), 1);
+        assert_eq!(sliced.get_as_geo(0), Some(p1()));
+    }
 }

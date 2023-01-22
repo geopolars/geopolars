@@ -143,10 +143,16 @@ impl LineStringArray {
             .clone()
             .map(|bitmap| bitmap.slice_unchecked(offset, length))
             .and_then(|bitmap| (bitmap.unset_bits() > 0).then_some(bitmap));
+
+        let geom_offsets = self
+            .geom_offsets
+            .clone()
+            .slice_unchecked(offset, length + 1);
+
         Self {
-            x: self.x.clone().slice_unchecked(offset, length),
-            y: self.y.clone().slice_unchecked(offset, length),
-            geom_offsets: self.geom_offsets.clone().slice_unchecked(offset, length),
+            x: self.x.clone(),
+            y: self.y.clone(),
+            geom_offsets,
             validity,
         }
     }
@@ -464,5 +470,13 @@ mod test {
             results[0].geom_index, 1,
             "The second element in the LineStringArray should be found"
         );
+    }
+
+    #[test]
+    fn slice() {
+        let arr: LineStringArray = vec![ls0(), ls1()].into();
+        let sliced = arr.slice(1, 1);
+        assert_eq!(sliced.len(), 1);
+        assert_eq!(sliced.get_as_geo(0), Some(ls1()));
     }
 }
