@@ -149,11 +149,17 @@ impl MultiLineStringArray {
             .clone()
             .map(|bitmap| bitmap.slice_unchecked(offset, length))
             .and_then(|bitmap| (bitmap.unset_bits() > 0).then_some(bitmap));
+
+        let geom_offsets = self
+            .geom_offsets
+            .clone()
+            .slice_unchecked(offset, length + 1);
+
         Self {
-            x: self.x.clone().slice_unchecked(offset, length),
-            y: self.y.clone().slice_unchecked(offset, length),
-            geom_offsets: self.geom_offsets.clone().slice_unchecked(offset, length),
-            ring_offsets: self.ring_offsets.clone().slice_unchecked(offset, length),
+            x: self.x.clone(),
+            y: self.y.clone(),
+            geom_offsets,
+            ring_offsets: self.ring_offsets.clone(),
             validity,
         }
     }
@@ -478,5 +484,13 @@ mod test {
         let expected = "GEOMETRYCOLLECTION(MULTILINESTRING((-111 45,-111 41,-104 41,-104 45)),MULTILINESTRING((-111 45,-111 41,-104 41,-104 45),(-110 44,-110 42,-105 42,-105 44)))";
         assert_eq!(wkt, expected);
         Ok(())
+    }
+
+    #[test]
+    fn slice() {
+        let arr: MultiLineStringArray = vec![ml0(), ml1()].into();
+        let sliced = arr.slice(1, 1);
+        assert_eq!(sliced.len(), 1);
+        assert_eq!(sliced.get_as_geo(0), Some(ml1()));
     }
 }

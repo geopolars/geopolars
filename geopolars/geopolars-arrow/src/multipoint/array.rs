@@ -141,10 +141,16 @@ impl MultiPointArray {
             .clone()
             .map(|bitmap| bitmap.slice_unchecked(offset, length))
             .and_then(|bitmap| (bitmap.unset_bits() > 0).then_some(bitmap));
+
+        let geom_offsets = self
+            .geom_offsets
+            .clone()
+            .slice_unchecked(offset, length + 1);
+
         Self {
-            x: self.x.clone().slice_unchecked(offset, length),
-            y: self.y.clone().slice_unchecked(offset, length),
-            geom_offsets: self.geom_offsets.clone().slice_unchecked(offset, length),
+            x: self.x.clone(),
+            y: self.y.clone(),
+            geom_offsets,
             validity,
         }
     }
@@ -429,5 +435,13 @@ mod test {
         let expected = "GEOMETRYCOLLECTION(MULTIPOINT(0 1,1 2),MULTIPOINT(3 4,5 6))";
         assert_eq!(wkt, expected);
         Ok(())
+    }
+
+    #[test]
+    fn slice() {
+        let arr: MultiPointArray = vec![mp0(), mp1()].into();
+        let sliced = arr.slice(1, 1);
+        assert_eq!(sliced.len(), 1);
+        assert_eq!(sliced.get_as_geo(0), Some(mp1()));
     }
 }
