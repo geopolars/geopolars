@@ -1,6 +1,5 @@
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::trait_::MutableGeometryArray;
+use crate::trait_::{GeometryArrayTrait, MutableGeometryArray};
 use arrow2::array::StructArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
 use geo::Point;
@@ -111,10 +110,6 @@ impl MutablePointArray {
 }
 
 impl MutableGeometryArray for MutablePointArray {
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::Point
-    }
-
     fn len(&self) -> usize {
         self.x.len()
     }

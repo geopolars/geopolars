@@ -70,6 +70,12 @@ impl From<&MultiPoint<'_>> for geo::MultiPoint {
     }
 }
 
+impl From<MultiPoint<'_>> for geo::Geometry {
+    fn from(value: MultiPoint<'_>) -> Self {
+        geo::Geometry::MultiPoint(value.into())
+    }
+}
+
 impl RTreeObject for MultiPoint<'_> {
     type Envelope = AABB<[f64; 2]>;
 

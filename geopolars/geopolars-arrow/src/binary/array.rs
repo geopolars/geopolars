@@ -1,7 +1,5 @@
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::trait_::GeometryArray;
-use crate::MutableWKBArray;
+use crate::{GeometryArrayTrait, MutableWKBArray, WKB};
 use arrow2::array::{Array, BinaryArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
@@ -20,32 +18,88 @@ impl WKBArray {
         Self(arr)
     }
 
-    /// Returns the number of geometries in this array
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
     /// Returns true if the array is empty
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    pub fn value(&self, i: usize) -> crate::WKB {
+    pub fn with_validity(&self, validity: Option<Bitmap>) -> Self {
+        WKBArray::new(self.0.clone().with_validity(validity))
+    }
+}
+
+impl<'a> GeometryArrayTrait<'a> for WKBArray {
+    type Scalar = WKB<'a>;
+    type ScalarGeo = geo::Geometry;
+    type ArrowArray = BinaryArray<i64>;
+
+    fn value(&'a self, i: usize) -> Self::Scalar {
         crate::WKB {
             arr: &self.0,
             geom_index: i,
         }
     }
 
-    pub fn get(&self, i: usize) -> Option<crate::WKB> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value(i))
+    fn into_arrow(self) -> BinaryArray<i64> {
+        self.0
     }
 
+    /// Build a spatial index containing this array's geometries
+    fn rstar_tree(&'a self) -> RTree<Self::Scalar> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
+    }
+
+    /// Returns the number of geometries in this array
+    #[inline]
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// Returns the optional validity.
+    fn validity(&self) -> Option<&Bitmap> {
+        self.0.validity()
+    }
+
+    /// Returns a clone of this [`PrimitiveArray`] sliced by an offset and length.
+    /// # Implementation
+    /// This operation is `O(1)` as it amounts to increase two ref counts.
+    /// # Examples
+    /// ```
+    /// use arrow2::array::PrimitiveArray;
+    ///
+    /// let array = PrimitiveArray::from_vec(vec![1, 2, 3]);
+    /// assert_eq!(format!("{:?}", array), "Int32[1, 2, 3]");
+    /// let sliced = array.slice(1, 1);
+    /// assert_eq!(format!("{:?}", sliced), "Int32[2]");
+    /// // note: `sliced` and `array` share the same memory region.
+    /// ```
+    /// # Panic
+    /// This function panics iff `offset + length > self.len()`.
+    #[inline]
+    #[must_use]
+    fn slice(&self, offset: usize, length: usize) -> Self {
+        WKBArray(self.0.slice(offset, length))
+    }
+
+    /// Returns a clone of this [`PrimitiveArray`] sliced by an offset and length.
+    /// # Implementation
+    /// This operation is `O(1)` as it amounts to increase two ref counts.
+    /// # Safety
+    /// The caller must ensure that `offset + length <= self.len()`.
+    #[inline]
+    #[must_use]
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
+        WKBArray(self.0.slice_unchecked(offset, length))
+    }
+
+    fn to_boxed(&self) -> Box<Self> {
+        Box::new(self.clone())
+    }
+}
+
+impl WKBArray {
     pub fn iter_values(&self) -> impl Iterator<Item = crate::WKB> + '_ {
         (0..self.len()).map(|i| self.value(i))
     }
@@ -116,17 +170,6 @@ impl WKBArray {
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     }
-
-    pub fn into_arrow(self) -> BinaryArray<i64> {
-        self.0
-    }
-
-    /// Build a spatial index containing this array's geometries
-    pub fn rstar_tree(&self) -> RTree<crate::WKB> {
-        let mut tree = RTree::new();
-        self.iter().flatten().for_each(|geom| tree.insert(geom));
-        tree
-    }
 }
 
 impl From<BinaryArray<i64>> for WKBArray {
@@ -141,48 +184,6 @@ impl TryFrom<Box<dyn Array>> for WKBArray {
     fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
         let arr = value.as_any().downcast_ref::<BinaryArray<i64>>().unwrap();
         Ok(arr.clone().into())
-    }
-}
-
-impl GeometryArray for WKBArray {
-    #[inline]
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    #[inline]
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::WKB
-    }
-
-    fn validity(&self) -> Option<&Bitmap> {
-        self.0.validity()
-    }
-
-    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(WKBArray::new(self.0.slice(offset, length)))
-    }
-
-    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(WKBArray::new(self.0.slice_unchecked(offset, length)))
-    }
-
-    // fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn GeometryArray> {
-    //     Box::new(WKBArray::new(self.0.clone().with_validity(validity)))
-    // }
-
-    fn to_boxed(&self) -> Box<dyn GeometryArray> {
-        Box::new(WKBArray::new(self.0.clone()))
     }
 }
 

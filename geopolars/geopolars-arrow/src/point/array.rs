@@ -1,7 +1,5 @@
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::trait_::GeometryArray;
-use crate::MutablePointArray;
+use crate::{GeometryArrayTrait, MutablePointArray};
 use arrow2::array::{Array, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
@@ -10,7 +8,7 @@ use arrow2::datatypes::{DataType, Field};
 use geozero::{GeomProcessor, GeozeroGeometry};
 use rstar::RTree;
 
-/// A [`GeometryArray`] semantically equivalent to `Vec<Option<Point>>` using Arrow's
+/// A [`GeometryArrayTrait`] semantically equivalent to `Vec<Option<Point>>` using Arrow's
 /// in-memory representation.
 #[derive(Debug, Clone)]
 pub struct PointArray {
@@ -59,17 +57,6 @@ impl PointArray {
         Ok(Self { x, y, validity })
     }
 
-    /// Returns the number of geometries in this array
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.x.len()
-    }
-
-    /// Returns true if the array is empty
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
     /// The values [`Buffer`].
     /// Values on null slots are undetermined (they can be anything).
     #[inline]
@@ -83,10 +70,56 @@ impl PointArray {
     pub fn values_y(&self) -> &Buffer<f64> {
         &self.y
     }
+}
+
+impl<'a> GeometryArrayTrait<'a> for PointArray {
+    type Scalar = crate::Point<'a>;
+    type ScalarGeo = geo::Point;
+    type ArrowArray = StructArray;
+
+    fn value(&'a self, i: usize) -> Self::Scalar {
+        crate::Point {
+            x: &self.x,
+            y: &self.y,
+            geom_index: i,
+        }
+    }
+
+    fn into_arrow(self) -> StructArray {
+        let field_x = Field::new("x", DataType::Float64, false);
+        let field_y = Field::new("y", DataType::Float64, false);
+
+        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
+        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
+
+        let struct_data_type = DataType::Struct(vec![field_x, field_y]);
+        let struct_values = vec![array_x, array_y];
+
+        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        StructArray::new(struct_data_type, struct_values, validity)
+    }
+
+    /// Build a spatial index containing this array's geometries
+    fn rstar_tree(&'a self) -> RTree<Self::Scalar> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
+    }
+
+    /// Returns the number of geometries in this array
+    #[inline]
+    fn len(&self) -> usize {
+        self.x.len()
+    }
 
     /// Returns the optional validity.
     #[inline]
-    pub fn validity(&self) -> Option<&Bitmap> {
+    fn validity(&self) -> Option<&Bitmap> {
         self.validity.as_ref()
     }
 
@@ -107,7 +140,7 @@ impl PointArray {
     /// This function panics iff `offset + length > self.len()`.
     #[inline]
     #[must_use]
-    pub fn slice(&self, offset: usize, length: usize) -> Self {
+    fn slice(&self, offset: usize, length: usize) -> Self {
         assert!(
             offset + length <= self.len(),
             "offset + length may not exceed length of array"
@@ -122,7 +155,7 @@ impl PointArray {
     /// The caller must ensure that `offset + length <= self.len()`.
     #[inline]
     #[must_use]
-    pub unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
         let validity = self
             .validity
             .clone()
@@ -134,26 +167,14 @@ impl PointArray {
             validity,
         }
     }
+
+    fn to_boxed(&self) -> Box<Self> {
+        Box::new(self.clone())
+    }
 }
 
 // Implement geometry accessors
 impl PointArray {
-    pub fn value(&self, i: usize) -> crate::Point {
-        crate::Point {
-            x: &self.x,
-            y: &self.y,
-            geom_index: i,
-        }
-    }
-
-    pub fn get(&self, i: usize) -> Option<crate::Point> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value(i))
-    }
-
     pub fn iter_values(&self) -> impl Iterator<Item = crate::Point> + '_ {
         (0..self.len()).map(|i| self.value(i))
     }
@@ -219,32 +240,6 @@ impl PointArray {
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     }
-
-    pub fn into_arrow(self) -> StructArray {
-        let field_x = Field::new("x", DataType::Float64, false);
-        let field_y = Field::new("y", DataType::Float64, false);
-
-        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
-        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
-
-        let struct_data_type = DataType::Struct(vec![field_x, field_y]);
-        let struct_values = vec![array_x, array_y];
-
-        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
-            validity.into()
-        } else {
-            None
-        };
-
-        StructArray::new(struct_data_type, struct_values, validity)
-    }
-
-    /// Build a spatial index containing this array's geometries
-    pub fn rstar_tree(&self) -> RTree<crate::Point> {
-        let mut tree = RTree::new();
-        self.iter().flatten().for_each(|geom| tree.insert(geom));
-        tree
-    }
 }
 
 impl TryFrom<StructArray> for PointArray {
@@ -304,44 +299,6 @@ impl From<PointArray> for StructArray {
         };
 
         StructArray::new(struct_data_type, struct_values, validity)
-    }
-}
-
-impl GeometryArray for PointArray {
-    #[inline]
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn len(&self) -> usize {
-        self.len()
-    }
-
-    #[inline]
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::WKB
-    }
-
-    fn validity(&self) -> Option<&Bitmap> {
-        self.validity()
-    }
-
-    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice(offset, length))
-    }
-
-    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice_unchecked(offset, length))
-    }
-
-    fn to_boxed(&self) -> Box<dyn GeometryArray> {
-        Box::new(self.clone())
     }
 }
 

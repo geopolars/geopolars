@@ -56,6 +56,7 @@ impl PointTrait for &Coord<f64> {
 #[cfg(test)]
 mod tests {
     use super::PointTrait;
+    use crate::GeometryArrayTrait;
     use crate::PointArray;
 
     #[test]

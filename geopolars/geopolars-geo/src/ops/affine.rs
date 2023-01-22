@@ -6,7 +6,7 @@
 // use geo::map_coords::MapCoords;
 use geo::Point;
 // use geo::{Geometry, LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
-// use geopolars_arrow::GeometryArrayEnum;
+// use geopolars_arrow::GeometryArray;
 // use polars::prelude::Series;
 
 // use crate::util::iter_geom;
@@ -27,73 +27,73 @@ pub enum TransformOrigin {
 }
 
 // pub(crate) fn affine_transform(
-//     array: GeometryArrayEnum,
+//     array: GeometryArray,
 //     matrix: impl Into<AffineTransform<f64>>,
-// ) -> Result<GeometryArrayEnum> {
+// ) -> Result<GeometryArray> {
 //     let transform: AffineTransform<f64> = matrix.into();
 
 //     match array {
-//         GeometryArrayEnum::WKB(arr) => {
+//         GeometryArray::WKB(arr) => {
 //             let output_geoms: Vec<Option<Geometry>> = arr
 //                 .iter_geo()
 //                 .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
 //                 .collect();
 
-//             Ok(GeometryArrayEnum::WKB(output_geoms.into()))
+//             Ok(GeometryArray::WKB(output_geoms.into()))
 //         }
-//         GeometryArrayEnum::Point(arr) => {
+//         GeometryArray::Point(arr) => {
 //             let output_geoms: Vec<Option<Point>> = arr
 //                 .iter_geo()
 //                 .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
 //                 .collect();
 
-//             Ok(GeometryArrayEnum::Point(output_geoms.into()))
+//             Ok(GeometryArray::Point(output_geoms.into()))
 //         }
 
-//         GeometryArrayEnum::MultiPoint(arr) => {
+//         GeometryArray::MultiPoint(arr) => {
 //             let output_geoms: Vec<Option<MultiPoint>> = arr
 //                 .iter_geo()
 //                 .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
 //                 .collect();
 
-//             Ok(GeometryArrayEnum::MultiPoint(output_geoms.into()))
+//             Ok(GeometryArray::MultiPoint(output_geoms.into()))
 //         }
-//         GeometryArrayEnum::LineString(arr) => {
+//         GeometryArray::LineString(arr) => {
 //             let output_geoms: Vec<Option<LineString>> = arr
 //                 .iter_geo()
 //                 .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
 //                 .collect();
 
-//             Ok(GeometryArrayEnum::LineString(output_geoms.into()))
+//             Ok(GeometryArray::LineString(output_geoms.into()))
 //         }
-//         GeometryArrayEnum::MultiLineString(arr) => {
+//         GeometryArray::MultiLineString(arr) => {
 //             let output_geoms: Vec<Option<MultiLineString>> = arr
 //                 .iter_geo()
 //                 .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
 //                 .collect();
 
-//             Ok(GeometryArrayEnum::MultiLineString(output_geoms.into()))
+//             Ok(GeometryArray::MultiLineString(output_geoms.into()))
 //         }
-//         GeometryArrayEnum::Polygon(arr) => {
+//         GeometryArray::Polygon(arr) => {
 //             let output_geoms: Vec<Option<Polygon>> = arr
 //                 .iter_geo()
 //                 .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
 //                 .collect();
 
-//             Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+//             Ok(GeometryArray::Polygon(output_geoms.into()))
 //         }
-//         GeometryArrayEnum::MultiPolygon(arr) => {
+//         GeometryArray::MultiPolygon(arr) => {
 //             let output_geoms: Vec<Option<MultiPolygon>> = arr
 //                 .iter_geo()
 //                 .map(|maybe_g| maybe_g.map(|geom| geom.map_coords(|coord| transform.apply(coord))))
 //                 .collect();
 
-//             Ok(GeometryArrayEnum::MultiPolygon(output_geoms.into()))
+//             Ok(GeometryArray::MultiPolygon(output_geoms.into()))
 //         }
 //     }
 // }
 
-// // pub(crate) fn rotate(array: GeometryArrayEnum, angle: f64, origin: TransformOrigin) -> Result<GeometryArrayEnum> {
+// // pub(crate) fn rotate(array: GeometryArray, angle: f64, origin: TransformOrigin) -> Result<GeometryArray> {
 // //     match origin {
 // //         TransformOrigin::Centroid => {
 // //             let centroid_arr = centroid(array)?;

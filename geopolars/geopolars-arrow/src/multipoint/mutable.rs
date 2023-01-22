@@ -1,8 +1,7 @@
 use super::array::MultiPointArray;
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
 use crate::linestring::MutableLineStringArray;
-use crate::trait_::MutableGeometryArray;
+use crate::trait_::{GeometryArrayTrait, MutableGeometryArray};
 use arrow2::array::ListArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
 use arrow2::offset::Offsets;
@@ -124,10 +123,6 @@ impl Default for MutableMultiPointArray {
 }
 
 impl MutableGeometryArray for MutableMultiPointArray {
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::Point
-    }
-
     fn len(&self) -> usize {
         self.x.len()
     }

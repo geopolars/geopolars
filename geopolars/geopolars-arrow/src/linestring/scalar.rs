@@ -71,6 +71,12 @@ impl From<&LineString<'_>> for geo::LineString {
     }
 }
 
+impl From<LineString<'_>> for geo::Geometry {
+    fn from(value: LineString<'_>) -> Self {
+        geo::Geometry::LineString(value.into())
+    }
+}
+
 impl RTreeObject for LineString<'_> {
     type Envelope = AABB<[f64; 2]>;
 

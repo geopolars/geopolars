@@ -1,13 +1,13 @@
 use crate::error::Result;
 use geo::Geometry;
-use geopolars_arrow::{GeometryArrayEnum, WKBArray};
+use geopolars_arrow::{GeometryArray, WKBArray};
 
-pub(crate) fn explode(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
+pub(crate) fn explode(array: GeometryArray) -> Result<GeometryArray> {
     match array {
-        GeometryArrayEnum::WKB(arr) => Ok(GeometryArrayEnum::WKB(explode_wkb(arr)?)),
-        GeometryArrayEnum::Point(arr) => Ok(GeometryArrayEnum::Point(arr)),
-        GeometryArrayEnum::LineString(arr) => Ok(GeometryArrayEnum::LineString(arr)),
-        GeometryArrayEnum::Polygon(arr) => Ok(GeometryArrayEnum::Polygon(arr)),
+        GeometryArray::WKB(arr) => Ok(GeometryArray::WKB(explode_wkb(arr)?)),
+        GeometryArray::Point(arr) => Ok(GeometryArray::Point(arr)),
+        GeometryArray::LineString(arr) => Ok(GeometryArray::LineString(arr)),
+        GeometryArray::Polygon(arr) => Ok(GeometryArray::Polygon(arr)),
         _ => todo!(),
     }
 }

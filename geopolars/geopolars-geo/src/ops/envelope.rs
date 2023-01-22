@@ -1,11 +1,11 @@
 use crate::error::Result;
 use geo::algorithm::bounding_rect::BoundingRect;
 use geo::Polygon;
-use geopolars_arrow::GeometryArrayEnum;
+use geopolars_arrow::GeometryArray;
 
-pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
+pub(crate) fn envelope(array: GeometryArray) -> Result<GeometryArray> {
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| {
@@ -13,10 +13,10 @@ pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
                 })
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::Point(arr) => Ok(GeometryArrayEnum::Point(arr)),
-        GeometryArrayEnum::MultiPoint(arr) => {
+        GeometryArray::Point(arr) => Ok(GeometryArray::Point(arr)),
+        GeometryArray::MultiPoint(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| {
@@ -24,9 +24,9 @@ pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
                 })
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| {
@@ -34,9 +34,9 @@ pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
                 })
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| {
@@ -44,9 +44,9 @@ pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
                 })
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| {
@@ -54,9 +54,9 @@ pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
                 })
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| {
@@ -64,7 +64,7 @@ pub(crate) fn envelope(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
                 })
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
     }
 }

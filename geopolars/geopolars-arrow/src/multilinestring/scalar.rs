@@ -76,6 +76,12 @@ impl From<&MultiLineString<'_>> for geo::MultiLineString {
     }
 }
 
+impl From<MultiLineString<'_>> for geo::Geometry {
+    fn from(value: MultiLineString<'_>) -> Self {
+        geo::Geometry::MultiLineString(value.into())
+    }
+}
+
 impl RTreeObject for MultiLineString<'_> {
     type Envelope = AABB<[f64; 2]>;
 

@@ -1,8 +1,6 @@
 use super::MutableMultiPointArray;
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::trait_::GeometryArray;
-use crate::LineStringArray;
+use crate::{GeometryArrayTrait, LineStringArray};
 use arrow2::array::{Array, ListArray, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
@@ -85,21 +83,42 @@ impl MultiPointArray {
             validity,
         })
     }
+}
+
+impl<'a> GeometryArrayTrait<'a> for MultiPointArray {
+    type Scalar = crate::MultiPoint<'a>;
+    type ScalarGeo = geo::MultiPoint;
+    type ArrowArray = ListArray<i64>;
+
+    fn value(&'a self, i: usize) -> Self::Scalar {
+        crate::MultiPoint {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            geom_index: i,
+        }
+    }
+
+    fn into_arrow(self) -> Self::ArrowArray {
+        let linestring_array: LineStringArray = self.into();
+        linestring_array.into_arrow()
+    }
+
+    fn rstar_tree(&'a self) -> RTree<Self::Scalar> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
+    }
 
     /// Returns the number of geometries in this array
     #[inline]
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.geom_offsets.len()
-    }
-
-    /// Returns true if the array is empty
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
     }
 
     /// Returns the optional validity.
     #[inline]
-    pub fn validity(&self) -> Option<&Bitmap> {
+    fn validity(&self) -> Option<&Bitmap> {
         self.validity.as_ref()
     }
 
@@ -120,7 +139,7 @@ impl MultiPointArray {
     /// This function panics iff `offset + length > self.len()`.
     #[inline]
     #[must_use]
-    pub fn slice(&self, offset: usize, length: usize) -> Self {
+    fn slice(&self, offset: usize, length: usize) -> Self {
         assert!(
             offset + length <= self.len(),
             "offset + length may not exceed length of array"
@@ -135,7 +154,7 @@ impl MultiPointArray {
     /// The caller must ensure that `offset + length <= self.len()`.
     #[inline]
     #[must_use]
-    pub unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
         let validity = self
             .validity
             .clone()
@@ -154,27 +173,14 @@ impl MultiPointArray {
             validity,
         }
     }
+
+    fn to_boxed(&self) -> Box<Self> {
+        Box::new(self.clone())
+    }
 }
 
 // Implement geometry accessors
 impl MultiPointArray {
-    pub fn value(&self, i: usize) -> crate::MultiPoint {
-        crate::MultiPoint {
-            x: &self.x,
-            y: &self.y,
-            geom_offsets: &self.geom_offsets,
-            geom_index: i,
-        }
-    }
-
-    pub fn get(&self, i: usize) -> Option<crate::MultiPoint> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value(i))
-    }
-
     pub fn iter_values(&self) -> impl Iterator<Item = crate::MultiPoint> + '_ {
         (0..self.len()).map(|i| self.value(i))
     }
@@ -243,18 +249,6 @@ impl MultiPointArray {
     // ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
     //     ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     // }
-
-    pub fn into_arrow(self) -> ListArray<i64> {
-        let linestring_array: LineStringArray = self.into();
-        linestring_array.into_arrow()
-    }
-
-    /// Build a spatial index containing this array's geometries
-    pub fn rstar_tree(&self) -> RTree<crate::MultiPoint> {
-        let mut tree = RTree::new();
-        self.iter().flatten().for_each(|geom| tree.insert(geom));
-        tree
-    }
 }
 
 impl TryFrom<ListArray<i64>> for MultiPointArray {
@@ -293,44 +287,6 @@ impl TryFrom<Box<dyn Array>> for MultiPointArray {
     fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
         let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
         arr.clone().try_into()
-    }
-}
-
-impl GeometryArray for MultiPointArray {
-    #[inline]
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn len(&self) -> usize {
-        self.len()
-    }
-
-    #[inline]
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::WKB
-    }
-
-    fn validity(&self) -> Option<&Bitmap> {
-        self.validity()
-    }
-
-    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice(offset, length))
-    }
-
-    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice_unchecked(offset, length))
-    }
-
-    fn to_boxed(&self) -> Box<dyn GeometryArray> {
-        Box::new(self.clone())
     }
 }
 

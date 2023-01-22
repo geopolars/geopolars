@@ -2,7 +2,7 @@ use arrow2::array::BinaryArray;
 use arrow2::io::parquet::read::{infer_schema, read_metadata, FileReader};
 use criterion::{criterion_group, criterion_main, Bencher, Criterion};
 use geo::BoundingRect;
-use geopolars_arrow::MultiPolygonArray;
+use geopolars_arrow::{GeometryArrayTrait, MultiPolygonArray};
 use geozero::wkb::Wkb;
 use geozero::ToGeo;
 use rstar::{RTree, RTreeObject, AABB};
@@ -87,8 +87,6 @@ fn bench_rtree_from_geo(b: &mut Bencher) {
 }
 
 fn benchmark_group(c: &mut Criterion) {
-    better_panic::debug_install();
-
     c.bench_function("rtree_from_geoarrow", bench_rtree_from_geoarrow);
     c.bench_function("rtree_from_geo", bench_rtree_from_geo);
 }
