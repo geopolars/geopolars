@@ -9,7 +9,6 @@ use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
-use geo::{Coord, LineString, Polygon};
 use geozero::{GeomProcessor, GeozeroGeometry};
 
 use super::MutablePolygonArray;
@@ -161,72 +160,33 @@ impl PolygonArray {
     }
 }
 
-pub(crate) fn parse_polygon(
-    x: &Buffer<f64>,
-    y: &Buffer<f64>,
-    polygon_offsets: &OffsetsBuffer<i64>,
-    ring_offsets: &OffsetsBuffer<i64>,
-    i: usize,
-) -> Polygon {
-    // Start and end indices into the ring_offsets buffer
-    let (start_geom_idx, end_geom_idx) = polygon_offsets.start_end(i);
-
-    // Parse exterior ring first
-    let (start_ext_ring_idx, end_ext_ring_idx) = ring_offsets.start_end(start_geom_idx);
-    let mut exterior_coords: Vec<Coord> = Vec::with_capacity(end_ext_ring_idx - start_ext_ring_idx);
-
-    for i in start_ext_ring_idx..end_ext_ring_idx {
-        exterior_coords.push(Coord { x: x[i], y: y[i] })
-    }
-    let exterior_ring: LineString = exterior_coords.into();
-
-    // Parse any interior rings
-    // Note: need to check if interior rings exist otherwise the subtraction below can overflow
-    let has_interior_rings = end_geom_idx - start_geom_idx > 1;
-    let n_interior_rings = if has_interior_rings {
-        end_geom_idx - start_geom_idx - 2
-    } else {
-        0
-    };
-    let mut interior_rings: Vec<LineString<f64>> = Vec::with_capacity(n_interior_rings);
-    for ring_idx in start_geom_idx + 1..end_geom_idx {
-        let (start_coord_idx, end_coord_idx) = ring_offsets.start_end(ring_idx);
-        let mut ring: Vec<Coord> = Vec::with_capacity(end_coord_idx - start_coord_idx);
-        for coord_idx in start_coord_idx..end_coord_idx {
-            ring.push(Coord {
-                x: x[coord_idx],
-                y: y[coord_idx],
-            })
-        }
-        interior_rings.push(ring.into());
-    }
-
-    Polygon::new(exterior_ring, interior_rings)
-}
-
 // Implement geometry accessors
 impl PolygonArray {
-    pub fn get(&self, i: usize) -> Option<crate::Polygon> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(crate::Polygon {
+    pub fn value(&self, i: usize) -> crate::Polygon {
+        crate::Polygon {
             x: &self.x,
             y: &self.y,
             geom_offsets: &self.geom_offsets,
             ring_offsets: &self.ring_offsets,
             geom_index: i,
-        })
+        }
+    }
+
+    pub fn get(&self, i: usize) -> Option<crate::Polygon> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(self.value(i))
     }
 
     /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> Polygon {
-        parse_polygon(&self.x, &self.y, &self.geom_offsets, &self.ring_offsets, i)
+    pub fn value_as_geo(&self, i: usize) -> geo::Polygon {
+        self.value(i).into()
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<Polygon> {
+    pub fn get_as_geo(&self, i: usize) -> Option<geo::Polygon> {
         if self.is_null(i) {
             return None;
         }
@@ -235,12 +195,14 @@ impl PolygonArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    pub fn iter_geo_values(&self) -> impl Iterator<Item = Polygon> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::Polygon> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
-    pub fn iter_geo(&self) -> ZipValidity<Polygon, impl Iterator<Item = Polygon> + '_, BitmapIter> {
+    pub fn iter_geo(
+        &self,
+    ) -> ZipValidity<geo::Polygon, impl Iterator<Item = geo::Polygon> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
@@ -401,15 +363,15 @@ impl GeometryArray for PolygonArray {
     }
 }
 
-impl From<Vec<Option<Polygon>>> for PolygonArray {
-    fn from(other: Vec<Option<Polygon>>) -> Self {
+impl From<Vec<Option<geo::Polygon>>> for PolygonArray {
+    fn from(other: Vec<Option<geo::Polygon>>) -> Self {
         let mut_arr: MutablePolygonArray = other.into();
         mut_arr.into()
     }
 }
 
-impl From<Vec<Polygon>> for PolygonArray {
-    fn from(other: Vec<Polygon>) -> Self {
+impl From<Vec<geo::Polygon>> for PolygonArray {
+    fn from(other: Vec<geo::Polygon>) -> Self {
         let mut_arr: MutablePolygonArray = other.into();
         mut_arr.into()
     }
