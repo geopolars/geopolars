@@ -18,6 +18,16 @@ arrow2 = { version = "0.15" }
 # TODO: properly feature gate this
 rstar = { version = "0.9.3" }
 
+[dev-dependencies]
+arrow2 = { version = "0.15", features = ["io_parquet", "io_parquet_compression"]}
+criterion = { version = "0.4", features = ["html_reports"] }
+
 [lib]
 # TODO: fix docstrings
 doctest = false
+# see: https://bheisler.github.io/criterion.rs/book/faq.html
+bench = false
+
+[[bench]]
+name = "rtree"
+harness = false

@@ -5,6 +5,7 @@ use crate::geo_traits::{
 use crate::{LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
 use geo::{coord, Rect};
 
+#[derive(Debug, Clone, Copy)]
 struct BoundingRect {
     minx: f64,
     miny: f64,
@@ -91,8 +92,14 @@ pub fn bounding_rect_multilinestring(geom: &'_ MultiLineString) -> ([f64; 2], [f
 
 pub fn bounding_rect_polygon(geom: &'_ Polygon) -> ([f64; 2], [f64; 2]) {
     let mut rect = BoundingRect::new();
-    for geom_idx in 0..geom.num_interiors() {
-        let linestring = geom.interior(geom_idx).unwrap();
+    let exterior_ring = geom.exterior();
+    for coord_idx in 0..exterior_ring.num_points() {
+        let point = exterior_ring.point(coord_idx).unwrap();
+        rect.update(point);
+    }
+
+    for interior_idx in 0..geom.num_interiors() {
+        let linestring = geom.interior(interior_idx).unwrap();
         for coord_idx in 0..linestring.num_points() {
             let point = linestring.point(coord_idx).unwrap();
             rect.update(point);
@@ -105,8 +112,15 @@ pub fn bounding_rect_multipolygon(geom: &'_ MultiPolygon) -> ([f64; 2], [f64; 2]
     let mut rect = BoundingRect::new();
     for geom_idx in 0..geom.num_polygons() {
         let polygon = geom.polygon(geom_idx).unwrap();
-        for polygon_idx in 0..polygon.num_interiors() {
-            let linestring = polygon.interior(polygon_idx).unwrap();
+
+        let exterior_ring = polygon.exterior();
+        for coord_idx in 0..exterior_ring.num_points() {
+            let point = exterior_ring.point(coord_idx).unwrap();
+            rect.update(point);
+        }
+
+        for interior_idx in 0..polygon.num_interiors() {
+            let linestring = polygon.interior(interior_idx).unwrap();
             for coord_idx in 0..linestring.num_points() {
                 let point = linestring.point(coord_idx).unwrap();
                 rect.update(point);

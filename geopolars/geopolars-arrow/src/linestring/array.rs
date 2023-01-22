@@ -206,8 +206,6 @@ impl LineStringArray {
 
     /// Iterator over geo Geometry objects, not looking at validity
     pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::LineString> + '_ {
-        println!("iter_geo_values");
-        dbg!(&self.len());
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
