@@ -1,10 +1,10 @@
+use super::iterator::MultiPointIterator;
 use crate::algorithm::bounding_rect::bounding_rect_multipoint;
 use crate::geo_traits::MultiPointTrait;
 use crate::Point;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
 use rstar::{RTreeObject, AABB};
-use std::slice::Iter;
 
 /// An arrow equivalent of a MultiPoint
 #[derive(Debug, Clone)]
@@ -23,13 +23,11 @@ pub struct MultiPoint<'a> {
 
 impl<'a> MultiPointTrait<'a> for MultiPoint<'a> {
     type ItemType = Point<'a>;
-    type Iter = Iter<'a, Self::ItemType>;
+    type Iter = MultiPointIterator<'a>;
 
-    // Don't know how to return an iterator over these point objects
-    // https://stackoverflow.com/a/27535594
-    // fn points(&'a self) -> Self::Iter {
-    //     (0..self.num_points()).into_iter().map(|i| self.point(i).unwrap())
-    // }
+    fn points(&'a self) -> Self::Iter {
+        MultiPointIterator::new(self)
+    }
 
     fn num_points(&self) -> usize {
         let (start, end) = self.geom_offsets.start_end(self.geom_index);

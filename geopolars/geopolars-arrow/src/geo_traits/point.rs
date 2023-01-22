@@ -39,7 +39,6 @@ impl PointTrait for &Point<f64> {
     }
 }
 
-
 impl PointTrait for Coord<f64> {
     fn x(&self) -> f64 {
         self.x
