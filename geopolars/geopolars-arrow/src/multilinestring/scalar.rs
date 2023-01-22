@@ -5,6 +5,8 @@ use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
 use rstar::{RTreeObject, AABB};
 
+use super::iterator::MultiLineStringIterator;
+
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]
 pub struct MultiLineString<'a> {
@@ -25,6 +27,11 @@ pub struct MultiLineString<'a> {
 
 impl<'a> MultiLineStringTrait<'a> for MultiLineString<'a> {
     type ItemType = LineString<'a>;
+    type Iter = MultiLineStringIterator<'a>;
+
+    fn lines(&'a self) -> Self::Iter {
+        MultiLineStringIterator::new(self)
+    }
 
     fn num_lines(&'a self) -> usize {
         let (start, end) = self.geom_offsets.start_end(self.geom_index);
