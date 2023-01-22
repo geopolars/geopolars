@@ -230,6 +230,12 @@ impl GeomProcessor for MutablePointArray {
         Ok(())
     }
 
+    fn geometrycollection_begin(&mut self, size: usize, idx: usize) -> geozero::error::Result<()> {
+        self.x.reserve_exact(size);
+        self.y.reserve_exact(size);
+        Ok(())
+    }
+
     // Override all other trait _begin methods
     fn circularstring_begin(&mut self, size: usize, idx: usize) -> geozero::error::Result<()> {
         Err(geozero::error::GeozeroError::Geometry(
@@ -323,17 +329,11 @@ impl GeomProcessor for MutablePointArray {
             "Only point geometries allowed".to_string(),
         ))
     }
-
-    fn geometrycollection_begin(&mut self, size: usize, idx: usize) -> geozero::error::Result<()> {
-        Err(geozero::error::GeozeroError::Geometry(
-            "Only point geometries allowed".to_string(),
-        ))
-    }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use super::ToGeoArrowPoint;
     use geo::{line_string, point, Geometry, GeometryCollection, LineString, Point};
 
     fn p0() -> Point {
