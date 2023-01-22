@@ -1,7 +1,9 @@
+use crate::algorithm::bounding_rect::bounding_rect_polygon;
 use crate::geo_traits::PolygonTrait;
 use crate::LineString;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
+use rstar::{RTreeObject, AABB};
 
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]
@@ -69,5 +71,14 @@ impl From<&Polygon<'_>> for geo::Polygon {
             value.ring_offsets,
             value.geom_index,
         )
+    }
+}
+
+impl RTreeObject for Polygon<'_> {
+    type Envelope = AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        let (lower, upper) = bounding_rect_polygon(self);
+        AABB::from_corners(lower, upper)
     }
 }

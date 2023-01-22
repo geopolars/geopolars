@@ -10,6 +10,7 @@ use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
 use geozero::{GeomProcessor, GeozeroGeometry};
+use rstar::RTree;
 
 use super::MutablePolygonArray;
 
@@ -180,6 +181,16 @@ impl PolygonArray {
         Some(self.value(i))
     }
 
+    pub fn iter_values(&self) -> impl Iterator<Item = crate::Polygon> + '_ {
+        (0..self.len()).map(|i| self.value(i))
+    }
+
+    pub fn iter(
+        &self,
+    ) -> ZipValidity<crate::Polygon, impl Iterator<Item = crate::Polygon> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.iter_values(), self.validity())
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> geo::Polygon {
         self.value(i).into()
@@ -274,6 +285,13 @@ impl PolygonArray {
             inner_list_array,
             validity,
         )
+    }
+
+    /// Build a spatial index containing this array's geometries
+    pub fn rstar_tree(&self) -> RTree<crate::Polygon> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
     }
 }
 

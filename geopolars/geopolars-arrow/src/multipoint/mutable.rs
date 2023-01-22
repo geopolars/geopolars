@@ -1,15 +1,13 @@
+use super::array::MultiPointArray;
+use crate::enum_::GeometryType;
+use crate::error::GeoArrowError;
+use crate::linestring::MutableLineStringArray;
+use crate::trait_::MutableGeometryArray;
 use arrow2::array::ListArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
 use arrow2::offset::Offsets;
 use arrow2::types::Index;
 use geo::MultiPoint;
-
-use crate::enum_::GeometryType;
-use crate::error::GeoArrowError;
-use crate::linestring::MutableLineStringArray;
-use crate::trait_::MutableGeometryArray;
-
-use super::array::MultiPointArray;
 
 /// The Arrow equivalent to `Vec<Option<MultiPoint>>`.
 /// Converting a [`MutableMultiPointArray`] into a [`MultiPointArray`] is `O(1)`.
@@ -148,7 +146,7 @@ impl MutableGeometryArray for MutableMultiPointArray {
 }
 
 impl From<MutableMultiPointArray> for MultiPointArray {
-    fn from(other: MutableMultiPointArray) -> Self {
+    fn from(mut other: MutableMultiPointArray) -> Self {
         let validity = other.validity.and_then(|x| {
             let bitmap: Bitmap = x.into();
             if bitmap.unset_bits() == 0 {
@@ -157,6 +155,11 @@ impl From<MutableMultiPointArray> for MultiPointArray {
                 Some(bitmap)
             }
         });
+
+        // TODO: impl shrink_to_fit for all mutable -> * impls
+        other.x.shrink_to_fit();
+        other.y.shrink_to_fit();
+        other.geom_offsets.shrink_to_fit();
 
         Self::new(
             other.x.into(),

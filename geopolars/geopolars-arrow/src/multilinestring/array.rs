@@ -8,6 +8,7 @@ use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
 use geozero::{GeomProcessor, GeozeroGeometry};
+use rstar::RTree;
 
 use super::MutableMultiLineStringArray;
 
@@ -178,6 +179,20 @@ impl MultiLineStringArray {
         Some(self.value(i))
     }
 
+    pub fn iter_values(&self) -> impl Iterator<Item = crate::MultiLineString> + '_ {
+        (0..self.len()).map(|i| self.value(i))
+    }
+
+    pub fn iter(
+        &self,
+    ) -> ZipValidity<
+        crate::MultiLineString,
+        impl Iterator<Item = crate::MultiLineString> + '_,
+        BitmapIter,
+    > {
+        ZipValidity::new_with_validity(self.iter_values(), self.validity())
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> geo::MultiLineString {
         self.value(i).into()
@@ -243,6 +258,13 @@ impl MultiLineStringArray {
     pub fn into_arrow(self) -> ListArray<i64> {
         let polygon_array: PolygonArray = self.into();
         polygon_array.into_arrow()
+    }
+
+    /// Build a spatial index containing this array's geometries
+    pub fn rstar_tree(&self) -> RTree<crate::MultiLineString> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
     }
 }
 

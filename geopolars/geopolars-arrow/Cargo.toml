@@ -15,6 +15,8 @@ thiserror.workspace = true
 anyhow = "1.0"
 geozero = { version = "0.9.4", features = ["with-wkb"] }
 arrow2 = { version = "0.15" }
+# TODO: properly feature gate this
+rstar = { version = "0.9.3" }
 
 [lib]
 # TODO: fix docstrings

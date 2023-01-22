@@ -17,7 +17,7 @@ pub trait MultiPolygonTrait<'a>: Send + Sync {
 }
 
 impl<'a> MultiPolygonTrait<'a> for MultiPolygon<f64> {
-    type ItemType = Polygon;
+    type ItemType = &'a Polygon;
     // type Iter = Iter<'a, Self::ItemType>;
 
     // fn polygons(&'a self) -> Self::Iter {
@@ -29,6 +29,6 @@ impl<'a> MultiPolygonTrait<'a> for MultiPolygon<f64> {
     }
 
     fn polygon(&'a self, i: usize) -> Option<Self::ItemType> {
-        self.0.get(i).cloned()
+        self.0.get(i)
     }
 }

@@ -1,7 +1,9 @@
+use crate::algorithm::bounding_rect::bounding_rect_multilinestring;
 use crate::geo_traits::MultiLineStringTrait;
 use crate::LineString;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
+use rstar::{RTreeObject, AABB};
 
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]
@@ -71,5 +73,14 @@ impl From<&MultiLineString<'_>> for geo::MultiLineString {
         }
 
         geo::MultiLineString::new(line_strings)
+    }
+}
+
+impl RTreeObject for MultiLineString<'_> {
+    type Envelope = AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        let (lower, upper) = bounding_rect_multilinestring(self);
+        AABB::from_corners(lower, upper)
     }
 }

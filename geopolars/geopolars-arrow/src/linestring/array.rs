@@ -9,6 +9,7 @@ use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
 use geozero::{GeomProcessor, GeozeroGeometry};
+use rstar::RTree;
 
 use super::MutableLineStringArray;
 
@@ -172,6 +173,17 @@ impl LineStringArray {
         Some(self.value(i))
     }
 
+    pub fn iter_values(&self) -> impl Iterator<Item = crate::LineString> + '_ {
+        (0..self.len()).map(|i| self.value(i))
+    }
+
+    pub fn iter(
+        &self,
+    ) -> ZipValidity<crate::LineString, impl Iterator<Item = crate::LineString> + '_, BitmapIter>
+    {
+        ZipValidity::new_with_validity(self.iter_values(), self.validity())
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> geo::LineString {
         self.value(i).into()
@@ -255,6 +267,13 @@ impl LineStringArray {
         let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
 
         ListArray::new(list_data_type, self.geom_offsets, coord_array, validity)
+    }
+
+    /// Build a spatial index containing this array's geometries
+    pub fn rstar_tree(&self) -> RTree<crate::LineString> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
     }
 }
 
@@ -391,6 +410,7 @@ mod test {
     use super::*;
     use geo::{line_string, LineString};
     use geozero::ToWkt;
+    use rstar::AABB;
 
     fn ls0() -> LineString {
         line_string![
@@ -428,5 +448,21 @@ mod test {
         let expected = "GEOMETRYCOLLECTION(LINESTRING(0 1,1 2),LINESTRING(3 4,5 6))";
         assert_eq!(wkt, expected);
         Ok(())
+    }
+
+    #[test]
+    fn rstar_integration() {
+        let arr: LineStringArray = vec![ls0(), ls1()].into();
+        let tree = arr.rstar_tree();
+
+        let search_box = AABB::from_corners([3.5, 5.5], [4.5, 6.5]);
+        let results: Vec<&crate::LineString> =
+            tree.locate_in_envelope_intersecting(&search_box).collect();
+
+        assert_eq!(results.len(), 1);
+        assert_eq!(
+            results[0].geom_index, 1,
+            "The second element in the LineStringArray should be found"
+        );
     }
 }

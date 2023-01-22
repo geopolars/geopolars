@@ -5,8 +5,8 @@ use crate::MutableWKBArray;
 use arrow2::array::{Array, BinaryArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
-use geo::Geometry;
 use geozero::{wkb::Wkb, ToGeo};
+use rstar::RTree;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Geometry>>` using Arrow's
 /// in-memory representation.
@@ -31,8 +31,33 @@ impl WKBArray {
         self.len() == 0
     }
 
+    pub fn value(&self, i: usize) -> crate::WKB {
+        crate::WKB {
+            arr: &self.0,
+            geom_index: i,
+        }
+    }
+
+    pub fn get(&self, i: usize) -> Option<crate::WKB> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(self.value(i))
+    }
+
+    pub fn iter_values(&self) -> impl Iterator<Item = crate::WKB> + '_ {
+        (0..self.len()).map(|i| self.value(i))
+    }
+
+    pub fn iter(
+        &self,
+    ) -> ZipValidity<crate::WKB, impl Iterator<Item = crate::WKB> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.iter_values(), self.validity())
+    }
+
     /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> Geometry {
+    pub fn value_as_geo(&self, i: usize) -> geo::Geometry {
         let buf = self.0.value(i);
         Wkb(buf.to_vec())
             .to_geo()
@@ -40,7 +65,7 @@ impl WKBArray {
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<Geometry> {
+    pub fn get_as_geo(&self, i: usize) -> Option<geo::Geometry> {
         if self.is_null(i) {
             return None;
         }
@@ -67,14 +92,14 @@ impl WKBArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    pub fn iter_geo_values(&self) -> impl Iterator<Item = Geometry> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::Geometry> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
     pub fn iter_geo(
         &self,
-    ) -> ZipValidity<Geometry, impl Iterator<Item = Geometry> + '_, BitmapIter> {
+    ) -> ZipValidity<geo::Geometry, impl Iterator<Item = geo::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
@@ -94,6 +119,13 @@ impl WKBArray {
 
     pub fn into_arrow(self) -> BinaryArray<i64> {
         self.0
+    }
+
+    /// Build a spatial index containing this array's geometries
+    pub fn rstar_tree(&self) -> RTree<crate::WKB> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
     }
 }
 
@@ -154,8 +186,8 @@ impl GeometryArray for WKBArray {
     }
 }
 
-impl From<Vec<Option<Geometry>>> for WKBArray {
-    fn from(other: Vec<Option<Geometry>>) -> Self {
+impl From<Vec<Option<geo::Geometry>>> for WKBArray {
+    fn from(other: Vec<Option<geo::Geometry>>) -> Self {
         let mut_arr: MutableWKBArray = other.into();
         mut_arr.into()
     }

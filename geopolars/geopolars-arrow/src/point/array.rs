@@ -8,6 +8,7 @@ use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use geozero::{GeomProcessor, GeozeroGeometry};
+use rstar::RTree;
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Point>>` using Arrow's
 /// in-memory representation.
@@ -153,6 +154,16 @@ impl PointArray {
         Some(self.value(i))
     }
 
+    pub fn iter_values(&self) -> impl Iterator<Item = crate::Point> + '_ {
+        (0..self.len()).map(|i| self.value(i))
+    }
+
+    pub fn iter(
+        &self,
+    ) -> ZipValidity<crate::Point, impl Iterator<Item = crate::Point> + '_, BitmapIter> {
+        ZipValidity::new_with_validity(self.iter_values(), self.validity())
+    }
+
     /// Returns the value at slot `i` as a geo object.
     pub fn value_as_geo(&self, i: usize) -> geo::Point {
         self.value(i).into()
@@ -226,6 +237,13 @@ impl PointArray {
         };
 
         StructArray::new(struct_data_type, struct_values, validity)
+    }
+
+    /// Build a spatial index containing this array's geometries
+    pub fn rstar_tree(&self) -> RTree<crate::Point> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
     }
 }
 

@@ -17,7 +17,7 @@ pub trait LineStringTrait<'a>: Send + Sync {
 }
 
 impl<'a> LineStringTrait<'a> for LineString<f64> {
-    type ItemType = Coord;
+    type ItemType = &'a Coord;
     // type Iter = Iter<'a, Self::ItemType>;
 
     // fn points(&'a self) -> Self::Iter {
@@ -28,13 +28,13 @@ impl<'a> LineStringTrait<'a> for LineString<f64> {
         self.0.len()
     }
 
-    fn point(&self, i: usize) -> Option<Self::ItemType> {
-        self.0.get(i).cloned()
+    fn point(&'a self, i: usize) -> Option<Self::ItemType> {
+        self.0.get(i)
     }
 }
 
 impl<'a> LineStringTrait<'a> for &LineString<f64> {
-    type ItemType = Coord;
+    type ItemType = &'a Coord;
     // type Iter = Iter<'a, Self::ItemType>;
 
     // fn points(&'a self) -> Self::Iter {
@@ -45,7 +45,7 @@ impl<'a> LineStringTrait<'a> for &LineString<f64> {
         self.0.len()
     }
 
-    fn point(&self, i: usize) -> Option<Self::ItemType> {
-        self.0.get(i).cloned()
+    fn point(&'a self, i: usize) -> Option<Self::ItemType> {
+        self.0.get(i)
     }
 }

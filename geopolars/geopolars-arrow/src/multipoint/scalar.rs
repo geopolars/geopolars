@@ -1,7 +1,9 @@
+use crate::algorithm::bounding_rect::bounding_rect_multipoint;
 use crate::geo_traits::MultiPointTrait;
 use crate::Point;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
+use rstar::{RTreeObject, AABB};
 use std::slice::Iter;
 
 /// An arrow equivalent of a MultiPoint
@@ -65,5 +67,14 @@ impl From<&MultiPoint<'_>> for geo::MultiPoint {
         }
 
         geo::MultiPoint::new(coords)
+    }
+}
+
+impl RTreeObject for MultiPoint<'_> {
+    type Envelope = AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        let (lower, upper) = bounding_rect_multipoint(self);
+        AABB::from_corners(lower, upper)
     }
 }
