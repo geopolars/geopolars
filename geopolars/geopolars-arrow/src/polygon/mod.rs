@@ -6,6 +6,7 @@ pub use scalar::Polygon;
 pub(crate) use util::parse_polygon;
 
 mod array;
+mod iterator;
 mod mutable;
 mod scalar;
 pub(crate) mod util;

@@ -5,6 +5,8 @@ use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
 use rstar::{RTreeObject, AABB};
 
+use super::iterator::PolygonInteriorIterator;
+
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]
 pub struct Polygon<'a> {
@@ -25,6 +27,7 @@ pub struct Polygon<'a> {
 
 impl<'a> PolygonTrait<'a> for Polygon<'a> {
     type ItemType = LineString<'a>;
+    type Iter = PolygonInteriorIterator<'a>;
 
     fn exterior(&'a self) -> Self::ItemType {
         let (start, _) = self.geom_offsets.start_end(self.geom_index);
@@ -34,6 +37,10 @@ impl<'a> PolygonTrait<'a> for Polygon<'a> {
             geom_offsets: self.ring_offsets,
             geom_index: start,
         }
+    }
+
+    fn interiors(&'a self) -> Self::Iter {
+        PolygonInteriorIterator::new(self)
     }
 
     fn num_interiors(&'a self) -> usize {
