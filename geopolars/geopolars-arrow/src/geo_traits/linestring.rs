@@ -1,12 +1,13 @@
 use super::point::PointTrait;
-use geo::{Coord, LineString};
+use std::iter::Cloned;
+use std::slice::Iter;
 
 pub trait LineStringTrait<'a>: Send + Sync {
     type ItemType: 'a + PointTrait;
-    // type Iter: Iterator<Item = &'a Self::ItemType>;
+    type Iter: Iterator<Item = Self::ItemType>;
 
-    // /// An iterator over the points in this LineString
-    // fn points(&'a self) -> Self::Iter;
+    /// An iterator over the points in this LineString
+    fn points(&'a self) -> Self::Iter;
 
     /// The number of points in this LineString
     fn num_points(&'a self) -> usize;
@@ -16,36 +17,36 @@ pub trait LineStringTrait<'a>: Send + Sync {
     fn point(&'a self, i: usize) -> Option<Self::ItemType>;
 }
 
-impl<'a> LineStringTrait<'a> for LineString<f64> {
-    type ItemType = &'a Coord;
-    // type Iter = Iter<'a, Self::ItemType>;
+impl<'a> LineStringTrait<'a> for geo::LineString<f64> {
+    type ItemType = geo::Coord;
+    type Iter = Cloned<Iter<'a, Self::ItemType>>;
 
-    // fn points(&'a self) -> Self::Iter {
-    //     self.0.iter().map(|c| (c.x, c.y).into()).into_iter()
-    // }
+    fn points(&'a self) -> Self::Iter {
+        self.0.iter().cloned()
+    }
 
     fn num_points(&self) -> usize {
         self.0.len()
     }
 
     fn point(&'a self, i: usize) -> Option<Self::ItemType> {
-        self.0.get(i)
+        self.0.get(i).cloned()
     }
 }
 
-impl<'a> LineStringTrait<'a> for &LineString<f64> {
-    type ItemType = &'a Coord;
-    // type Iter = Iter<'a, Self::ItemType>;
+impl<'a> LineStringTrait<'a> for &geo::LineString<f64> {
+    type ItemType = geo::Coord;
+    type Iter = Cloned<Iter<'a, Self::ItemType>>;
 
-    // fn points(&'a self) -> Self::Iter {
-    //     self.0.iter().map(|c| (c.x, c.y).into()).into_iter()
-    // }
+    fn points(&'a self) -> Self::Iter {
+        self.0.iter().cloned()
+    }
 
     fn num_points(&self) -> usize {
         self.0.len()
     }
 
     fn point(&'a self, i: usize) -> Option<Self::ItemType> {
-        self.0.get(i)
+        self.0.get(i).cloned()
     }
 }

@@ -5,5 +5,6 @@ pub use mutable::MutablePointArray;
 pub use scalar::Point;
 
 mod array;
+mod iterator;
 mod mutable;
 mod scalar;

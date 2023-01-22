@@ -5,6 +5,8 @@ use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
 use rstar::{RTreeObject, AABB};
 
+use super::iterator::MultiPolygonIterator;
+
 /// An arrow equivalent of a Polygon
 #[derive(Debug, Clone)]
 pub struct MultiPolygon<'a> {
@@ -28,6 +30,11 @@ pub struct MultiPolygon<'a> {
 
 impl<'a> MultiPolygonTrait<'a> for MultiPolygon<'a> {
     type ItemType = Polygon<'a>;
+    type Iter = MultiPolygonIterator<'a>;
+
+    fn polygons(&'a self) -> Self::Iter {
+        MultiPolygonIterator::new(self)
+    }
 
     fn num_polygons(&'a self) -> usize {
         let (start, end) = self.geom_offsets.start_end(self.geom_index);

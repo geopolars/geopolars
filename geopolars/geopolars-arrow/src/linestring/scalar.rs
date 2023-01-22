@@ -5,6 +5,8 @@ use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
 use rstar::{RTreeObject, AABB};
 
+use super::iterator::LineStringIterator;
+
 /// An arrow equivalent of a LineString
 #[derive(Debug, Clone)]
 pub struct LineString<'a> {
@@ -22,12 +24,11 @@ pub struct LineString<'a> {
 
 impl<'a> LineStringTrait<'a> for LineString<'a> {
     type ItemType = Point<'a>;
+    type Iter = LineStringIterator<'a>;
 
-    // Don't know how to return an iterator over these point objects
-    // https://stackoverflow.com/a/27535594
-    // fn points(&'a self) -> Self::Iter {
-    //     (0..self.num_points()).into_iter().map(|i| self.point(i).unwrap())
-    // }
+    fn points(&'a self) -> Self::Iter {
+        LineStringIterator::new(self)
+    }
 
     fn num_points(&self) -> usize {
         let (start, end) = self.geom_offsets.start_end(self.geom_index);

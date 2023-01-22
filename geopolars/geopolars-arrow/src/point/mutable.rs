@@ -329,6 +329,7 @@ impl GeomProcessor for MutablePointArray {
 #[cfg(test)]
 mod test {
     use super::ToGeoArrowPoint;
+    use crate::GeometryArrayTrait;
     use geo::{line_string, point, Geometry, GeometryCollection, LineString, Point};
 
     fn p0() -> Point {

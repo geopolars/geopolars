@@ -192,34 +192,6 @@ impl<'a> GeometryArrayTrait<'a> for MultiLineStringArray {
 
 // Implement geometry accessors
 impl MultiLineStringArray {
-    pub fn iter_values(&self) -> impl Iterator<Item = crate::MultiLineString> + '_ {
-        (0..self.len()).map(|i| self.value(i))
-    }
-
-    pub fn iter(
-        &self,
-    ) -> ZipValidity<
-        crate::MultiLineString,
-        impl Iterator<Item = crate::MultiLineString> + '_,
-        BitmapIter,
-    > {
-        ZipValidity::new_with_validity(self.iter_values(), self.validity())
-    }
-
-    /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> geo::MultiLineString {
-        self.value(i).into()
-    }
-
-    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<geo::MultiLineString> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value_as_geo(i))
-    }
-
     /// Iterator over geo Geometry objects, not looking at validity
     pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::MultiLineString> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))

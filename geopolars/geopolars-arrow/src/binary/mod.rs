@@ -5,5 +5,6 @@ pub use mutable::MutableWKBArray;
 pub use scalar::WKB;
 
 mod array;
+mod iterator;
 mod mutable;
 mod scalar;

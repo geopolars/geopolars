@@ -254,32 +254,6 @@ impl<'a> GeometryArrayTrait<'a> for MultiPolygonArray {
 
 // Implement geometry accessors
 impl MultiPolygonArray {
-    pub fn iter_values(&self) -> impl Iterator<Item = crate::MultiPolygon> + '_ {
-        (0..self.len()).map(|i| self.value(i))
-    }
-
-    pub fn iter(
-        &self,
-    ) -> ZipValidity<crate::MultiPolygon, impl Iterator<Item = crate::MultiPolygon> + '_, BitmapIter>
-    {
-        ZipValidity::new_with_validity(self.iter_values(), self.validity())
-    }
-
-    // TODO: Need to test this
-    /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> geo::MultiPolygon {
-        self.value(i).into()
-    }
-
-    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<geo::MultiPolygon> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value_as_geo(i))
-    }
-
     /// Iterator over geo Geometry objects, not looking at validity
     pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::MultiPolygon> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))

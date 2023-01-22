@@ -229,30 +229,6 @@ impl<'a> GeometryArrayTrait<'a> for PolygonArray {
 
 // Implement geometry accessors
 impl PolygonArray {
-    pub fn iter_values(&self) -> impl Iterator<Item = crate::Polygon> + '_ {
-        (0..self.len()).map(|i| self.value(i))
-    }
-
-    pub fn iter(
-        &self,
-    ) -> ZipValidity<crate::Polygon, impl Iterator<Item = crate::Polygon> + '_, BitmapIter> {
-        ZipValidity::new_with_validity(self.iter_values(), self.validity())
-    }
-
-    /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> geo::Polygon {
-        self.value(i).into()
-    }
-
-    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<geo::Polygon> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value_as_geo(i))
-    }
-
     /// Iterator over geo Geometry objects, not looking at validity
     pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::Polygon> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))

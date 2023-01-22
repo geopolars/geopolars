@@ -25,6 +25,20 @@ impl PointTrait for Point<f64> {
     }
 }
 
+impl PointTrait for &Point<f64> {
+    fn x(&self) -> f64 {
+        self.0.x
+    }
+
+    fn y(&self) -> f64 {
+        self.0.y
+    }
+
+    fn x_y(&self) -> (f64, f64) {
+        (self.0.x, self.0.y)
+    }
+}
+
 impl PointTrait for Coord<f64> {
     fn x(&self) -> f64 {
         self.x
