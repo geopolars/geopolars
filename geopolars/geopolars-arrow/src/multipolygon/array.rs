@@ -745,7 +745,6 @@ mod test {
         )
         .unwrap();
         let arr: MultiPolygonArray = mut_arr.into();
-        // This panics from inside rstar
         let _tree = arr.rstar_tree();
     }
 }
