@@ -7,7 +7,6 @@ use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
-use geo::Point;
 use geozero::{GeomProcessor, GeozeroGeometry};
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<Point>>` using Arrow's
@@ -138,25 +137,29 @@ impl PointArray {
 
 // Implement geometry accessors
 impl PointArray {
+    pub fn value(&self, i: usize) -> crate::Point {
+        crate::Point {
+            x: &self.x,
+            y: &self.y,
+            geom_index: i,
+        }
+    }
+
     pub fn get(&self, i: usize) -> Option<crate::Point> {
         if self.is_null(i) {
             return None;
         }
 
-        Some(crate::Point {
-            x: &self.x,
-            y: &self.y,
-            geom_index: i,
-        })
+        Some(self.value(i))
     }
 
     /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> Point {
-        Point::new(self.x[i], self.y[i])
+    pub fn value_as_geo(&self, i: usize) -> geo::Point {
+        self.value(i).into()
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<Point> {
+    pub fn get_as_geo(&self, i: usize) -> Option<geo::Point> {
         if self.is_null(i) {
             return None;
         }
@@ -165,12 +168,14 @@ impl PointArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    pub fn iter_geo_values(&self) -> impl Iterator<Item = Point> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::Point> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
-    pub fn iter_geo(&self) -> ZipValidity<Point, impl Iterator<Item = Point> + '_, BitmapIter> {
+    pub fn iter_geo(
+        &self,
+    ) -> ZipValidity<geo::Point, impl Iterator<Item = geo::Point> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
@@ -322,15 +327,15 @@ impl GeometryArray for PointArray {
     }
 }
 
-impl From<Vec<Option<Point>>> for PointArray {
-    fn from(other: Vec<Option<Point>>) -> Self {
+impl From<Vec<Option<geo::Point>>> for PointArray {
+    fn from(other: Vec<Option<geo::Point>>) -> Self {
         let mut_arr: MutablePointArray = other.into();
         mut_arr.into()
     }
 }
 
-impl From<Vec<Point>> for PointArray {
-    fn from(other: Vec<Point>) -> Self {
+impl From<Vec<geo::Point>> for PointArray {
+    fn from(other: Vec<geo::Point>) -> Self {
         let mut_arr: MutablePointArray = other.into();
         mut_arr.into()
     }

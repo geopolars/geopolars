@@ -8,7 +8,6 @@ use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::offset::OffsetsBuffer;
-use geo::{MultiPoint, Point};
 use geozero::{GeomProcessor, GeozeroGeometry};
 
 /// A [`GeometryArray`] semantically equivalent to `Vec<Option<MultiPoint>>` using Arrow's
@@ -50,19 +49,6 @@ pub(super) fn check(
 }
 
 impl MultiPointArray {
-    pub fn get(&self, i: usize) -> Option<crate::MultiPoint> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(crate::MultiPoint {
-            x: &self.x,
-            y: &self.y,
-            geom_offsets: &self.geom_offsets,
-            geom_index: i,
-        })
-    }
-
     /// Create a new MultiPointArray from parts
     /// # Implementation
     /// This function is `O(1)`.
@@ -165,20 +151,30 @@ impl MultiPointArray {
 
 // Implement geometry accessors
 impl MultiPointArray {
-    /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> MultiPoint {
-        let (start_idx, end_idx) = self.geom_offsets.start_end(i);
-        let mut coords: Vec<Point> = Vec::with_capacity(end_idx - start_idx);
+    pub fn value(&self, i: usize) -> crate::MultiPoint {
+        crate::MultiPoint {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            geom_index: i,
+        }
+    }
 
-        for i in start_idx..end_idx {
-            coords.push(Point::new(self.x[i], self.y[i]))
+    pub fn get(&self, i: usize) -> Option<crate::MultiPoint> {
+        if self.is_null(i) {
+            return None;
         }
 
-        MultiPoint::new(coords)
+        Some(self.value(i))
+    }
+
+    /// Returns the value at slot `i` as a geo object.
+    pub fn value_as_geo(&self, i: usize) -> geo::MultiPoint {
+        self.value(i).into()
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<MultiPoint> {
+    pub fn get_as_geo(&self, i: usize) -> Option<geo::MultiPoint> {
         if self.is_null(i) {
             return None;
         }
@@ -187,14 +183,14 @@ impl MultiPointArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    pub fn iter_geo_values(&self) -> impl Iterator<Item = MultiPoint> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::MultiPoint> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
     pub fn iter_geo(
         &self,
-    ) -> ZipValidity<MultiPoint, impl Iterator<Item = MultiPoint> + '_, BitmapIter> {
+    ) -> ZipValidity<geo::MultiPoint, impl Iterator<Item = geo::MultiPoint> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
@@ -313,15 +309,15 @@ impl GeometryArray for MultiPointArray {
     }
 }
 
-impl From<Vec<Option<MultiPoint>>> for MultiPointArray {
-    fn from(other: Vec<Option<MultiPoint>>) -> Self {
+impl From<Vec<Option<geo::MultiPoint>>> for MultiPointArray {
+    fn from(other: Vec<Option<geo::MultiPoint>>) -> Self {
         let mut_arr: MutableMultiPointArray = other.into();
         mut_arr.into()
     }
 }
 
-impl From<Vec<MultiPoint>> for MultiPointArray {
-    fn from(other: Vec<MultiPoint>) -> Self {
+impl From<Vec<geo::MultiPoint>> for MultiPointArray {
+    fn from(other: Vec<geo::MultiPoint>) -> Self {
         let mut_arr: MutableMultiPointArray = other.into();
         mut_arr.into()
     }

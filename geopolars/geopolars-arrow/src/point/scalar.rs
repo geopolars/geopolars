@@ -22,3 +22,15 @@ impl PointTrait for Point<'_> {
         (self.x[self.geom_index], self.y[self.geom_index])
     }
 }
+
+impl From<Point<'_>> for geo::Point {
+    fn from(value: Point<'_>) -> Self {
+        (&value).into()
+    }
+}
+
+impl From<&Point<'_>> for geo::Point {
+    fn from(value: &Point<'_>) -> Self {
+        geo::Point::new(value.x(), value.y())
+    }
+}

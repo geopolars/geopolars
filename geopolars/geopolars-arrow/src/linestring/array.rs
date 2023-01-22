@@ -8,7 +8,6 @@ use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
-use geo::{Coord, LineString};
 use geozero::{GeomProcessor, GeozeroGeometry};
 
 use super::MutableLineStringArray;
@@ -154,36 +153,32 @@ impl LineStringArray {
 
 // Implement geometry accessors
 impl LineStringArray {
+    /// Gets the value at slot `i`
+    pub fn value(&self, i: usize) -> crate::LineString {
+        crate::LineString {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            geom_index: i,
+        }
+    }
+
+    /// Gets the item at slot `i`, additionally checking the validity bitmap
     pub fn get(&self, i: usize) -> Option<crate::LineString> {
         if self.is_null(i) {
             return None;
         }
 
-        Some(crate::LineString {
-            x: &self.x,
-            y: &self.y,
-            geom_offsets: &self.geom_offsets,
-            geom_index: i,
-        })
+        Some(self.value(i))
     }
 
     /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> LineString {
-        let (start_idx, end_idx) = self.geom_offsets.start_end(i);
-        let mut coords: Vec<Coord> = Vec::with_capacity(end_idx - start_idx);
-
-        for i in start_idx..end_idx {
-            coords.push(Coord {
-                x: self.x[i],
-                y: self.y[i],
-            })
-        }
-
-        LineString::new(coords)
+    pub fn value_as_geo(&self, i: usize) -> geo::LineString {
+        self.value(i).into()
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<LineString> {
+    pub fn get_as_geo(&self, i: usize) -> Option<geo::LineString> {
         if self.is_null(i) {
             return None;
         }
@@ -192,7 +187,7 @@ impl LineStringArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    pub fn iter_geo_values(&self) -> impl Iterator<Item = LineString> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::LineString> + '_ {
         println!("iter_geo_values");
         dbg!(&self.len());
         (0..self.len()).map(|i| self.value_as_geo(i))
@@ -201,7 +196,7 @@ impl LineStringArray {
     /// Iterator over geo Geometry objects, taking into account validity
     pub fn iter_geo(
         &self,
-    ) -> ZipValidity<LineString, impl Iterator<Item = LineString> + '_, BitmapIter> {
+    ) -> ZipValidity<geo::LineString, impl Iterator<Item = geo::LineString> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
@@ -340,15 +335,15 @@ impl GeometryArray for LineStringArray {
     }
 }
 
-impl From<Vec<Option<LineString>>> for LineStringArray {
-    fn from(other: Vec<Option<LineString>>) -> Self {
+impl From<Vec<Option<geo::LineString>>> for LineStringArray {
+    fn from(other: Vec<Option<geo::LineString>>) -> Self {
         let mut_arr: MutableLineStringArray = other.into();
         mut_arr.into()
     }
 }
 
-impl From<Vec<LineString>> for LineStringArray {
-    fn from(other: Vec<LineString>) -> Self {
+impl From<Vec<geo::LineString>> for LineStringArray {
+    fn from(other: Vec<geo::LineString>) -> Self {
         let mut_arr: MutableLineStringArray = other.into();
         mut_arr.into()
     }

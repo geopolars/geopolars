@@ -53,3 +53,21 @@ impl<'a> PolygonTrait<'a> for Polygon<'a> {
         })
     }
 }
+
+impl From<Polygon<'_>> for geo::Polygon {
+    fn from(value: Polygon<'_>) -> Self {
+        (&value).into()
+    }
+}
+
+impl From<&Polygon<'_>> for geo::Polygon {
+    fn from(value: &Polygon<'_>) -> Self {
+        super::parse_polygon(
+            value.x,
+            value.y,
+            value.geom_offsets,
+            value.ring_offsets,
+            value.geom_index,
+        )
+    }
+}

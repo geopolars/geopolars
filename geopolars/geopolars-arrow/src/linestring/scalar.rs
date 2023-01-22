@@ -46,3 +46,25 @@ impl<'a> LineStringTrait<'a> for LineString<'a> {
         Some(point)
     }
 }
+
+impl From<LineString<'_>> for geo::LineString {
+    fn from(value: LineString<'_>) -> Self {
+        (&value).into()
+    }
+}
+
+impl From<&LineString<'_>> for geo::LineString {
+    fn from(value: &LineString<'_>) -> Self {
+        let (start_idx, end_idx) = value.geom_offsets.start_end(value.geom_index);
+        let mut coords: Vec<geo::Coord> = Vec::with_capacity(end_idx - start_idx);
+
+        for i in start_idx..end_idx {
+            coords.push(geo::Coord {
+                x: value.x[i],
+                y: value.y[i],
+            })
+        }
+
+        geo::LineString::new(coords)
+    }
+}

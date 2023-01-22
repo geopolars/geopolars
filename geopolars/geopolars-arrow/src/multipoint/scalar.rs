@@ -48,3 +48,22 @@ impl<'a> MultiPointTrait<'a> for MultiPoint<'a> {
         Some(point)
     }
 }
+
+impl From<MultiPoint<'_>> for geo::MultiPoint {
+    fn from(value: MultiPoint<'_>) -> Self {
+        (&value).into()
+    }
+}
+
+impl From<&MultiPoint<'_>> for geo::MultiPoint {
+    fn from(value: &MultiPoint<'_>) -> Self {
+        let (start_idx, end_idx) = value.geom_offsets.start_end(value.geom_index);
+        let mut coords: Vec<geo::Point> = Vec::with_capacity(end_idx - start_idx);
+
+        for i in start_idx..end_idx {
+            coords.push(geo::Point::new(value.x[i], value.y[i]))
+        }
+
+        geo::MultiPoint::new(coords)
+    }
+}

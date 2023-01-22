@@ -48,3 +48,31 @@ impl<'a> MultiPolygonTrait<'a> for MultiPolygon<'a> {
         })
     }
 }
+
+impl From<MultiPolygon<'_>> for geo::MultiPolygon {
+    fn from(value: MultiPolygon<'_>) -> Self {
+        (&value).into()
+    }
+}
+
+impl From<&MultiPolygon<'_>> for geo::MultiPolygon {
+    fn from(value: &MultiPolygon<'_>) -> Self {
+        // Start and end indices into the polygon_offsets buffer
+        let (start_geom_idx, end_geom_idx) = value.geom_offsets.start_end(value.geom_index);
+
+        let mut polygons: Vec<geo::Polygon> = Vec::with_capacity(end_geom_idx - start_geom_idx);
+
+        for geom_idx in start_geom_idx..end_geom_idx {
+            let poly = crate::polygon::util::parse_polygon(
+                value.x,
+                value.y,
+                value.polygon_offsets,
+                value.ring_offsets,
+                geom_idx,
+            );
+            polygons.push(poly);
+        }
+
+        geo::MultiPolygon::new(polygons)
+    }
+}

@@ -1,6 +1,5 @@
 use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::polygon::parse_polygon;
 use crate::trait_::GeometryArray;
 use arrow2::array::{Array, ListArray, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
@@ -8,7 +7,6 @@ use arrow2::bitmap::Bitmap;
 use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
-use geo::{MultiPolygon, Polygon};
 use geozero::{GeomProcessor, GeozeroGeometry};
 
 use super::MutableMultiPolygonArray;
@@ -170,45 +168,33 @@ impl MultiPolygonArray {
 
 // Implement geometry accessors
 impl MultiPolygonArray {
-    pub fn get(&self, i: usize) -> Option<crate::MultiPolygon> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(crate::MultiPolygon {
+    pub fn value(&self, i: usize) -> crate::MultiPolygon {
+        crate::MultiPolygon {
             x: &self.x,
             y: &self.y,
             geom_offsets: &self.geom_offsets,
             polygon_offsets: &self.polygon_offsets,
             ring_offsets: &self.ring_offsets,
             geom_index: i,
-        })
+        }
+    }
+
+    pub fn get(&self, i: usize) -> Option<crate::MultiPolygon> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(self.value(i))
     }
 
     // TODO: Need to test this
     /// Returns the value at slot `i` as a geo object.
-    pub fn value_as_geo(&self, i: usize) -> MultiPolygon {
-        // Start and end indices into the polygon_offsets buffer
-        let (start_geom_idx, end_geom_idx) = self.geom_offsets.start_end(i);
-
-        let mut polygons: Vec<Polygon> = Vec::with_capacity(end_geom_idx - start_geom_idx);
-
-        for geom_idx in start_geom_idx..end_geom_idx {
-            let poly = parse_polygon(
-                &self.x,
-                &self.y,
-                &self.polygon_offsets,
-                &self.ring_offsets,
-                geom_idx,
-            );
-            polygons.push(poly);
-        }
-
-        MultiPolygon::new(polygons)
+    pub fn value_as_geo(&self, i: usize) -> geo::MultiPolygon {
+        self.value(i).into()
     }
 
     /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
-    pub fn get_as_geo(&self, i: usize) -> Option<MultiPolygon> {
+    pub fn get_as_geo(&self, i: usize) -> Option<geo::MultiPolygon> {
         if self.is_null(i) {
             return None;
         }
@@ -217,14 +203,15 @@ impl MultiPolygonArray {
     }
 
     /// Iterator over geo Geometry objects, not looking at validity
-    pub fn iter_geo_values(&self) -> impl Iterator<Item = MultiPolygon> + '_ {
+    pub fn iter_geo_values(&self) -> impl Iterator<Item = geo::MultiPolygon> + '_ {
         (0..self.len()).map(|i| self.value_as_geo(i))
     }
 
     /// Iterator over geo Geometry objects, taking into account validity
     pub fn iter_geo(
         &self,
-    ) -> ZipValidity<MultiPolygon, impl Iterator<Item = MultiPolygon> + '_, BitmapIter> {
+    ) -> ZipValidity<geo::MultiPolygon, impl Iterator<Item = geo::MultiPolygon> + '_, BitmapIter>
+    {
         ZipValidity::new_with_validity(self.iter_geo_values(), self.validity())
     }
 
@@ -412,15 +399,15 @@ impl GeometryArray for MultiPolygonArray {
     }
 }
 
-impl From<Vec<Option<MultiPolygon>>> for MultiPolygonArray {
-    fn from(other: Vec<Option<MultiPolygon>>) -> Self {
+impl From<Vec<Option<geo::MultiPolygon>>> for MultiPolygonArray {
+    fn from(other: Vec<Option<geo::MultiPolygon>>) -> Self {
         let mut_arr: MutableMultiPolygonArray = other.into();
         mut_arr.into()
     }
 }
 
-impl From<Vec<MultiPolygon>> for MultiPolygonArray {
-    fn from(other: Vec<MultiPolygon>) -> Self {
+impl From<Vec<geo::MultiPolygon>> for MultiPolygonArray {
+    fn from(other: Vec<geo::MultiPolygon>) -> Self {
         let mut_arr: MutableMultiPolygonArray = other.into();
         mut_arr.into()
     }
