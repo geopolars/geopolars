@@ -576,8 +576,7 @@ mod test {
 
     /// This data is taken from the first 9 rows of a new zealand building polygons file found at
     /// https://storage.googleapis.com/open-geodata/linz-examples/nz-building-outlines.parquet as
-    /// of 2023-01-22, which I was testing with when I found a bug somewhere either in my code or
-    /// in rstar
+    /// of 2023-01-22
     #[test]
     fn rstar_integration() {
         let geom_offsets: Offsets<i64> =
