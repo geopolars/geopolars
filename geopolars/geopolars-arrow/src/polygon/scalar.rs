@@ -74,6 +74,12 @@ impl From<&Polygon<'_>> for geo::Polygon {
     }
 }
 
+impl From<Polygon<'_>> for geo::Geometry {
+    fn from(value: Polygon<'_>) -> Self {
+        geo::Geometry::Polygon(value.into())
+    }
+}
+
 impl RTreeObject for Polygon<'_> {
     type Envelope = AABB<[f64; 2]>;
 

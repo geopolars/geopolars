@@ -1,37 +1,37 @@
 use crate::error::Result;
 use geo::algorithm::centroid::Centroid;
 use geopolars_arrow::MutablePointArray;
-use geopolars_arrow::{GeometryArrayEnum, PointArray};
+use geopolars_arrow::{GeometryArray, GeometryArrayTrait, PointArray};
 
-pub(crate) fn centroid(array: GeometryArrayEnum) -> Result<PointArray> {
+pub(crate) fn centroid(array: GeometryArray) -> Result<PointArray> {
     let mut output_array = MutablePointArray::with_capacity(array.len());
 
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push_geo(maybe_g.and_then(|g| g.centroid())));
         }
-        GeometryArrayEnum::Point(arr) => {
+        GeometryArray::Point(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push_geo(maybe_g.map(|g| g.centroid())));
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push_geo(maybe_g.and_then(|g| g.centroid())));
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push_geo(maybe_g.and_then(|g| g.centroid())));
         }
-        GeometryArrayEnum::MultiPoint(arr) => {
+        GeometryArray::MultiPoint(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push_geo(maybe_g.and_then(|g| g.centroid())));
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push_geo(maybe_g.and_then(|g| g.centroid())));
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push_geo(maybe_g.and_then(|g| g.centroid())));
         }

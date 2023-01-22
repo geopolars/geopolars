@@ -1,15 +1,39 @@
-use crate::enum_::GeometryType;
 use arrow2::bitmap::{Bitmap, MutableBitmap};
+use rstar::{RTree, RTreeObject};
 use std::any::Any;
 
-/// A trait representing an immutable Arrow geometry array. Arrow arrays are trait objects
-/// that are infallibly downcasted to concrete types according to the [`GeometryArray::data_type`].
-pub trait GeometryArray: Send + Sync + dyn_clone::DynClone + 'static {
-    /// Converts itself to a reference of [`Any`], which enables downcasting to concrete types.
-    fn as_any(&self) -> &dyn Any;
+pub trait GeometryArrayTrait<'a> {
+    type Scalar: RTreeObject;
+    type ScalarGeo: From<Self::Scalar>;
+    type ArrowArray;
 
-    /// Converts itself to a mutable reference of [`Any`], which enables mutable downcasting to concrete types.
-    fn as_any_mut(&mut self) -> &mut dyn Any;
+    fn value(&'a self, i: usize) -> Self::Scalar;
+
+    fn get(&'a self, i: usize) -> Option<Self::Scalar> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(self.value(i))
+    }
+
+    fn value_as_geo(&'a self, i: usize) -> Self::ScalarGeo {
+        self.value(i).into()
+    }
+
+    /// Gets the value at slot `i` as a geo object, additionally checking the validity bitmap
+    fn get_as_geo(&'a self, i: usize) -> Option<Self::ScalarGeo> {
+        if self.is_null(i) {
+            return None;
+        }
+
+        Some(self.value_as_geo(i))
+    }
+
+    fn into_arrow(self) -> Self::ArrowArray;
+
+    /// Build a spatial index containing this array's geometries
+    fn rstar_tree(&'a self) -> RTree<Self::Scalar>;
 
     /// The length of the [`GeometryArray`]. Every array has a length corresponding to the number of
     /// elements (slots).
@@ -19,11 +43,6 @@ pub trait GeometryArray: Send + Sync + dyn_clone::DynClone + 'static {
     fn is_empty(&self) -> bool {
         self.len() == 0
     }
-
-    /// The [`GeometryType`] of the [`GeometryArray`]. In combination with
-    /// [`GeometryArray::as_any`], this can be used to downcast trait objects (`dyn GeometryArray`)
-    /// to concrete arrays.
-    fn geometry_type(&self) -> GeometryType;
 
     /// The validity of the [`GeometryArray`]: every array has an optional [`Bitmap`] that, when available
     /// specifies whether the array slot is valid or not (null).
@@ -66,7 +85,7 @@ pub trait GeometryArray: Send + Sync + dyn_clone::DynClone + 'static {
     /// and moving the struct to the heap.
     /// # Panic
     /// This function panics iff `offset + length > self.len()`.
-    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray>;
+    fn slice(&self, offset: usize, length: usize) -> Self;
 
     /// Slices the [`GeometryArray`], returning a new `Box<dyn GeometryArray>`.
     /// # Implementation
@@ -74,7 +93,7 @@ pub trait GeometryArray: Send + Sync + dyn_clone::DynClone + 'static {
     /// and moving the struct to the heap.
     /// # Safety
     /// The caller must ensure that `offset + length <= self.len()`
-    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray>;
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self;
 
     // /// Clones this [`GeometryArray`] with a new new assigned bitmap.
     // /// # Panic
@@ -82,19 +101,14 @@ pub trait GeometryArray: Send + Sync + dyn_clone::DynClone + 'static {
     // fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn GeometryArray>;
 
     /// Clone a `&dyn GeometryArray` to an owned `Box<dyn GeometryArray>`.
-    fn to_boxed(&self) -> Box<dyn GeometryArray>;
+    fn to_boxed(&self) -> Box<Self>;
 }
-
-dyn_clone::clone_trait_object!(GeometryArray);
 
 /// A trait describing a mutable geometry array; i.e. an array whose values can be changed.
 /// Mutable arrays cannot be cloned but can be mutated in place,
 /// thereby making them useful to perform numeric operations without allocations.
 /// As in [`GeometryArray`], concrete arrays (such as [`MutablePointArray`]) implement how they are mutated.
 pub trait MutableGeometryArray: std::fmt::Debug + Send + Sync {
-    /// The [`GeometryType`] of the array.
-    fn geometry_type(&self) -> GeometryType;
-
     /// The length of the array.
     fn len(&self) -> usize;
 
@@ -107,13 +121,13 @@ pub trait MutableGeometryArray: std::fmt::Debug + Send + Sync {
     fn validity(&self) -> Option<&MutableBitmap>;
 
     // /// Convert itself to an (immutable) [`GeometryArray`].
-    // fn as_box(&mut self) -> Box<dyn GeometryArray>;
+    // fn as_box(&mut self) -> Box<GeometryArrayTrait>;
 
     // /// Convert itself to an (immutable) atomically reference counted [`GeometryArray`].
     // // This provided implementation has an extra allocation as it first
     // // boxes `self`, then converts the box into an `Arc`. Implementors may wish
     // // to avoid an allocation by skipping the box completely.
-    // fn as_arc(&mut self) -> std::sync::Arc<dyn GeometryArray> {
+    // fn as_arc(&mut self) -> std::sync::Arc<GeometryArrayTrait> {
     //     self.as_box().into()
     // }
 

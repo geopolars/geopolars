@@ -4,7 +4,7 @@ use geo::algorithm::geodesic_length::GeodesicLength;
 use geo::algorithm::haversine_length::HaversineLength;
 use geo::algorithm::vincenty_length::VincentyLength;
 use geo::Geometry;
-use geopolars_arrow::GeometryArrayEnum;
+use geopolars_arrow::{GeometryArray, GeometryArrayTrait};
 use polars::error::ErrString;
 use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 use polars::export::arrow::bitmap::Bitmap;
@@ -17,34 +17,34 @@ pub enum GeodesicLengthMethod {
     Vincenty,
 }
 
-pub(crate) fn euclidean_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+pub(crate) fn euclidean_length(array: GeometryArray) -> Result<PrimitiveArray<f64>> {
     let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
 
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_euclidean_length)));
         }
-        GeometryArrayEnum::Point(arr) => {
+        GeometryArray::Point(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.euclidean_length())));
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(maybe_g.map(|g| g.exterior().euclidean_length()))
             });
         }
-        GeometryArrayEnum::MultiPoint(arr) => {
+        GeometryArray::MultiPoint(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.euclidean_length())));
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(maybe_g.map(|g| {
                     g.iter()
@@ -59,7 +59,7 @@ pub(crate) fn euclidean_length(array: GeometryArrayEnum) -> Result<PrimitiveArra
 }
 
 pub(crate) fn geodesic_length(
-    array: GeometryArrayEnum,
+    array: GeometryArray,
     method: &GeodesicLengthMethod,
 ) -> Result<PrimitiveArray<f64>> {
     match method {
@@ -69,34 +69,34 @@ pub(crate) fn geodesic_length(
     }
 }
 
-fn _geodesic_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+fn _geodesic_length(array: GeometryArray) -> Result<PrimitiveArray<f64>> {
     let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
 
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_geodesic_length)));
         }
-        GeometryArrayEnum::Point(arr) => {
+        GeometryArray::Point(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.geodesic_length())));
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(maybe_g.map(|g| g.exterior().geodesic_length()))
             });
         }
-        GeometryArrayEnum::MultiPoint(arr) => {
+        GeometryArray::MultiPoint(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.geodesic_length())));
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(
                     maybe_g.map(|g| g.iter().map(|poly| poly.exterior().geodesic_length()).sum()),
@@ -108,34 +108,34 @@ fn _geodesic_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
     Ok(output_array.into())
 }
 
-fn haversine_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+fn haversine_length(array: GeometryArray) -> Result<PrimitiveArray<f64>> {
     let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
 
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_haversine_length)));
         }
-        GeometryArrayEnum::Point(arr) => {
+        GeometryArray::Point(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.haversine_length())));
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(maybe_g.map(|g| g.exterior().haversine_length()))
             });
         }
-        GeometryArrayEnum::MultiPoint(arr) => {
+        GeometryArray::MultiPoint(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.haversine_length())));
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(maybe_g.map(|g| {
                     g.iter()
@@ -149,26 +149,26 @@ fn haversine_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
     Ok(output_array.into())
 }
 
-fn vincenty_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
+fn vincenty_length(array: GeometryArray) -> Result<PrimitiveArray<f64>> {
     let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
     let map_vincenty_error =
         |_| PolarsError::ComputeError(ErrString::from("Failed to calculate vincenty length"));
 
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             arr.iter_geo()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(geometry_vincenty_length)));
         }
-        GeometryArrayEnum::Point(arr) => {
+        GeometryArray::Point(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array
                     .push(maybe_g.map(|g| g.vincenty_length().map_err(map_vincenty_error).unwrap()))
             });
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(maybe_g.map(|g| {
                     g.exterior()
@@ -178,16 +178,16 @@ fn vincenty_length(array: GeometryArrayEnum) -> Result<PrimitiveArray<f64>> {
                 }))
             });
         }
-        GeometryArrayEnum::MultiPoint(arr) => {
+        GeometryArray::MultiPoint(arr) => {
             return Ok(zero_arr(arr.len(), arr.validity()));
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array
                     .push(maybe_g.map(|g| g.vincenty_length().map_err(map_vincenty_error).unwrap()))
             });
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             arr.iter_geo().for_each(|maybe_g| {
                 output_array.push(maybe_g.map(|g| {
                     g.iter()
@@ -327,7 +327,7 @@ fn geometry_vincenty_length(geom: Geometry) -> f64 {
 mod tests {
     use super::{euclidean_length, geodesic_length, GeodesicLengthMethod};
     use geo::{line_string, Geometry};
-    use geopolars_arrow::{GeometryArrayEnum, LineStringArray, WKBArray};
+    use geopolars_arrow::{GeometryArray, LineStringArray, WKBArray};
     use polars::export::arrow::array::Array;
 
     #[test]
@@ -342,7 +342,7 @@ mod tests {
         ]
         .into();
         let input_array: WKBArray = vec![Some(input_geom)].into();
-        let result_array = euclidean_length(GeometryArrayEnum::WKB(input_array)).unwrap();
+        let result_array = euclidean_length(GeometryArray::WKB(input_array)).unwrap();
 
         let expected = 10.0_f64;
         assert_eq!(expected, result_array.value(0).round());
@@ -360,7 +360,7 @@ mod tests {
             (x: 11., y: 1.)
         ];
         let input_array: LineStringArray = vec![input_geom].into();
-        let result_array = euclidean_length(GeometryArrayEnum::LineString(input_array)).unwrap();
+        let result_array = euclidean_length(GeometryArray::LineString(input_array)).unwrap();
 
         let expected = 10.0_f64;
         assert_eq!(expected, result_array.value(0).round());
@@ -378,7 +378,7 @@ mod tests {
         .into();
         let input_array: WKBArray = vec![Some(input_geom)].into();
         let result_array = geodesic_length(
-            GeometryArrayEnum::WKB(input_array),
+            GeometryArray::WKB(input_array),
             &GeodesicLengthMethod::Haversine,
         )
         .unwrap();
@@ -399,7 +399,7 @@ mod tests {
         ];
         let input_array: LineStringArray = vec![input_geom].into();
         let result_array = geodesic_length(
-            GeometryArrayEnum::LineString(input_array),
+            GeometryArray::LineString(input_array),
             &GeodesicLengthMethod::Haversine,
         )
         .unwrap();
@@ -421,7 +421,7 @@ mod tests {
         .into();
         let input_array: WKBArray = vec![Some(input_geom)].into();
         let result_array = geodesic_length(
-            GeometryArrayEnum::WKB(input_array),
+            GeometryArray::WKB(input_array),
             &GeodesicLengthMethod::Vincenty,
         )
         .unwrap();
@@ -442,7 +442,7 @@ mod tests {
         ];
         let input_array: LineStringArray = vec![input_geom].into();
         let result_array = geodesic_length(
-            GeometryArrayEnum::LineString(input_array),
+            GeometryArray::LineString(input_array),
             &GeodesicLengthMethod::Vincenty,
         )
         .unwrap();
@@ -466,7 +466,7 @@ mod tests {
         .into();
         let input_array: WKBArray = vec![Some(input_geom)].into();
         let result_array = geodesic_length(
-            GeometryArrayEnum::WKB(input_array),
+            GeometryArray::WKB(input_array),
             &GeodesicLengthMethod::Geodesic,
         )
         .unwrap();
@@ -489,7 +489,7 @@ mod tests {
         ];
         let input_array: LineStringArray = vec![input_geom].into();
         let result_array = geodesic_length(
-            GeometryArrayEnum::LineString(input_array),
+            GeometryArray::LineString(input_array),
             &GeodesicLengthMethod::Geodesic,
         )
         .unwrap();

@@ -1,10 +1,8 @@
+use crate::trait_::MutableGeometryArray;
 use arrow2::array::{MutableArray, MutableBinaryArray};
 use arrow2::bitmap::MutableBitmap;
 use geo::Geometry;
 use geozero::{CoordDimensions, ToWkb};
-
-use crate::enum_::GeometryType;
-use crate::trait_::MutableGeometryArray;
 
 use super::array::WKBArray;
 
@@ -41,10 +39,6 @@ impl MutableWKBArray {
 }
 
 impl MutableGeometryArray for MutableWKBArray {
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::WKB
-    }
-
     fn len(&self) -> usize {
         self.0.values().len()
     }

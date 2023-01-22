@@ -1,7 +1,5 @@
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::trait_::GeometryArray;
-use crate::PolygonArray;
+use crate::{GeometryArrayTrait, PolygonArray};
 use arrow2::array::{Array, ListArray, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
@@ -93,21 +91,44 @@ impl MultiLineStringArray {
             validity,
         })
     }
+}
+
+impl<'a> GeometryArrayTrait<'a> for MultiLineStringArray {
+    type Scalar = crate::MultiLineString<'a>;
+    type ScalarGeo = geo::MultiLineString;
+    type ArrowArray = ListArray<i64>;
+
+    fn value(&'a self, i: usize) -> Self::Scalar {
+        crate::MultiLineString {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            ring_offsets: &self.ring_offsets,
+            geom_index: i,
+        }
+    }
+
+    fn into_arrow(self) -> ListArray<i64> {
+        let polygon_array: PolygonArray = self.into();
+        polygon_array.into_arrow()
+    }
+
+    /// Build a spatial index containing this array's geometries
+    fn rstar_tree(&'a self) -> RTree<Self::Scalar> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
+    }
 
     /// Returns the number of geometries in this array
     #[inline]
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.geom_offsets.len()
-    }
-
-    /// Returns true if the array is empty
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
     }
 
     /// Returns the optional validity.
     #[inline]
-    pub fn validity(&self) -> Option<&Bitmap> {
+    fn validity(&self) -> Option<&Bitmap> {
         self.validity.as_ref()
     }
 
@@ -128,7 +149,7 @@ impl MultiLineStringArray {
     /// This function panics iff `offset + length > self.len()`.
     #[inline]
     #[must_use]
-    pub fn slice(&self, offset: usize, length: usize) -> Self {
+    fn slice(&self, offset: usize, length: usize) -> Self {
         assert!(
             offset + length <= self.len(),
             "offset + length may not exceed length of array"
@@ -143,7 +164,7 @@ impl MultiLineStringArray {
     /// The caller must ensure that `offset + length <= self.len()`.
     #[inline]
     #[must_use]
-    pub unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
         let validity = self
             .validity
             .clone()
@@ -163,28 +184,14 @@ impl MultiLineStringArray {
             validity,
         }
     }
+
+    fn to_boxed(&self) -> Box<Self> {
+        Box::new(self.clone())
+    }
 }
 
 // Implement geometry accessors
 impl MultiLineStringArray {
-    pub fn value(&self, i: usize) -> crate::MultiLineString {
-        crate::MultiLineString {
-            x: &self.x,
-            y: &self.y,
-            geom_offsets: &self.geom_offsets,
-            ring_offsets: &self.ring_offsets,
-            geom_index: i,
-        }
-    }
-
-    pub fn get(&self, i: usize) -> Option<crate::MultiLineString> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value(i))
-    }
-
     pub fn iter_values(&self) -> impl Iterator<Item = crate::MultiLineString> + '_ {
         (0..self.len()).map(|i| self.value(i))
     }
@@ -260,18 +267,6 @@ impl MultiLineStringArray {
     // ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
     //     ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     // }
-
-    pub fn into_arrow(self) -> ListArray<i64> {
-        let polygon_array: PolygonArray = self.into();
-        polygon_array.into_arrow()
-    }
-
-    /// Build a spatial index containing this array's geometries
-    pub fn rstar_tree(&self) -> RTree<crate::MultiLineString> {
-        let mut tree = RTree::new();
-        self.iter().flatten().for_each(|geom| tree.insert(geom));
-        tree
-    }
 }
 
 impl TryFrom<ListArray<i64>> for MultiLineStringArray {
@@ -319,44 +314,6 @@ impl TryFrom<Box<dyn Array>> for MultiLineStringArray {
     fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
         let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
         arr.clone().try_into()
-    }
-}
-
-impl GeometryArray for MultiLineStringArray {
-    #[inline]
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn len(&self) -> usize {
-        self.len()
-    }
-
-    #[inline]
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::WKB
-    }
-
-    fn validity(&self) -> Option<&Bitmap> {
-        self.validity()
-    }
-
-    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice(offset, length))
-    }
-
-    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice_unchecked(offset, length))
-    }
-
-    fn to_boxed(&self) -> Box<dyn GeometryArray> {
-        Box::new(self.clone())
     }
 }
 

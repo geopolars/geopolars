@@ -1,66 +1,66 @@
 use crate::error::Result;
 use geo::algorithm::convex_hull::ConvexHull;
 use geo::Polygon;
-use geopolars_arrow::GeometryArrayEnum;
+use geopolars_arrow::GeometryArray;
 
-pub(crate) fn convex_hull(array: GeometryArrayEnum) -> Result<GeometryArrayEnum> {
+pub(crate) fn convex_hull(array: GeometryArray) -> Result<GeometryArray> {
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::Point(arr) => {
+        GeometryArray::Point(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
 
-        GeometryArrayEnum::MultiPoint(arr) => {
+        GeometryArray::MultiPoint(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.convex_hull()))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
     }
 }
@@ -69,7 +69,7 @@ pub(crate) fn convex_hull(array: GeometryArrayEnum) -> Result<GeometryArrayEnum>
 mod tests {
     use super::convex_hull;
     use geo::{line_string, polygon, Geometry, MultiPoint, Point};
-    use geopolars_arrow::{GeometryArrayEnum, LineStringArray, MultiPointArray};
+    use geopolars_arrow::{GeometryArray, GeometryArrayTrait, LineStringArray, MultiPointArray};
 
     #[test]
     fn convex_hull_for_multipoint() {
@@ -87,7 +87,7 @@ mod tests {
         ]
         .into();
         let input_array: MultiPointArray = vec![input_geom].into();
-        let result_array = convex_hull(GeometryArrayEnum::MultiPoint(input_array)).unwrap();
+        let result_array = convex_hull(GeometryArray::MultiPoint(input_array)).unwrap();
 
         let expected = polygon![
             (x:0.0, y: -10.0),
@@ -118,7 +118,7 @@ mod tests {
         ];
 
         let input_array: LineStringArray = vec![input_geom].into();
-        let result_array = convex_hull(GeometryArrayEnum::LineString(input_array)).unwrap();
+        let result_array = convex_hull(GeometryArray::LineString(input_array)).unwrap();
 
         let expected = polygon![
             (x: 0.0, y: -10.0),

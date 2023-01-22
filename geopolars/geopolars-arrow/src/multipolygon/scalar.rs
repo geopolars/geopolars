@@ -79,6 +79,12 @@ impl From<&MultiPolygon<'_>> for geo::MultiPolygon {
     }
 }
 
+impl From<MultiPolygon<'_>> for geo::Geometry {
+    fn from(value: MultiPolygon<'_>) -> Self {
+        geo::Geometry::MultiPolygon(value.into())
+    }
+}
+
 impl RTreeObject for MultiPolygon<'_> {
     type Envelope = AABB<[f64; 2]>;
 

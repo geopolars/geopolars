@@ -6,6 +6,7 @@ use crate::ops::proj::ProjOptions;
 use crate::util::{series_from_any_chunks, struct_series_from_chunks};
 use geo::algorithm::affine_ops::AffineTransform;
 use geopolars_arrow::util::array_to_geometry_array;
+use geopolars_arrow::GeometryArrayTrait;
 use polars::export::arrow::array::Array;
 use polars::prelude::{BooleanChunked, Float64Chunked, ListChunked, Series};
 use polars::series::IntoSeries;

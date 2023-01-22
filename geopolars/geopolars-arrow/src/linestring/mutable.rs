@@ -1,5 +1,6 @@
 use crate::error::GeoArrowError;
 use crate::multipoint::MutableMultiPointArray;
+use crate::GeometryArrayTrait;
 use crate::LineStringArray;
 use arrow2::array::ListArray;
 use arrow2::bitmap::{Bitmap, MutableBitmap};

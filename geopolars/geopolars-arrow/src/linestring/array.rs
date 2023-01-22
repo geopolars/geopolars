@@ -1,7 +1,5 @@
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::trait_::GeometryArray;
-use crate::MultiPointArray;
+use crate::{GeometryArrayTrait, MultiPointArray};
 use arrow2::array::{Array, ListArray, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
@@ -87,21 +85,66 @@ impl LineStringArray {
             validity,
         })
     }
+}
+
+impl<'a> GeometryArrayTrait<'a> for LineStringArray {
+    type Scalar = crate::LineString<'a>;
+    type ScalarGeo = geo::LineString;
+    type ArrowArray = ListArray<i64>;
+
+    /// Gets the value at slot `i`
+    fn value(&'a self, i: usize) -> Self::Scalar {
+        crate::LineString {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            geom_index: i,
+        }
+    }
+
+    fn into_arrow(self) -> ListArray<i64> {
+        // Data type
+        let coord_field_x = Field::new("x", DataType::Float64, false);
+        let coord_field_y = Field::new("y", DataType::Float64, false);
+        let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
+        let list_data_type = DataType::LargeList(Box::new(Field::new(
+            "vertices",
+            struct_data_type.clone(),
+            true,
+        )));
+
+        // Validity
+        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        // Array data
+        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
+        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
+
+        let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
+
+        ListArray::new(list_data_type, self.geom_offsets, coord_array, validity)
+    }
+
+    /// Build a spatial index containing this array's geometries
+    fn rstar_tree(&'a self) -> RTree<Self::Scalar> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
+    }
 
     /// Returns the number of geometries in this array
     #[inline]
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.geom_offsets.len()
-    }
-
-    /// Returns true if the array is empty
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
     }
 
     /// Returns the optional validity.
     #[inline]
-    pub fn validity(&self) -> Option<&Bitmap> {
+    fn validity(&self) -> Option<&Bitmap> {
         self.validity.as_ref()
     }
 
@@ -122,7 +165,7 @@ impl LineStringArray {
     /// This function panics iff `offset + length > self.len()`.
     #[inline]
     #[must_use]
-    pub fn slice(&self, offset: usize, length: usize) -> Self {
+    fn slice(&self, offset: usize, length: usize) -> Self {
         assert!(
             offset + length <= self.len(),
             "offset + length may not exceed length of array"
@@ -137,7 +180,7 @@ impl LineStringArray {
     /// The caller must ensure that `offset + length <= self.len()`.
     #[inline]
     #[must_use]
-    pub unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
         let validity = self
             .validity
             .clone()
@@ -156,29 +199,14 @@ impl LineStringArray {
             validity,
         }
     }
+
+    fn to_boxed(&self) -> Box<Self> {
+        Box::new(self.clone())
+    }
 }
 
 // Implement geometry accessors
 impl LineStringArray {
-    /// Gets the value at slot `i`
-    pub fn value(&self, i: usize) -> crate::LineString {
-        crate::LineString {
-            x: &self.x,
-            y: &self.y,
-            geom_offsets: &self.geom_offsets,
-            geom_index: i,
-        }
-    }
-
-    /// Gets the item at slot `i`, additionally checking the validity bitmap
-    pub fn get(&self, i: usize) -> Option<crate::LineString> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value(i))
-    }
-
     pub fn iter_values(&self) -> impl Iterator<Item = crate::LineString> + '_ {
         (0..self.len()).map(|i| self.value(i))
     }
@@ -245,40 +273,6 @@ impl LineStringArray {
     ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
         ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     }
-
-    pub fn into_arrow(self) -> ListArray<i64> {
-        // Data type
-        let coord_field_x = Field::new("x", DataType::Float64, false);
-        let coord_field_y = Field::new("y", DataType::Float64, false);
-        let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
-        let list_data_type = DataType::LargeList(Box::new(Field::new(
-            "vertices",
-            struct_data_type.clone(),
-            true,
-        )));
-
-        // Validity
-        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
-            validity.into()
-        } else {
-            None
-        };
-
-        // Array data
-        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
-        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
-
-        let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
-
-        ListArray::new(list_data_type, self.geom_offsets, coord_array, validity)
-    }
-
-    /// Build a spatial index containing this array's geometries
-    pub fn rstar_tree(&self) -> RTree<crate::LineString> {
-        let mut tree = RTree::new();
-        self.iter().flatten().for_each(|geom| tree.insert(geom));
-        tree
-    }
 }
 
 impl TryFrom<ListArray<i64>> for LineStringArray {
@@ -317,44 +311,6 @@ impl TryFrom<Box<dyn Array>> for LineStringArray {
     fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
         let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
         arr.clone().try_into()
-    }
-}
-
-impl GeometryArray for LineStringArray {
-    #[inline]
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn len(&self) -> usize {
-        self.len()
-    }
-
-    #[inline]
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::WKB
-    }
-
-    fn validity(&self) -> Option<&Bitmap> {
-        self.validity()
-    }
-
-    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice(offset, length))
-    }
-
-    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice_unchecked(offset, length))
-    }
-
-    fn to_boxed(&self) -> Box<dyn GeometryArray> {
-        Box::new(self.clone())
     }
 }
 

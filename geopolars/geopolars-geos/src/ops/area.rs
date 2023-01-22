@@ -1,36 +1,36 @@
-use geopolars_arrow::GeometryArrayEnum;
+use geopolars_arrow::{GeometryArray, GeometryArrayTrait};
 use geos::Geom;
 use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 
-pub fn area(array: GeometryArrayEnum) -> PrimitiveArray<f64> {
+pub fn area(array: GeometryArray) -> PrimitiveArray<f64> {
     let mut output_array = MutablePrimitiveArray::<f64>::with_capacity(array.len());
 
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             arr.iter_geos()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         }
-        GeometryArrayEnum::Point(arr) => {
+        GeometryArray::Point(arr) => {
             arr.iter_geos()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         }
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::LineString(arr) => {
             arr.iter_geos()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             arr.iter_geos()
                 .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         }
-        // GeometryArrayEnum::MultiPoint(arr) => {
+        // GeometryArray::MultiPoint(arr) => {
         //     arr.iter_geos()
         //         .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         // }
-        // GeometryArrayEnum::MultiLineString(arr) => {
+        // GeometryArray::MultiLineString(arr) => {
         //     arr.iter_geos()
         //         .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         // }
-        // GeometryArrayEnum::MultiPolygon(arr) => {
+        // GeometryArray::MultiPolygon(arr) => {
         //     arr.iter_geos()
         //         .for_each(|maybe_g| output_array.push(maybe_g.map(|g| g.area().unwrap())));
         // }
@@ -46,7 +46,7 @@ mod tests {
     use approx::assert_relative_eq;
     use geo::{polygon, Polygon};
     use geopolars_arrow::polygon::MutablePolygonArray;
-    use geopolars_arrow::{GeometryArrayEnum, PolygonArray};
+    use geopolars_arrow::{GeometryArray, PolygonArray};
     use polars::export::arrow::array::{Array, PrimitiveArray};
 
     fn call_area(input: Vec<Polygon>) -> PrimitiveArray<f64> {
@@ -55,7 +55,7 @@ mod tests {
 
         let polygon_arr2: PolygonArray = polygon_arr.try_into().unwrap();
 
-        let result = area(GeometryArrayEnum::Polygon(polygon_arr2));
+        let result = area(GeometryArray::Polygon(polygon_arr2));
         let result_arr = result
             .as_any()
             .downcast_ref::<PrimitiveArray<f64>>()

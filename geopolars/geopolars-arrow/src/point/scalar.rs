@@ -51,6 +51,12 @@ impl From<&Point<'_>> for geo::Point {
     }
 }
 
+impl From<Point<'_>> for geo::Geometry {
+    fn from(value: Point<'_>) -> Self {
+        geo::Geometry::Point(value.into())
+    }
+}
+
 impl RTreeObject for Point<'_> {
     type Envelope = AABB<[f64; 2]>;
 

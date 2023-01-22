@@ -1,6 +1,5 @@
-use crate::enum_::GeometryType;
 use crate::error::GeoArrowError;
-use crate::trait_::GeometryArray;
+use crate::GeometryArrayTrait;
 use arrow2::array::{Array, ListArray, PrimitiveArray, StructArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::bitmap::Bitmap;
@@ -100,21 +99,97 @@ impl MultiPolygonArray {
             validity,
         })
     }
+}
+
+impl<'a> GeometryArrayTrait<'a> for MultiPolygonArray {
+    type Scalar = crate::MultiPolygon<'a>;
+    type ScalarGeo = geo::MultiPolygon;
+    type ArrowArray = ListArray<i64>;
+
+    fn value(&'a self, i: usize) -> Self::Scalar {
+        crate::MultiPolygon {
+            x: &self.x,
+            y: &self.y,
+            geom_offsets: &self.geom_offsets,
+            polygon_offsets: &self.polygon_offsets,
+            ring_offsets: &self.ring_offsets,
+            geom_index: i,
+        }
+    }
+
+    fn into_arrow(self) -> Self::ArrowArray {
+        // Data type
+        let coord_field_x = Field::new("x", DataType::Float64, false);
+        let coord_field_y = Field::new("y", DataType::Float64, false);
+        let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
+        let inner_list_data_type = DataType::LargeList(Box::new(Field::new(
+            "vertices",
+            struct_data_type.clone(),
+            false,
+        )));
+        let middle_list_data_type = DataType::LargeList(Box::new(Field::new(
+            "rings",
+            inner_list_data_type.clone(),
+            false,
+        )));
+        let outer_list_data_type = DataType::LargeList(Box::new(Field::new(
+            "polygons",
+            middle_list_data_type.clone(),
+            true,
+        )));
+
+        // Validity
+        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
+            validity.into()
+        } else {
+            None
+        };
+
+        // Array data
+        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
+        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
+
+        // Coord struct array
+        let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
+
+        // Rings array
+        let inner_list_array =
+            ListArray::new(inner_list_data_type, self.ring_offsets, coord_array, None).boxed();
+
+        // Polygons array
+        let middle_list_array = ListArray::new(
+            middle_list_data_type,
+            self.polygon_offsets,
+            inner_list_array,
+            None,
+        )
+        .boxed();
+
+        // Geometry array
+        ListArray::new(
+            outer_list_data_type,
+            self.geom_offsets,
+            middle_list_array,
+            validity,
+        )
+    }
+
+    /// Build a spatial index containing this array's geometries
+    fn rstar_tree(&'a self) -> RTree<Self::Scalar> {
+        let mut tree = RTree::new();
+        self.iter().flatten().for_each(|geom| tree.insert(geom));
+        tree
+    }
 
     /// Returns the number of geometries in this array
     #[inline]
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.geom_offsets.len()
-    }
-
-    /// Returns true if the array is empty
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
     }
 
     /// Returns the optional validity.
     #[inline]
-    pub fn validity(&self) -> Option<&Bitmap> {
+    fn validity(&self) -> Option<&Bitmap> {
         self.validity.as_ref()
     }
 
@@ -135,7 +210,7 @@ impl MultiPolygonArray {
     /// This function panics iff `offset + length > self.len()`.
     #[inline]
     #[must_use]
-    pub fn slice(&self, offset: usize, length: usize) -> Self {
+    fn slice(&self, offset: usize, length: usize) -> Self {
         assert!(
             offset + length <= self.len(),
             "offset + length may not exceed length of array"
@@ -150,7 +225,7 @@ impl MultiPolygonArray {
     /// The caller must ensure that `offset + length <= self.len()`.
     #[inline]
     #[must_use]
-    pub unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
+    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Self {
         let validity = self
             .validity
             .clone()
@@ -171,29 +246,14 @@ impl MultiPolygonArray {
             validity,
         }
     }
+
+    fn to_boxed(&self) -> Box<Self> {
+        Box::new(self.clone())
+    }
 }
 
 // Implement geometry accessors
 impl MultiPolygonArray {
-    pub fn value(&self, i: usize) -> crate::MultiPolygon {
-        crate::MultiPolygon {
-            x: &self.x,
-            y: &self.y,
-            geom_offsets: &self.geom_offsets,
-            polygon_offsets: &self.polygon_offsets,
-            ring_offsets: &self.ring_offsets,
-            geom_index: i,
-        }
-    }
-
-    pub fn get(&self, i: usize) -> Option<crate::MultiPolygon> {
-        if self.is_null(i) {
-            return None;
-        }
-
-        Some(self.value(i))
-    }
-
     pub fn iter_values(&self) -> impl Iterator<Item = crate::MultiPolygon> + '_ {
         (0..self.len()).map(|i| self.value(i))
     }
@@ -264,70 +324,6 @@ impl MultiPolygonArray {
     // ) -> ZipValidity<geos::Geometry, impl Iterator<Item = geos::Geometry> + '_, BitmapIter> {
     //     ZipValidity::new_with_validity(self.iter_geos_values(), self.validity())
     // }
-
-    pub fn into_arrow(self) -> ListArray<i64> {
-        // Data type
-        let coord_field_x = Field::new("x", DataType::Float64, false);
-        let coord_field_y = Field::new("y", DataType::Float64, false);
-        let struct_data_type = DataType::Struct(vec![coord_field_x, coord_field_y]);
-        let inner_list_data_type = DataType::LargeList(Box::new(Field::new(
-            "vertices",
-            struct_data_type.clone(),
-            false,
-        )));
-        let middle_list_data_type = DataType::LargeList(Box::new(Field::new(
-            "rings",
-            inner_list_data_type.clone(),
-            false,
-        )));
-        let outer_list_data_type = DataType::LargeList(Box::new(Field::new(
-            "polygons",
-            middle_list_data_type.clone(),
-            true,
-        )));
-
-        // Validity
-        let validity: Option<Bitmap> = if let Some(validity) = self.validity {
-            validity.into()
-        } else {
-            None
-        };
-
-        // Array data
-        let array_x = PrimitiveArray::new(DataType::Float64, self.x, None).boxed();
-        let array_y = PrimitiveArray::new(DataType::Float64, self.y, None).boxed();
-
-        // Coord struct array
-        let coord_array = StructArray::new(struct_data_type, vec![array_x, array_y], None).boxed();
-
-        // Rings array
-        let inner_list_array =
-            ListArray::new(inner_list_data_type, self.ring_offsets, coord_array, None).boxed();
-
-        // Polygons array
-        let middle_list_array = ListArray::new(
-            middle_list_data_type,
-            self.polygon_offsets,
-            inner_list_array,
-            None,
-        )
-        .boxed();
-
-        // Geometry array
-        ListArray::new(
-            outer_list_data_type,
-            self.geom_offsets,
-            middle_list_array,
-            validity,
-        )
-    }
-
-    /// Build a spatial index containing this array's geometries
-    pub fn rstar_tree(&self) -> RTree<crate::MultiPolygon> {
-        let mut tree = RTree::new();
-        self.iter().flatten().for_each(|geom| tree.insert(geom));
-        tree
-    }
 }
 
 impl TryFrom<ListArray<i64>> for MultiPolygonArray {
@@ -383,44 +379,6 @@ impl TryFrom<Box<dyn Array>> for MultiPolygonArray {
     fn try_from(value: Box<dyn Array>) -> Result<Self, Self::Error> {
         let arr = value.as_any().downcast_ref::<ListArray<i64>>().unwrap();
         arr.clone().try_into()
-    }
-}
-
-impl GeometryArray for MultiPolygonArray {
-    #[inline]
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
-        self
-    }
-
-    #[inline]
-    fn len(&self) -> usize {
-        self.len()
-    }
-
-    #[inline]
-    fn geometry_type(&self) -> GeometryType {
-        GeometryType::WKB
-    }
-
-    fn validity(&self) -> Option<&Bitmap> {
-        self.validity()
-    }
-
-    fn slice(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice(offset, length))
-    }
-
-    unsafe fn slice_unchecked(&self, offset: usize, length: usize) -> Box<dyn GeometryArray> {
-        Box::new(self.slice_unchecked(offset, length))
-    }
-
-    fn to_boxed(&self) -> Box<dyn GeometryArray> {
-        Box::new(self.clone())
     }
 }
 

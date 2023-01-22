@@ -1,51 +1,51 @@
 use crate::error::Result;
 use geo::algorithm::simplify::Simplify;
 use geo::{Geometry, LineString, MultiLineString, MultiPolygon, Polygon};
-use geopolars_arrow::GeometryArrayEnum;
+use geopolars_arrow::GeometryArray;
 
-pub(crate) fn simplify(array: GeometryArrayEnum, tolerance: &f64) -> Result<GeometryArrayEnum> {
+pub(crate) fn simplify(array: GeometryArray, tolerance: &f64) -> Result<GeometryArray> {
     match array {
-        GeometryArrayEnum::WKB(arr) => {
+        GeometryArray::WKB(arr) => {
             let output_geoms: Vec<Option<Geometry>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| simplify_geometry(geom, tolerance)))
                 .collect();
 
-            Ok(GeometryArrayEnum::WKB(output_geoms.into()))
+            Ok(GeometryArray::WKB(output_geoms.into()))
         }
-        GeometryArrayEnum::Point(arr) => Ok(GeometryArrayEnum::Point(arr)),
-        GeometryArrayEnum::MultiPoint(arr) => Ok(GeometryArrayEnum::MultiPoint(arr)),
-        GeometryArrayEnum::LineString(arr) => {
+        GeometryArray::Point(arr) => Ok(GeometryArray::Point(arr)),
+        GeometryArray::MultiPoint(arr) => Ok(GeometryArray::MultiPoint(arr)),
+        GeometryArray::LineString(arr) => {
             let output_geoms: Vec<Option<LineString>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
                 .collect();
 
-            Ok(GeometryArrayEnum::LineString(output_geoms.into()))
+            Ok(GeometryArray::LineString(output_geoms.into()))
         }
-        GeometryArrayEnum::MultiLineString(arr) => {
+        GeometryArray::MultiLineString(arr) => {
             let output_geoms: Vec<Option<MultiLineString>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
                 .collect();
 
-            Ok(GeometryArrayEnum::MultiLineString(output_geoms.into()))
+            Ok(GeometryArray::MultiLineString(output_geoms.into()))
         }
-        GeometryArrayEnum::Polygon(arr) => {
+        GeometryArray::Polygon(arr) => {
             let output_geoms: Vec<Option<Polygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
                 .collect();
 
-            Ok(GeometryArrayEnum::Polygon(output_geoms.into()))
+            Ok(GeometryArray::Polygon(output_geoms.into()))
         }
-        GeometryArrayEnum::MultiPolygon(arr) => {
+        GeometryArray::MultiPolygon(arr) => {
             let output_geoms: Vec<Option<MultiPolygon>> = arr
                 .iter_geo()
                 .map(|maybe_g| maybe_g.map(|geom| geom.simplify(tolerance)))
                 .collect();
 
-            Ok(GeometryArrayEnum::MultiPolygon(output_geoms.into()))
+            Ok(GeometryArray::MultiPolygon(output_geoms.into()))
         }
     }
 }
@@ -66,7 +66,7 @@ fn simplify_geometry(geom: Geometry, tolerance: &f64) -> Geometry {
 mod tests {
     use super::simplify;
     use geo::{line_string, polygon, Geometry};
-    use geopolars_arrow::{GeometryArrayEnum, LineStringArray, PolygonArray};
+    use geopolars_arrow::{GeometryArray, GeometryArrayTrait, LineStringArray, PolygonArray};
 
     #[test]
     fn rdp_test() {
@@ -78,7 +78,7 @@ mod tests {
             (x: 27.8, y: 0.1 ),
         ];
         let input_array: LineStringArray = vec![input_geom].into();
-        let result_array = simplify(GeometryArrayEnum::LineString(input_array), &1.0).unwrap();
+        let result_array = simplify(GeometryArray::LineString(input_array), &1.0).unwrap();
 
         let expected = line_string![
             ( x: 0.0, y: 0.0 ),
@@ -104,7 +104,7 @@ mod tests {
             (x: 0., y: 0.),
         ];
         let input_array: PolygonArray = vec![input_geom].into();
-        let result_array = simplify(GeometryArrayEnum::Polygon(input_array), &2.0).unwrap();
+        let result_array = simplify(GeometryArray::Polygon(input_array), &2.0).unwrap();
 
         let expected = polygon![
             (x: 0., y: 0.),
