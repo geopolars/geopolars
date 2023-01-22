@@ -1,5 +1,5 @@
 use crate::geo_traits::PolygonTrait;
-use crate::{GeometryArrayTrait, LineString, Point};
+use crate::{GeometryArrayTrait, LineString};
 use crate::{Polygon, PolygonArray};
 use arrow2::bitmap::utils::{BitmapIter, ZipValidity};
 use arrow2::trusted_len::TrustedLen;
