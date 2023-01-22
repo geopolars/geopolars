@@ -93,30 +93,9 @@ fn benchmark_group(c: &mut Criterion) {
     c.bench_function("rtree_from_geo", bench_rtree_from_geo);
 }
 
-criterion_group!(benches, benchmark_group);
-// criterion_main!(benches);
-
-fn main() {
-    better_panic::debug_install();
-
-    let arr = load_data();
-    // let arr = arr.slice(0, 10);
-    let (_, polygon_end_idx) = arr.geom_offsets.start_end(9);
-    let (_, ring_end_idx) = arr.polygon_offsets.start_end(polygon_end_idx);
-    let (_, coord_end_idx) = arr.ring_offsets.start_end(ring_end_idx);
-
-    dbg!(unsafe { &arr.geom_offsets.clone().slice_unchecked(0, 10) });
-    dbg!(unsafe {
-        &arr.polygon_offsets
-            .clone()
-            .slice_unchecked(0, polygon_end_idx)
-    });
-    dbg!(unsafe { &arr.ring_offsets.clone().slice_unchecked(0, ring_end_idx) });
-    dbg!(unsafe { &arr.x.clone().slice_unchecked(0, coord_end_idx) });
-    dbg!(unsafe { &arr.y.clone().slice_unchecked(0, coord_end_idx) });
-
-    // let tree = arr.rstar_tree();
-
-    // let geo_vec: Vec<geo::MultiPolygon> = load_data().iter_geo_values().by_ref().take(10).collect();
-    // let tmp = create_rtree_from_geo_vec(&geo_vec);
+criterion_group! {
+    name = benches;
+    config = Criterion::default().sample_size(10);
+    targets = benchmark_group
 }
+criterion_main!(benches);
