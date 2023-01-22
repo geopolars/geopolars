@@ -8,7 +8,7 @@ use arrow2::buffer::Buffer;
 use arrow2::datatypes::{DataType, Field};
 use arrow2::offset::OffsetsBuffer;
 use geozero::{GeomProcessor, GeozeroGeometry};
-use rstar::RTree;
+use rstar::{Envelope, RTree, RTreeObject};
 
 use super::MutableMultiPolygonArray;
 
@@ -17,22 +17,22 @@ use super::MutableMultiPolygonArray;
 #[derive(Debug, Clone)]
 pub struct MultiPolygonArray {
     /// Buffer of x coordinates
-    x: Buffer<f64>,
+    pub x: Buffer<f64>,
 
     /// Buffer of y coordinates
-    y: Buffer<f64>,
+    pub y: Buffer<f64>,
 
     /// Offsets into the polygon array where each geometry starts
-    geom_offsets: OffsetsBuffer<i64>,
+    pub geom_offsets: OffsetsBuffer<i64>,
 
     /// Offsets into the ring array where each polygon starts
-    polygon_offsets: OffsetsBuffer<i64>,
+    pub polygon_offsets: OffsetsBuffer<i64>,
 
     /// Offsets into the coordinate array where each ring starts
-    ring_offsets: OffsetsBuffer<i64>,
+    pub ring_offsets: OffsetsBuffer<i64>,
 
     /// Validity bitmap
-    validity: Option<Bitmap>,
+    pub validity: Option<Bitmap>,
 }
 
 pub(super) fn check(
