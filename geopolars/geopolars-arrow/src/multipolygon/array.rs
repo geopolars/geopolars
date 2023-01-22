@@ -17,22 +17,22 @@ use super::MutableMultiPolygonArray;
 #[derive(Debug, Clone)]
 pub struct MultiPolygonArray {
     /// Buffer of x coordinates
-    pub x: Buffer<f64>,
+    x: Buffer<f64>,
 
     /// Buffer of y coordinates
-    pub y: Buffer<f64>,
+    y: Buffer<f64>,
 
     /// Offsets into the polygon array where each geometry starts
-    pub geom_offsets: OffsetsBuffer<i64>,
+    geom_offsets: OffsetsBuffer<i64>,
 
     /// Offsets into the ring array where each polygon starts
-    pub polygon_offsets: OffsetsBuffer<i64>,
+    polygon_offsets: OffsetsBuffer<i64>,
 
     /// Offsets into the coordinate array where each ring starts
-    pub ring_offsets: OffsetsBuffer<i64>,
+    ring_offsets: OffsetsBuffer<i64>,
 
     /// Validity bitmap
-    pub validity: Option<Bitmap>,
+    validity: Option<Bitmap>,
 }
 
 pub(super) fn check(
