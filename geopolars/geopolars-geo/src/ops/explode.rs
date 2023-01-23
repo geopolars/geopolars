@@ -1,6 +1,6 @@
 use crate::error::Result;
 use geo::Geometry;
-use geopolars_arrow::{GeometryArray, WKBArray};
+use geoarrow::{GeometryArray, WKBArray};
 
 pub(crate) fn explode(array: GeometryArray) -> Result<GeometryArray> {
     match array {

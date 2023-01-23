@@ -1,6 +1,6 @@
 use crate::error::Result;
 use geo::prelude::Area;
-use geopolars_arrow::{GeometryArray, GeometryArrayTrait};
+use geoarrow::{GeometryArray, GeometryArrayTrait};
 use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 
 pub(crate) fn area(array: GeometryArray) -> Result<PrimitiveArray<f64>> {

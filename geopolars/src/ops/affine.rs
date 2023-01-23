@@ -1,6 +1,6 @@
 use crate::error::Result;
-use geopolars_arrow::point::array::PointSeries;
-use geopolars_arrow::point::mutable::MutablePointArray;
+use geoarrow::point::array::PointSeries;
+use geoarrow::point::mutable::MutablePointArray;
 use crate::util::{from_geom_vec, get_geoarrow_type, GeoArrowType};
 use geo::algorithm::affine_ops::AffineTransform;
 use geo::algorithm::bounding_rect::BoundingRect;

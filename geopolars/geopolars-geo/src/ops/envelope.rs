@@ -1,7 +1,7 @@
 use crate::error::Result;
 use geo::algorithm::bounding_rect::BoundingRect;
 use geo::Polygon;
-use geopolars_arrow::GeometryArray;
+use geoarrow::GeometryArray;
 
 pub(crate) fn envelope(array: GeometryArray) -> Result<GeometryArray> {
     match array {

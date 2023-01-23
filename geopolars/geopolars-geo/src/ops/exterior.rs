@@ -6,7 +6,7 @@ use polars::export::arrow::array::{Array, BinaryArray, MutableBinaryArray};
 use polars::prelude::Series;
 
 // use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
-// use geopolars_arrow::polygon::array::{PolygonArrayParts, PolygonSeries};
+// use geoarrow::polygon::array::{PolygonArrayParts, PolygonSeries};
 // use crate::util::{get_geoarrow_type, iter_geom, GeoArrowType};
 
 // pub(crate) fn exterior(series: &Series) -> Result<Series> {

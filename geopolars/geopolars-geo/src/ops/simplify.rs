@@ -1,7 +1,7 @@
 use crate::error::Result;
 use geo::algorithm::simplify::Simplify;
 use geo::{Geometry, LineString, MultiLineString, MultiPolygon, Polygon};
-use geopolars_arrow::GeometryArray;
+use geoarrow::GeometryArray;
 
 pub(crate) fn simplify(array: GeometryArray, tolerance: &f64) -> Result<GeometryArray> {
     match array {
@@ -66,7 +66,7 @@ fn simplify_geometry(geom: Geometry, tolerance: &f64) -> Geometry {
 mod tests {
     use super::simplify;
     use geo::{line_string, polygon, Geometry};
-    use geopolars_arrow::{GeometryArray, GeometryArrayTrait, LineStringArray, PolygonArray};
+    use geoarrow::{GeometryArray, GeometryArrayTrait, LineStringArray, PolygonArray};
 
     #[test]
     fn rdp_test() {

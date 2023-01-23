@@ -1,7 +1,7 @@
 use crate::error::Result;
 use geo::algorithm::convex_hull::ConvexHull;
 use geo::Polygon;
-use geopolars_arrow::GeometryArray;
+use geoarrow::GeometryArray;
 
 pub(crate) fn convex_hull(array: GeometryArray) -> Result<GeometryArray> {
     match array {
@@ -69,7 +69,7 @@ pub(crate) fn convex_hull(array: GeometryArray) -> Result<GeometryArray> {
 mod tests {
     use super::convex_hull;
     use geo::{line_string, polygon, Geometry, MultiPoint, Point};
-    use geopolars_arrow::{GeometryArray, GeometryArrayTrait, LineStringArray, MultiPointArray};
+    use geoarrow::{GeometryArray, GeometryArrayTrait, LineStringArray, MultiPointArray};
 
     #[test]
     fn convex_hull_for_multipoint() {

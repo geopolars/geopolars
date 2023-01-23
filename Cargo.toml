@@ -3,7 +3,6 @@ members = [
   "geopolars",
   "geopolars/geopolars-geos",
   "geopolars/geopolars-geo",
-  "geopolars/geopolars-arrow",
 ]
 exclude = ["py-geopolars", "wasm-geopolars"]
 

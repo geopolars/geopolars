@@ -6,7 +6,7 @@
 // use geo::map_coords::MapCoords;
 use geo::Point;
 // use geo::{Geometry, LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
-// use geopolars_arrow::GeometryArray;
+// use geoarrow::GeometryArray;
 // use polars::prelude::Series;
 
 // use crate::util::iter_geom;
