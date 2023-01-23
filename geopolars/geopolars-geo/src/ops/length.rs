@@ -4,7 +4,7 @@ use geo::algorithm::geodesic_length::GeodesicLength;
 use geo::algorithm::haversine_length::HaversineLength;
 use geo::algorithm::vincenty_length::VincentyLength;
 use geo::Geometry;
-use geopolars_arrow::{GeometryArray, GeometryArrayTrait};
+use geoarrow::{GeometryArray, GeometryArrayTrait};
 use polars::error::ErrString;
 use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 use polars::export::arrow::bitmap::Bitmap;
@@ -327,7 +327,7 @@ fn geometry_vincenty_length(geom: Geometry) -> f64 {
 mod tests {
     use super::{euclidean_length, geodesic_length, GeodesicLengthMethod};
     use geo::{line_string, Geometry};
-    use geopolars_arrow::{GeometryArray, LineStringArray, WKBArray};
+    use geoarrow::{GeometryArray, LineStringArray, WKBArray};
     use polars::export::arrow::array::Array;
 
     #[test]

@@ -1,6 +1,6 @@
 use crate::error::Result;
 use geo::Geometry;
-use geopolars_arrow::{GeometryArray, GeometryArrayTrait};
+use geoarrow::{GeometryArray, GeometryArrayTrait};
 use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 use polars::export::arrow::datatypes::DataType;
 

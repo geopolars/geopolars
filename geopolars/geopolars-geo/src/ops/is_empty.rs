@@ -1,6 +1,6 @@
 use crate::error::Result;
 use geo::dimensions::HasDimensions;
-use geopolars_arrow::{GeometryArray, GeometryArrayTrait};
+use geoarrow::{GeometryArray, GeometryArrayTrait};
 use polars::export::arrow::array::{BooleanArray, MutableBooleanArray};
 
 pub(crate) fn is_empty(array: GeometryArray) -> Result<BooleanArray> {

@@ -1,4 +1,4 @@
-use geopolars_arrow::{GeometryArray, GeometryArrayTrait};
+use geoarrow::{GeometryArray, GeometryArrayTrait};
 use geos::Geom;
 use polars::export::arrow::array::{MutablePrimitiveArray, PrimitiveArray};
 
@@ -45,8 +45,8 @@ mod tests {
     use super::area;
     use approx::assert_relative_eq;
     use geo::{polygon, Polygon};
-    use geopolars_arrow::polygon::MutablePolygonArray;
-    use geopolars_arrow::{GeometryArray, PolygonArray};
+    use geoarrow::polygon::MutablePolygonArray;
+    use geoarrow::{GeometryArray, PolygonArray};
     use polars::export::arrow::array::{Array, PrimitiveArray};
 
     fn call_area(input: Vec<Polygon>) -> PrimitiveArray<f64> {

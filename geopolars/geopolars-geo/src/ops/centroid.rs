@@ -1,7 +1,7 @@
 use crate::error::Result;
 use geo::algorithm::centroid::Centroid;
-use geopolars_arrow::MutablePointArray;
-use geopolars_arrow::{GeometryArray, GeometryArrayTrait, PointArray};
+use geoarrow::MutablePointArray;
+use geoarrow::{GeometryArray, GeometryArrayTrait, PointArray};
 
 pub(crate) fn centroid(array: GeometryArray) -> Result<PointArray> {
     let mut output_array = MutablePointArray::with_capacity(array.len());

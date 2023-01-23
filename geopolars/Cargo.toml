@@ -33,7 +33,7 @@ geo.workspace = true
 
 geopolars-geo = { version = "0.1.0-alpha.4", path = "./geopolars-geo" }
 geopolars-geos = { version = "0.1.0-alpha.4", path = "./geopolars-geos", optional = true }
-geopolars-arrow = { version = "0.1.0-alpha.4", path = "./geopolars-arrow" }
+geoarrow = { version = "0.0.1", git = "https://github.com/geopolars/geoarrow" }
 
 geozero = { version = "0.9.4", features = ["with-wkb"] }
 rstar = "0.9.3"

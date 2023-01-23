@@ -5,8 +5,7 @@ use crate::ops::length::GeodesicLengthMethod;
 use crate::ops::proj::ProjOptions;
 use crate::util::{series_from_any_chunks, struct_series_from_chunks};
 use geo::algorithm::affine_ops::AffineTransform;
-use geopolars_arrow::util::array_to_geometry_array;
-use geopolars_arrow::GeometryArrayTrait;
+use geoarrow::{GeometryArray, GeometryArrayTrait};
 use polars::export::arrow::array::Array;
 use polars::prelude::{BooleanChunked, Float64Chunked, ListChunked, Series};
 use polars::series::IntoSeries;
@@ -197,7 +196,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::area::area(geo_arr).unwrap();
                 result_arr.boxed()
             })
@@ -211,7 +210,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::centroid::centroid(geo_arr).unwrap();
                 result_arr.into_arrow().boxed()
             })
@@ -227,7 +226,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::convex_hull::convex_hull(geo_arr).unwrap();
                 result_arr.into_arrow()
             })
@@ -241,7 +240,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::envelope::envelope(geo_arr).unwrap();
                 result_arr.into_arrow()
             })
@@ -255,7 +254,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::length::euclidean_length(geo_arr).unwrap();
                 result_arr.boxed()
             })
@@ -269,7 +268,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::explode::explode(geo_arr).unwrap();
                 result_arr.into_arrow()
             })
@@ -287,7 +286,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::length::geodesic_length(geo_arr, &method).unwrap();
                 result_arr.boxed()
             })
@@ -305,7 +304,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::is_empty::is_empty(geo_arr).unwrap();
                 result_arr.boxed()
             })
@@ -335,7 +334,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::simplify::simplify(geo_arr, &tolerance).unwrap();
                 result_arr.into_arrow()
             })
@@ -380,7 +379,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::point::x(geo_arr).unwrap();
                 result_arr.boxed()
             })
@@ -394,7 +393,7 @@ impl GeoSeries for Series {
             .chunks()
             .iter()
             .map(|chunk| {
-                let geo_arr = array_to_geometry_array(&**chunk, false);
+                let geo_arr = GeometryArray::from_arrow(&**chunk, false);
                 let result_arr = crate::ops::point::y(geo_arr).unwrap();
                 result_arr.boxed()
             })
