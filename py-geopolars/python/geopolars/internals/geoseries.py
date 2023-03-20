@@ -205,6 +205,24 @@ class GeoSeries(pl.Series):
 
         raise ValueError()
 
+    @classmethod
+    def points_from_xy(cls, x, y, z=None):
+        """Generate a ``GeoSeries`` of ``POINT`` geometries
+        from ``x``, ``y`` (, ``z``) coordinates.
+
+        Parameters
+        ----------
+        x, y, z: iterable
+            Point coordinates
+        """
+        coords = [x, y]
+        dims = ["x", "y"]
+        if z is not None:
+            coords.append(z)
+            dims.append("z")
+        parr = pyarrow.StructArray.from_arrays(coords, dims)
+        return cls(parr, _geom_type=GeometryType.POINT)
+
     def affine_transform(self, matrix) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.
 
