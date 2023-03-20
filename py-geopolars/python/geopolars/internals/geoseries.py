@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Iterable, TYPE_CHECKING
 
 import polars as pl
 
@@ -206,14 +206,19 @@ class GeoSeries(pl.Series):
         raise ValueError()
 
     @classmethod
-    def points_from_xy(cls, x, y, z=None):
+    def points_from_xy(cls, x, y,
+                        z: Iterable | pl.Series | None = None,
+                        crs: str | pyproj.CRS | None = None
+                        ):
         """Generate a ``GeoSeries`` of ``POINT`` geometries
         from ``x``, ``y`` (, ``z``) coordinates.
 
         Parameters
         ----------
-        x, y, z: iterable
+        x, y, z: Iterable, pl.Series or NoneType
             Point coordinates
+        crs: str, pyproj.CRS or NoneType, default None
+            Coordinate reference system
         """
         coords = [x, y]
         dims = ["x", "y"]
@@ -221,7 +226,7 @@ class GeoSeries(pl.Series):
             coords.append(z)
             dims.append("z")
         parr = pyarrow.StructArray.from_arrays(coords, dims)
-        return cls(parr, _geom_type=GeometryType.POINT)
+        return cls(parr, _geom_type=GeometryType.POINT, crs=crs)
 
     def affine_transform(self, matrix) -> GeoSeries:
         """Returns a ``GeoSeries`` with translated geometries.
