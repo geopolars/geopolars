@@ -1,5 +1,8 @@
 name: Docs
 
+# Set this to be run only manually
+on: workflow_dispatch
+
 # on:
 #   push:
 #     branches:

@@ -62,6 +62,22 @@ module = [
 ]
 ignore_missing_imports = true
 
+[tool.poe.tasks]
+build = "poetry run maturin build --release -o dist"
+build-debug = "poetry run maturin build -o dist"
+build-with-proj = "poetry run maturin build --release -o dist --features \"proj\""
+copy-proj-data = "poetry run python copy-proj-data.py"
+clippy = "cargo clippy -- -D warnings"
+develop = "poetry run maturin develop"
+develop-release = "poetry run maturin develop --release"
+test-python = "poetry run python -m pytest tests/unit/"
+test-rust = "cargo test"
+test = [
+  "test-python",
+  # Uncomment when we have rust tests
+  # "test-rust"
+]
+
 [tool.poetry]
 name = "geopolars"
 version = "0.1.0-alpha.4"
@@ -100,3 +116,6 @@ black = "^23.3.0"
 ruff = "^0.0.272"
 isort = "^5.12.0"
 pandas-stubs = "^2.0.2.230605"
+poethepoet = "^0.20.0"
+# Ipython has had issues with autocompletions in later releases
+ipython = "8.8.0"
