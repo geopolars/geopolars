@@ -106,13 +106,3 @@ jobs:
         run: |
           poetry run maturin develop
           poetry run pytest tests/unit
-
-      # - name: Check doc examples
-      #   run: |
-      #     cd py-polars && make doctest
-
-      # # test if we can import polars without any requirements
-      # - name: Import polars
-      #   run: |
-      #     pip uninstall pandas -y
-      #     python -c "import polars"
