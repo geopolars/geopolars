@@ -21,14 +21,6 @@ repos:
       - id: black
         files: py-geopolars/
 
-  # This breaks with a UnicodeDecodeError for some reason
-  # - repo: https://github.com/keewis/blackdoc
-  #   rev: v0.3.6
-  #   hooks:
-  #     - id: blackdoc
-  #       files: py-geopolars/
-  #       args: [--check]
-
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
@@ -39,11 +31,4 @@ repos:
     rev: v2.37.3
     hooks:
       - id: pyupgrade
-        args: [--py37-plus]
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
-    hooks:
-      - id: flake8
-        files: py-geopolars/
-        args: [--config=py-geopolars/.flake8]
+        args: [--py38-plus]

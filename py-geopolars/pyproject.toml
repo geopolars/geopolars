@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=0.14,<0.15"]
+requires = ["maturin>=1,<2"]
 build-backend = "maturin"
 
 [project]
@@ -8,7 +8,7 @@ version = "0.1.0-alpha.4"
 dependencies = [
   # Minimum version with binary dtype
   "polars>=0.14.19",
-  "pyarrow>=4.0.*",
+  "pyarrow>=4.0",
   "numpy >= 1.16.0",
   "importlib_resources; python_version < '3.11'",
   # For easy interop with geoarrow
@@ -54,5 +54,31 @@ show_error_codes = true
 module = ["pyarrow.*", "geopandas.*", "importlib_resources.*", "shapely.*", "pyogrio.*"]
 ignore_missing_imports = true
 
-# [tool.coverage.report]
-# exclude_lines = ["pragma: no cover", "@overload"]
+[tool.poetry]
+name = "geopolars"
+version = "0.1.0-alpha.4"
+description = "Geospatial extensions for Polars"
+authors = ["Kyle Barron"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+# Runtime dependencies must also be declared in [project] for maturin
+
+# Minimum version with binary dtype
+polars = ">=0.14.19"
+pyarrow = ">=4"
+numpy = ">=1.16.0"
+importlib_resources = {version = "*", python = "<3.11" }
+# For easy interop with geoarrow
+shapely = "^2"
+pyogrio = "^0.6"
+
+[tool.poetry.group.dev.dependencies]
+mkdocs = "^1.4.3"
+mkdocs-material = "^9.1.16"
+maturin = "^1.1.0"
+pytest = "^7.3.2"
+mypy = "^1.3.0"
+black = "^23.3.0"
+ruff = "^0.0.272"
+isort = "^5.12.0"
