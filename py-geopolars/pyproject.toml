@@ -39,6 +39,7 @@ repository = "https://github.com/geopolars/geopolars"
 
 [tool.maturin]
 python-source = "python"
+module-name = "geopolars._geopolars"
 
 [tool.isort]
 profile = "black"
