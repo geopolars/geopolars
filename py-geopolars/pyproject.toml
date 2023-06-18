@@ -52,7 +52,14 @@ warn_unused_ignores = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ["pyarrow.*", "geopandas.*", "importlib_resources.*", "shapely.*", "pyogrio.*"]
+module = [
+  "pyarrow.*",
+  "geopandas.*",
+  "importlib_resources.*",
+  "shapely.*",
+  "pyogrio.*",
+  "pyproj.*",
+]
 ignore_missing_imports = true
 
 [tool.poetry]
@@ -69,7 +76,7 @@ python = "^3.8"
 polars = ">=0.14.19"
 pyarrow = ">=4"
 numpy = ">=1.16.0"
-importlib_resources = {version = "*", python = "<3.11" }
+importlib_resources = { version = "*", python = "<3.11" }
 # For easy interop with geoarrow
 shapely = "^2"
 pyogrio = "^0.6"
@@ -83,3 +90,4 @@ mypy = "^1.3.0"
 black = "^23.3.0"
 ruff = "^0.0.272"
 isort = "^5.12.0"
+pandas-stubs = "^2.0.2.230605"
