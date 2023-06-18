@@ -1,23 +1,33 @@
 {
-    "workbench.colorCustomizations": {
-        "activityBar.activeBackground": "#498cc4",
-        "activityBar.background": "#498cc4",
-        "activityBar.foreground": "#e7e7e7",
-        "activityBar.inactiveForeground": "#e7e7e799",
-        "activityBarBadge.background": "#e8b7d1",
-        "activityBarBadge.foreground": "#15202b",
-        "commandCenter.border": "#e7e7e799",
-        "sash.hoverBorder": "#498cc4",
-        "statusBar.background": "#3572a5",
-        "statusBar.foreground": "#e7e7e7",
-        "statusBarItem.hoverBackground": "#498cc4",
-        "statusBarItem.remoteBackground": "#3572a5",
-        "statusBarItem.remoteForeground": "#e7e7e7",
-        "titleBar.activeBackground": "#3572a5",
-        "titleBar.activeForeground": "#e7e7e7",
-        "titleBar.inactiveBackground": "#3572a599",
-        "titleBar.inactiveForeground": "#e7e7e799"
-    },
-    "peacock.color": "#3572A5",
-    "esbonio.sphinx.confDir": ""
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#498cc4",
+    "activityBar.background": "#498cc4",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#e8b7d1",
+    "activityBarBadge.foreground": "#15202b",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#498cc4",
+    "statusBar.background": "#3572a5",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#498cc4",
+    "statusBarItem.remoteBackground": "#3572a5",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#3572a5",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#3572a599",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "#3572A5",
+  "esbonio.sphinx.confDir": "",
+  "yaml.schemas": {
+    "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
+  },
+  "yaml.customTags": [
+    "!ENV scalar",
+    "!ENV sequence",
+    "tag:yaml.org,2002:python/name:materialx.emoji.to_svg",
+    "tag:yaml.org,2002:python/name:materialx.emoji.twemoji",
+    "tag:yaml.org,2002:python/name:pymdownx.superfences.fence_code_format"
+  ]
 }

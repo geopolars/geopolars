@@ -1,0 +1,91 @@
+site_name: GeoPolars
+repo_url: https://github.com/geopolars/geopolars
+site_description: Geospatial extensions for Polars
+site_author: Kyle Barron
+docs_dir: docs
+
+nav:
+  - "index.md"
+  - Reference:
+    - api/functions.md
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+  logo: img/geopolars_logo.svg
+
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - search.suggest
+    - search.share
+
+plugins:
+  - search
+  - social
+  - mike:
+      # TODO: change this to latest
+      # Though you'll need `mike deploy [version] [alias]...`
+      canonical_version: null
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          paths: [ python ]
+          options:
+            show_root_heading: true
+            docstring_style: google
+            show_source: false
+            docstring_section_style: list
+            separate_signature: true
+            show_signature_annotations: true
+
+          import:
+            - https://python-visualization.github.io/branca/objects.inv
+            - https://scitools.org.uk/cartopy/docs/latest/objects.inv
+            - https://contextily.readthedocs.io/en/stable/objects.inv
+            - https://fiona.readthedocs.io/en/stable/objects.inv
+            - https://python-visualization.github.io/folium/objects.inv
+            - https://geopandas.org/en/stable/objects.inv
+            - https://residentmario.github.io/geoplot/objects.inv
+            - https://geopy.readthedocs.io/en/stable/objects.inv
+            - https://pysal.org/libpysal/objects.inv
+            - https://pysal.org/mapclassify/objects.inv
+            - https://matplotlib.org/stable/objects.inv
+            - https://numpy.org/doc/stable/objects.inv
+            - https://pandas.pydata.org/pandas-docs/stable/objects.inv
+            - https://pola-rs.github.io/polars/py-polars/html/objects.inv
+            - https://arrow.apache.org/docs/objects.inv
+            - https://pyepsg.readthedocs.io/en/stable/objects.inv
+            - https://pygeos.readthedocs.io/en/latest/objects.inv
+            - https://pyogrio.readthedocs.io/en/stable/objects.inv
+            - https://pyproj4.github.io/pyproj/stable/objects.inv
+            - https://docs.python.org/3/objects.inv
+            - https://rtree.readthedocs.io/en/stable/objects.inv
+            - https://rasterio.readthedocs.io/en/stable/objects.inv
+            - https://shapely.readthedocs.io/en/stable/objects.inv
+            - https://xyzservices.readthedocs.io/en/stable/objects.inv
+
+extra:
+  version:
+    provider: mike
