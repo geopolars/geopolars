@@ -23,7 +23,7 @@ class GeoDataFrame(pl.DataFrame):
             self._df = data._df
             return
 
-        super().__init__(data, columns, orient)
+        super().__init__(data, columns, orient=orient)
 
     def get_column(self, name: str) -> pl.Series | GeoSeries:
         """
