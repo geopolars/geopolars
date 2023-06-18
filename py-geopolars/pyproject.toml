@@ -80,7 +80,7 @@ importlib_resources = { version = "*", python = "<3.11" }
 # For easy interop with geoarrow
 shapely = "^2"
 pyogrio = "^0.6"
-geopandas = { version = "^0.13.2", optional = true }
+geopandas = "^0.13.2"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs = "^1.4.3"
