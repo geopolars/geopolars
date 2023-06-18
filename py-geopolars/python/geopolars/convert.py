@@ -25,27 +25,24 @@ except ImportError:
 
 
 if TYPE_CHECKING:  # pragma: no cover
+    import geopandas
     import pandas
     import pyarrow as pa
 
 
 def from_arrow(a: pa.Table | pa.Array | pa.ChunkedArray) -> GeoDataFrame | GeoSeries:
     """
-    Construct a GeoPolars :class:`GeoDataFrame` or :class:`GeoSeries` from an
+    Construct a GeoPolars `GeoDataFrame` or `GeoSeries` from an
     Arrow Table or Array.
 
     This operation will be zero copy for the most part. Types that are not
     supported by Polars may be cast to the closest supported type.
 
-    Parameters
-    ----------
-    a : :class:`pyarrow.Table` or :class:`pyarrow.Array`
-        Data represented as Arrow Table or Array.
+    Parameters:
+        a: Data represented as Arrow Table or Array.
 
-    Returns
-    -------
-
-    :class:`GeoDataFrame` or :class:`GeoSeries`
+    Returns:
+        `GeoDataFrame` or `GeoSeries`
     """
     # TODO: this should probably have a check that the data is indeed geographic?
     # And return a bare Series/DataFrame if it isn't?
