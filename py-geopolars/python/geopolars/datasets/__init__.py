@@ -1,15 +1,10 @@
 import sys
 from pathlib import Path
+from typing import Literal
 
 from polars import read_ipc
 
 from geopolars import GeoDataFrame
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 __all__ = ["available", "get_path"]
 
