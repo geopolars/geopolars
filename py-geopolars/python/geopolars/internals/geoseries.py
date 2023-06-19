@@ -44,8 +44,9 @@ class GeoSeries(pl.Series):
 
         super().__init__(*args, **kwargs)
 
+    # TODO: these are named too similarly
     @property
-    def rust(self) -> GeoRustSeriesOperations:
+    def geo(self) -> GeoRustSeriesOperations:
         return GeoRustSeriesOperations(series=self)
 
     @property
