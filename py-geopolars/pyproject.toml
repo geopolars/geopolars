@@ -59,6 +59,7 @@ module = [
   "shapely.*",
   "pyogrio.*",
   "pyproj.*",
+  "geopolars._geopolars.*",
 ]
 ignore_missing_imports = true
 

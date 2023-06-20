@@ -1,4 +1,4 @@
-from geopolars._geopolars import version  # type: ignore
+from geopolars._geopolars import version
 from geopolars.convert import from_arrow, from_geopandas
 from geopolars.internals.geodataframe import GeoDataFrame
 from geopolars.internals.georust import GeoRustSeries
