@@ -42,9 +42,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Install protobuf
+      - name: Install protobuf and GEOS
         run: |
-          sudo apt-get install libprotobuf-dev protobuf-compiler
+          sudo apt-get install libprotobuf-dev protobuf-compiler libgeos-dev
 
       - name: "clippy --all"
         run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings
@@ -64,6 +64,10 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - name: Install GEOS
+        run: |
+          sudo apt-get install libgeos-dev
+
       - name: "cargo check"
         run: cd geopolars && cargo check --all --all-features
 
@@ -82,7 +86,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - run: sudo apt install libgeos-dev
+      - name: Install GEOS
+        run: |
+          sudo apt-get install libgeos-dev
 
       - name: "cargo test"
         run: cd geopolars && cargo test --all --all-features
