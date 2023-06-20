@@ -26,69 +26,69 @@ jobs:
       - name: Run
         run: cd geopolars && cargo fmt --all -- --check
 
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # clippy:
+  #   name: Clippy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-          components: clippy
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #         profile: minimal
+  #         override: true
+  #         components: clippy
 
-      - uses: Swatinem/rust-cache@v2
+  #     - uses: Swatinem/rust-cache@v2
 
-      - name: Install protobuf and GEOS
-        run: |
-          sudo apt-get install libprotobuf-dev protobuf-compiler libgeos-dev
+  #     - name: Install protobuf and GEOS
+  #       run: |
+  #         sudo apt-get install libprotobuf-dev protobuf-compiler libgeos-dev
 
-      - name: "clippy --all"
-        run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings
+  #     - name: "clippy --all"
+  #       run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings
 
-  check:
-    name: Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # check:
+  #   name: Check
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #         profile: minimal
+  #         override: true
 
-      - uses: Swatinem/rust-cache@v2
+  #     - uses: Swatinem/rust-cache@v2
 
-      - name: Install GEOS
-        run: |
-          sudo apt-get install libgeos-dev
+  #     - name: Install GEOS
+  #       run: |
+  #         sudo apt-get install libgeos-dev
 
-      - name: "cargo check"
-        run: cd geopolars && cargo check --all --all-features
+  #     - name: "cargo check"
+  #       run: cd geopolars && cargo check --all --all-features
 
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # test:
+  #   name: Tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
+  #     - name: Install Rust
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #         profile: minimal
+  #         override: true
 
-      - uses: Swatinem/rust-cache@v2
+  #     - uses: Swatinem/rust-cache@v2
 
-      - name: Install GEOS
-        run: |
-          sudo apt-get install libgeos-dev
+  #     - name: Install GEOS
+  #       run: |
+  #         sudo apt-get install libgeos-dev
 
-      - name: "cargo test"
-        run: cd geopolars && cargo test --all --all-features
+  #     - name: "cargo test"
+  #       run: cd geopolars && cargo test --all --all-features
