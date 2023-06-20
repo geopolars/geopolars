@@ -13,11 +13,11 @@ DEFAULT_GEO_COLUMN_NAME = "geometry"
 
 
 class GeoDataFrame(pl.DataFrame):
-
     _geometry_column_name = DEFAULT_GEO_COLUMN_NAME
 
-    def __init__(self, data=None, columns=None, orient=None, *, geometry=None):
-
+    def __init__(
+        self, data=None, columns=None, orient=None, *, geometry=None  # noqa ARG002
+    ):
         # Wrap an existing polars DataFrame
         if isinstance(data, pl.DataFrame):
             self._df = data._df
@@ -61,7 +61,7 @@ class GeoDataFrame(pl.DataFrame):
         return GeoSeries(self.get_column(self._geometry_column_name))
 
     @classmethod
-    def _from_geopandas(cls, geodataframe, force_wkb: bool):
+    def _from_geopandas(cls, geodataframe, force_wkb: bool):  # noqa ARG003
         # TODO: implement for geoarrow struct
         from geopandas.io.arrow import _geopandas_to_arrow
 

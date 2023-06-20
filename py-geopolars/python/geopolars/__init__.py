@@ -5,7 +5,7 @@ from geopolars.internals.georust import GeoRustSeries
 from geopolars.internals.geoseries import GeoSeries
 from geopolars.io.file import read_file
 
-from . import datasets  # noqa
+from . import datasets
 
 __all__ = [
     # geopolars.io.file
