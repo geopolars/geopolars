@@ -1,6 +1,7 @@
 from geopolars._geopolars import version  # type: ignore
 from geopolars.convert import from_arrow, from_geopandas
 from geopolars.internals.geodataframe import GeoDataFrame
+from geopolars.internals.georust import GeoRustSeries
 from geopolars.internals.geoseries import GeoSeries
 from geopolars.io.file import read_file
 
@@ -15,6 +16,7 @@ __all__ = [
     # geopolars.internals
     "GeoDataFrame",
     "GeoSeries",
+    "GeoRustSeries",
 ]
 
 __version__: str = version()

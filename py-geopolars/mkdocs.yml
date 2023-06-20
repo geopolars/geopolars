@@ -10,6 +10,7 @@ nav:
     - api/geoseries.md
     - api/geodataframe.md
     - api/functions.md
+    - api/io.md
     - Operations:
       - api/operations/series_georust.md
 

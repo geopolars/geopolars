@@ -226,7 +226,6 @@ class GeoRustSeries:
         """
         return core.scale(self, xfact, yfact, origin)
 
-    # Note: polars defines a `skew` method
     def skew(
         self, xs: float = 0.0, ys: float = 0.0, origin: TransformOrigin = "center"
     ) -> GeoSeries:
