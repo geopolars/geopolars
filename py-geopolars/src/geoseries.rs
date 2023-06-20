@@ -4,7 +4,6 @@ use crate::utils::PythonTransformOrigin;
 use geopolars::geopolars_geo::geoseries::GeoSeries;
 use geopolars::geopolars_geo::ops::length::GeodesicLengthMethod;
 use pyo3::prelude::*;
-use std::path::PathBuf;
 
 #[cfg(feature = "proj")]
 use geopolars::geopolars_geo::ops::proj::ProjOptions;

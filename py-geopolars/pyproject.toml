@@ -127,6 +127,7 @@ select = [
   "F",   # pyflakes
   "I",   # isort
   "UP",  # pyupgrade
+  "SIM", # simplify
   "ARG", # unused arguments
   "PTH", # use pathlib
   "NPY", # numpy-specific rules
