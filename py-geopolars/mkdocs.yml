@@ -2,6 +2,7 @@ site_name: GeoPolars
 repo_url: https://github.com/geopolars/geopolars
 site_description: Geospatial extensions for Polars
 site_author: Kyle Barron
+site_url: https://geopolars.org/
 docs_dir: docs
 
 nav:
