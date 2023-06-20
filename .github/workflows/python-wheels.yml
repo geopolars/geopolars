@@ -262,7 +262,7 @@ jobs:
         shell: bash
         run: |
           export PKG_CONFIG_PATH="$VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/lib/pkgconfig"
-          maturin build --release --strip --interpreter python -o wheels-pre-repair --features proj
+          poetry run maturin build --release --strip --interpreter python -o wheels-pre-repair --features proj
 
       - name: Repair wheel
         shell: bash
