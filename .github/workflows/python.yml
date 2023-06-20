@@ -28,7 +28,7 @@ jobs:
 
       - name: Install protobuf
         run: |
-          sudo apt-get install libprotobuf-dev protobuf-compiler
+          sudo apt-get install libprotobuf-dev protobuf-compiler libgeos-dev
 
       - name: rustfmt
         run: |
