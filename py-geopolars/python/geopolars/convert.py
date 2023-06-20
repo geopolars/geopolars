@@ -64,22 +64,21 @@ def from_geopandas(
     force_wkb: bool = True,
 ) -> GeoDataFrame | GeoSeries | DataFrame | Series:
     """
-    Construct a GeoPolars :class:`GeoDataFrame` or :class:`GeoSeries` from a
-    :class:`geopandas.GeoDataFrame` or :class:`geopandas.GeoSeries`.
+    Construct a GeoPolars `GeoDataFrame` or `GeoSeries` from a
+    [`geopandas.GeoDataFrame`][geopandas.GeoDataFrame] or
+    [`geopandas.GeoSeries`][geopandas.GeoSeries].
 
     This operation clones data.
 
-    This requires that :mod:`geopandas` and :mod:`pyarrow` are installed.
+    This requires that `geopandas` and `pyarrow` are installed.
 
-    Parameters
-    ----------
-    gdf : :class:`geopandas.GeoDataFrame` or :class:`geopandas.GeoSeries`
-        Data represented as a geopandas GeoDataFrame or GeoSeries
+    Parameters:
 
-    Returns
-    -------
+        gdf: Input data to convert from.
 
-    `GeoDataFrame` or `GeoSeries`
+    Returns:
+
+        A GeoPolars `GeoDataFrame` or `GeoSeries`
     """
     if geopandas is None:
         raise ImportError("Geopandas is required when using from_geopandas().")

@@ -1,0 +1,3 @@
+# GeoRust Series
+
+::: geopolars.GeoRustSeries
