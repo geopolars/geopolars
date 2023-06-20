@@ -224,9 +224,8 @@ jobs:
         shell: bash
         run: |
           python -V
-          python -m pip install wheel
-          python -m pip install --upgrade pip
-          python -m pip install -r build.requirements.txt
+          python -m pip install poetry
+          poetry install
           python -m pip install delvewheel
 
       - name: Cache vcpkg
