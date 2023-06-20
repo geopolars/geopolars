@@ -381,45 +381,12 @@
     to_crs()
   </a>
   
-    <nav class="md-nav" aria-label="to_crs()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#geopolars.internals.geoseries.GeoSeries.to_crs--parameters" class="md-nav__link">
-    Parameters
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#geopolars.internals.geoseries.GeoSeries.to_crs--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
   <a href="#geopolars.internals.geoseries.GeoSeries.to_geopandas" class="md-nav__link">
     to_geopandas()
   </a>
-  
-    <nav class="md-nav" aria-label="to_geopandas()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#geopolars.internals.geoseries.GeoSeries.to_geopandas--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -593,45 +560,12 @@
     to_crs()
   </a>
   
-    <nav class="md-nav" aria-label="to_crs()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#geopolars.internals.geoseries.GeoSeries.to_crs--parameters" class="md-nav__link">
-    Parameters
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#geopolars.internals.geoseries.GeoSeries.to_crs--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
   <a href="#geopolars.internals.geoseries.GeoSeries.to_geopandas" class="md-nav__link">
     to_geopandas()
   </a>
-  
-    <nav class="md-nav" aria-label="to_geopandas()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#geopolars.internals.geoseries.GeoSeries.to_geopandas--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -692,7 +626,7 @@
         Bases: <code><span title="polars">pl</span>.<span title="polars.Series">Series</span></code></p>
 
   
-      <p>Extension of :class:<code>polars.Series</code> to handle geospatial vector data.</p>
+      <p>Extension of <code>polars.Series</code> to handle geospatial vector data.</p>
 
 
 
@@ -718,15 +652,14 @@
 
 </h3>
 <div class="highlight"><pre><span></span><code><span class="n">to_crs</span><span class="p">(</span>
-    <span class="n">from_crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">,</span> <span class="n">to_crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span>
+    <span class="n">from_crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">CRS</span><span class="p">,</span>
+    <span class="n">to_crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">CRS</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeoSeries</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
   
-      <p>Returns a <code>GeoSeries</code> with all geometries transformed to a new
-coordinate reference system.</p>
-<p>Transform all geometries in a GeoSeries to a different coordinate
+      <p>Transform all geometries in a GeoSeries to a different coordinate
 reference system.</p>
 <p>For now, you must pass in both <code>from_crs</code> and <code>to_crs</code>. In the future, we'll
 handle the current CRS automatically.</p>
@@ -735,21 +668,42 @@ of projecting entire geometries.  All segments joining points are
 assumed to be lines in the current projection, not geodesics.  Objects
 crossing the dateline (or other projection boundary) will have
 undesirable behavior.</p>
-<h5 id="geopolars.internals.geoseries.GeoSeries.to_crs--parameters">Parameters</h5>
 
-<details class="from_crs-" open>
-  <summary>:class:<code>pyproj.CRS &lt;pyproj.crs.CRS&gt;</code> or str</summary>
-  <p>Origin coordinate system. The value can be anything accepted
-by :meth:<code>pyproj.CRS.from_user_input() &lt;pyproj.crs.CRS.from_user_input&gt;</code>,
-such as an authority string (eg "EPSG:4326") or a WKT string.</p>
-</details>
-<details class="to_crs-" open>
-  <summary>:class:<code>pyproj.CRS &lt;pyproj.crs.CRS&gt;</code> or str</summary>
-  <p>Destination coordinate system. The value can be anything accepted
-by :meth:<code>pyproj.CRS.from_user_input() &lt;pyproj.crs.CRS.from_user_input&gt;</code>,
-such as an authority string (eg "EPSG:4326") or a WKT string.</p>
-</details>      <h5 id="geopolars.internals.geoseries.GeoSeries.to_crs--returns">Returns</h5>
-<p>GeoSeries</p>
+  <p>Parameters:</p>
+  <ul>
+      <li class="field-body">
+        <b>from_crs</b>
+            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | pyproj.<span title="pyproj.crs">crs</span>.<a class="autorefs autorefs-external" title="pyproj.crs.CRS" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS">CRS</a></code>)
+        –
+        <div class="doc-md-description">
+          <p>Origin coordinate system. The value can be anything accepted
+by <a class="autorefs autorefs-external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input"><code>pyproj.CRS.from_user_input()</code></a>, such as
+an authority string (eg "EPSG:4326") or a WKT string.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b>to_crs</b>
+            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | pyproj.<span title="pyproj.crs">crs</span>.<a class="autorefs autorefs-external" title="pyproj.crs.CRS" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS">CRS</a></code>)
+        –
+        <div class="doc-md-description">
+          <p>Destination coordinate system. The value can be anything accepted
+by <a class="autorefs autorefs-external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input"><code>pyproj.CRS.from_user_input()</code></a>, such as
+an authority string (eg "EPSG:4326") or a WKT string.</p>
+        </div>
+      </li>
+  </ul>
+
+  <p>Returns:</p>
+  <ul>
+      <li class="field-body">
+            <code><a class="autorefs autorefs-internal" title="geopolars.internals.geoseries.GeoSeries" href="#geopolars.GeoSeries">GeoSeries</a></code>
+        –
+        <div class="doc-md-description">
+          <p>A <code>GeoSeries</code> with all geometries transformed to a new coordinate reference
+system.</p>
+      </div>
+      </li>
+  </ul>
 
   </div>
 
@@ -769,11 +723,20 @@ such as an authority string (eg "EPSG:4326") or a WKT string.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Converts this <code>GeoSeries</code> to a :class:<code>geopandas.GeoSeries</code>.</p>
-<p>This operation clones data. This requires that :mod:<code>geopandas</code> and
-:mod:<code>pyarrow</code> are installed.</p>
-<h5 id="geopolars.internals.geoseries.GeoSeries.to_geopandas--returns">Returns</h5>
-<p>:class:<code>geopandas.GeoSeries</code></p>
+      <p>Converts this <code>GeoSeries</code> to a <a class="autorefs autorefs-external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries"><code>geopandas.GeoSeries</code></a>.</p>
+<p>This operation clones data. This requires that <code>geopandas</code> and
+<code>pyarrow</code> are installed.</p>
+
+  <p>Returns:</p>
+  <ul>
+      <li class="field-body">
+            <code>geopandas.<a class="autorefs autorefs-external" title="geopandas.GeoSeries" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries">GeoSeries</a></code>
+        –
+        <div class="doc-md-description">
+          <p>This <code>GeoSeries</code> as a <code>geopandas.GeoSeries</code>.</p>
+      </div>
+      </li>
+  </ul>
 
   </div>
 
