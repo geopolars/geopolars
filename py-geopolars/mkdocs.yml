@@ -8,6 +8,7 @@ nav:
   - "index.md"
   - Reference:
     - api/geoseries.md
+    - api/geodataframe.md
     - api/functions.md
     - Operations:
       - api/operations/series_georust.md

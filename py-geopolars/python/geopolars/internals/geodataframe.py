@@ -31,13 +31,13 @@ class GeoDataFrame(pl.DataFrame):
 
         Return GeoSeries if requested column is geometry column.
 
-        Parameters
-        ----------
-        name : str
-            Name of the column to retrieve.
+        Parameters:
 
-        Examples
-        --------
+            name: Name of the column to retrieve.
+
+        Examples:
+
+        ```py
         >>> df = pl.DataFrame({"foo": [1, 2, 3], "bar": [4, 5, 6]})
         >>> df.get_column("foo")
         shape: (3,)
@@ -47,6 +47,7 @@ class GeoDataFrame(pl.DataFrame):
                 2
                 3
         ]
+        ```
 
         """
         series = super().get_column(name)

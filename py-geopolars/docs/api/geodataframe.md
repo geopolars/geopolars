@@ -1,0 +1,5 @@
+# GeoDataFrame
+
+## Constructor
+
+::: geopolars.GeoDataFrame

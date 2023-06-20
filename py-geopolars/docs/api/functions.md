@@ -2,4 +2,4 @@
 
 ::: geopolars.from_arrow
 
-<!-- ::: geopolars.from_geopandas -->
+::: geopolars.from_geopandas
