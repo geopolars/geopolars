@@ -7,7 +7,14 @@ docs_dir: docs
 nav:
   - "index.md"
   - Reference:
+    - api/geoseries.md
     - api/functions.md
+    - Operations:
+      - api/operations/series_georust.md
+
+watch:
+  - python
+  - docs
 
 theme:
   name: material
@@ -42,6 +49,7 @@ theme:
 
 plugins:
   - search
+  - autorefs
   - social
   - mike:
       # TODO: change this to latest

@@ -1,1 +1,1 @@
-from .geoseries import GeoRustSeriesOperations
+from .geoseries import GeoRustSeries
