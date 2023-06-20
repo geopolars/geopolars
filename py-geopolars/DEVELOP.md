@@ -58,6 +58,16 @@ This will put a wheel (for the current system's architecture) in `dist/`.
 poetry run mkdocs serve
 ```
 
+I'm not sure why but I couldn't get `mike` serve to work.
+
 ### Deploy
 
-How to do with `mike`.
+We use [`mike`](https://github.com/jimporter/mike) for documentation deployment so that we can have multiple versions of the docs deployed simultaneously:
+
+```bash
+poetry run mike deploy --push --no-redirect VERSION latest
+```
+
+```bash
+poetry run mike deploy --push --no-redirect 0.1.0-alpha.4 latest
+```
