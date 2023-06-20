@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
-from geopolars import _geopolars as core
+from geopolars import _geopolars
 from geopolars.enums import GeometryType
 from geopolars.internals.georust import GeoRustSeries
 from geopolars.internals.geos import GEOSSeriesOperations
@@ -248,7 +248,7 @@ class GeoSeries(pl.Series):
         GeoSeries
         """
 
-        if not hasattr(core, "to_crs"):
+        if not hasattr(_geopolars.proj, "to_crs"):
             # TODO: use a custom geopolars exception class here
             raise ValueError("Geopolars not built with proj support")
 
@@ -262,4 +262,4 @@ class GeoSeries(pl.Series):
         if not isinstance(to_crs, str) and hasattr(to_crs, "to_json"):
             to_crs = to_crs.to_json()
 
-        return core.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
+        return _geopolars.proj.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
