@@ -22,8 +22,11 @@ class GeoRustSeries:
     def affine_transform(self, matrix: list[float] | AffineTransform) -> GeoSeries:
         """Returns a `GeoSeries` with translated geometries.
 
-        See http://shapely.readthedocs.io/en/stable/manual.html#shapely.affinity.affine_transform
-        or https://docs.rs/geo/latest/geo/algorithm/affine_ops/trait.AffineOps.html for details.
+        See Shapely's [`affine_transform`][shapely_docs] or Rust's
+        [`AffineOps`][rust_docs] for details.
+
+        [shapely_docs]: https://shapely.readthedocs.io/en/stable/manual.html#shapely.affinity.affine_transform
+        [georust_docs]: https://docs.rs/geo/latest/geo/algorithm/affine_ops/trait.AffineOps.html
 
         Parameters:
 
@@ -61,6 +64,10 @@ class GeoRustSeries:
         geometry.
 
         Note that centroid does not have to be on or within original geometry.
+
+        Returns:
+
+            New `GeoSeries` with centroids.
         """
         return core.centroid(self)
 
@@ -152,9 +159,6 @@ class GeoRustSeries:
         Length may be invalid for a geographic CRS using degrees as units;
         use [`GeoSeries.to_crs`][geopolars.GeoSeries.to_crs] to project geometries to a
         planar CRS before using this function.
-
-
-
         """
         return core.geodesic_length(self, method)
 
@@ -165,7 +169,6 @@ class GeoRustSeries:
         """
         return core.geom_type(self)
 
-    # Note: Polars defines an is_empty method
     def is_empty(self) -> pl.Series:
         """Returns a `Series` of `dtype('bool')` with value `True` for
         empty geometries.
@@ -181,9 +184,11 @@ class GeoRustSeries:
     def rotate(self, angle: float, origin: TransformOrigin = "center") -> GeoSeries:
         """Returns a `GeoSeries` with rotated geometries.
 
-        See http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.rotate
-        or https://docs.rs/geo/latest/geo/algorithm/rotate/trait.Rotate.html
-        for details.
+        See Shapely's [`rotate`][shapely_docs] or Rust's [`Rotate`][rust_docs] for
+        details.
+
+        [shapely_docs]: https://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.rotate
+        [georust_docs]: https://docs.rs/geo/latest/geo/algorithm/rotate/trait.Rotate.html
 
         Parameters:
 
@@ -205,16 +210,17 @@ class GeoRustSeries:
         The geometries can be scaled by different factors along each
         dimension. Negative scale factors will mirror or reflect coordinates.
 
-        See http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.scale
-        or https://docs.rs/geo/latest/geo/algorithm/scale/trait.Scale.html
-        for details.
+        See Shapely's [`scale`][shapely_docs] or Rust's [`Scale`][rust_docs] for
+        details.
+
+        [shapely_docs]: https://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.scale
+        [georust_docs]: https://docs.rs/geo/latest/geo/algorithm/scale/trait.Scale.html
 
         Parameters:
 
-        xfact, yfact: float, float
-            Scaling factors for the x and y dimensions respectively.
-        origin: string or tuple (x, y)
-            The point of origin can be a keyword 'center' for the 2D bounding
+        xfact: Scaling factors for the x dimension.
+        yfact: Scaling factors for the y dimension.
+        origin: The point of origin can be a keyword 'center' for the 2D bounding
             box center (default), 'centroid' for the geometry's 2D centroid
             or a coordinate tuple (x, y).
         """
@@ -228,9 +234,10 @@ class GeoRustSeries:
 
         The geometries are sheared by angles along the x and y dimensions.
 
-        See http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.skew
-        or https://docs.rs/geo/latest/geo/algorithm/skew/trait.Skew.html
-        for details.
+        See Shapely's [`skew`][shapely_docs] or Rust's [`Skew`][rust_docs] for details.
+
+        [shapely_docs]: https://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.skew
+        [georust_docs]: https://docs.rs/geo/latest/geo/algorithm/skew/trait.Skew.html
 
         Parameters:
 
@@ -271,7 +278,7 @@ class GeoRustSeries:
         See Shapely's [`translate`][shapely_docs] or Rust's [`Translate`][rust_docs]
         for details.
 
-        [shapely_docs]: http://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.translate
+        [shapely_docs]: https://shapely.readthedocs.io/en/latest/manual.html#shapely.affinity.translate
         [rust_docs]: https://docs.rs/geo/latest/geo/algorithm/translate/trait.Translate.html
 
         Parameters:
