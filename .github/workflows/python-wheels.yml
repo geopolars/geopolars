@@ -34,7 +34,10 @@ jobs:
           pip install poetry
           poetry install
           apt update
-          apt install -y libgdal-dev clang-7
+          echo "after update"
+          apt install -y libgdal-dev
+          echo "after libgdal"
+          apt install -y clang-7
 
       - name: Compile PROJ
         run: |
