@@ -1,6 +1,0 @@
-﻿polars.Expr.rolling\_sum
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.rolling_sum

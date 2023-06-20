@@ -1,6 +1,0 @@
-﻿polars.DataFrame.get\_column
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.get_column

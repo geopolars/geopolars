@@ -1,6 +1,0 @@
-﻿polars.count
-============
-
-.. currentmodule:: polars
-
-.. autofunction:: count

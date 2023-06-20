@@ -1,6 +1,0 @@
-﻿polars.Series.filter
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.filter

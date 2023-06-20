@@ -1,6 +1,0 @@
-﻿polars.DataFrame.replace\_at\_idx
-=================================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.replace_at_idx

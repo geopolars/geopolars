@@ -1,6 +1,0 @@
-﻿polars.Config.set\_global\_string\_cache
-========================================
-
-.. currentmodule:: polars
-
-.. automethod:: Config.set_global_string_cache

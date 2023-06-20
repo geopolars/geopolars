@@ -1,6 +1,0 @@
-﻿polars.Expr.inspect
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.inspect

@@ -1,6 +1,0 @@
-﻿polars.Series.is\_not\_null
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.is_not_null

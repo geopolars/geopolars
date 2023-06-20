@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.epoch\_seconds
-==========================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.epoch_seconds

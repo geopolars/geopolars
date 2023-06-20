@@ -1,6 +1,0 @@
-﻿polars.exclude
-==============
-
-.. currentmodule:: polars
-
-.. autofunction:: exclude

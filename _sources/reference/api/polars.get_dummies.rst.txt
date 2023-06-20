@@ -1,6 +1,0 @@
-﻿polars.get\_dummies
-===================
-
-.. currentmodule:: polars
-
-.. autofunction:: get_dummies

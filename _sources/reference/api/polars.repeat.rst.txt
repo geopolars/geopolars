@@ -1,6 +1,0 @@
-﻿polars.repeat
-=============
-
-.. currentmodule:: polars
-
-.. autofunction:: repeat

@@ -1,6 +1,0 @@
-﻿polars.read\_ipc
-================
-
-.. currentmodule:: polars
-
-.. autofunction:: read_ipc

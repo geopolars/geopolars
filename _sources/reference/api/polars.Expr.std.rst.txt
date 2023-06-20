@@ -1,6 +1,0 @@
-﻿polars.Expr.std
-===============
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.std

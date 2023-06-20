@@ -1,6 +1,0 @@
-﻿geopolars.read\_file
-====================
-
-.. currentmodule:: geopolars
-
-.. autofunction:: read_file

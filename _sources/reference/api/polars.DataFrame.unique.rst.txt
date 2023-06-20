@@ -1,6 +1,0 @@
-﻿polars.DataFrame.unique
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.unique

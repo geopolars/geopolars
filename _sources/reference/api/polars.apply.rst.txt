@@ -1,6 +1,0 @@
-﻿polars.apply
-============
-
-.. currentmodule:: polars
-
-.. autofunction:: apply

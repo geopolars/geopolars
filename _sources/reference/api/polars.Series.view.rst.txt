@@ -1,6 +1,0 @@
-﻿polars.Series.view
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.view

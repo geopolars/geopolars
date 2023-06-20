@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.diff
-============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.diff

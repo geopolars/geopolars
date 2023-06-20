@@ -1,6 +1,0 @@
-﻿polars.Expr.var
-===============
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.var

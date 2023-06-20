@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.shift
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.shift

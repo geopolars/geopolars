@@ -1,6 +1,0 @@
-﻿polars.from\_pandas
-===================
-
-.. currentmodule:: polars
-
-.. autofunction:: from_pandas

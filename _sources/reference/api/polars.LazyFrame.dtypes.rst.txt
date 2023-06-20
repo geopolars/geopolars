@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.dtypes
-=======================
-
-.. currentmodule:: polars
-
-.. autoproperty:: LazyFrame.dtypes

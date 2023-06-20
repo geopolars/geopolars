@@ -1,6 +1,0 @@
-﻿polars.Series.shift
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.shift

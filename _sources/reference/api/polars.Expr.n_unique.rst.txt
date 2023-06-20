@@ -1,6 +1,0 @@
-﻿polars.Expr.n\_unique
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.n_unique

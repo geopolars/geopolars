@@ -1,6 +1,0 @@
-﻿polars.Series.null\_count
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.null_count

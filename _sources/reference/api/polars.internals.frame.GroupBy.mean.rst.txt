@@ -1,6 +1,0 @@
-﻿polars.internals.frame.GroupBy.mean
-===================================
-
-.. currentmodule:: polars.internals.frame
-
-.. automethod:: GroupBy.mean

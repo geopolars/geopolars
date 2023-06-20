@@ -1,6 +1,0 @@
-﻿polars.from\_records
-====================
-
-.. currentmodule:: polars
-
-.. autofunction:: from_records

@@ -1,6 +1,0 @@
-﻿polars.Expr.quantile
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.quantile

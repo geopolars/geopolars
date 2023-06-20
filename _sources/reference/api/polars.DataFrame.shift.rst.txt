@@ -1,6 +1,0 @@
-﻿polars.DataFrame.shift
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.shift

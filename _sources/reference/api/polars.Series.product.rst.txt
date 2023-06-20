@@ -1,6 +1,0 @@
-﻿polars.Series.product
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.product

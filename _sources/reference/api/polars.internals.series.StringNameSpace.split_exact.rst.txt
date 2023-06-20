@@ -1,6 +1,0 @@
-﻿polars.internals.series.StringNameSpace.split\_exact
-====================================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: StringNameSpace.split_exact

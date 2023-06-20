@@ -1,6 +1,0 @@
-﻿polars.internals.series.StringNameSpace.strptime
-================================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: StringNameSpace.strptime

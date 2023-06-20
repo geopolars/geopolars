@@ -1,6 +1,0 @@
-﻿polars.var
-==========
-
-.. currentmodule:: polars
-
-.. autofunction:: var

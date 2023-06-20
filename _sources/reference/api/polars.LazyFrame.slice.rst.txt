@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.slice
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.slice

@@ -1,6 +1,0 @@
-﻿polars.internals.series.DateTimeNameSpace.day
-=============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: DateTimeNameSpace.day

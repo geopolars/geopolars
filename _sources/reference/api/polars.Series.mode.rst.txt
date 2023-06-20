@@ -1,6 +1,0 @@
-﻿polars.Series.mode
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.mode

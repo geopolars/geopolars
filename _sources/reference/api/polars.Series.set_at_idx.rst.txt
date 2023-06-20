@@ -1,6 +1,0 @@
-﻿polars.Series.set\_at\_idx
-==========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.set_at_idx

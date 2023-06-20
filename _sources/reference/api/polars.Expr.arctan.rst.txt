@@ -1,6 +1,0 @@
-﻿polars.Expr.arctan
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.arctan

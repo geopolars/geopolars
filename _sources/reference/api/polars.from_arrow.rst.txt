@@ -1,6 +1,0 @@
-﻿polars.from\_arrow
-==================
-
-.. currentmodule:: polars
-
-.. autofunction:: from_arrow

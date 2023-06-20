@@ -1,6 +1,0 @@
-﻿polars.Series.ewm\_var
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.ewm_var

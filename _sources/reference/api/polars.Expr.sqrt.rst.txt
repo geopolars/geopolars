@@ -1,6 +1,0 @@
-﻿polars.Expr.sqrt
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.sqrt

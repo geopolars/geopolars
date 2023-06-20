@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.columns
-========================
-
-.. currentmodule:: polars
-
-.. autoproperty:: LazyFrame.columns

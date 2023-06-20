@@ -1,6 +1,0 @@
-﻿polars.Expr.cumulative\_eval
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.cumulative_eval

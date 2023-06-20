@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.head
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.head

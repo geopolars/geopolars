@@ -1,6 +1,0 @@
-﻿polars.Series.to\_frame
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.to_frame

@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.fill\_null
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.fill_null

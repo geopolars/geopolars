@@ -1,6 +1,0 @@
-﻿polars.Series.is\_float
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.is_float

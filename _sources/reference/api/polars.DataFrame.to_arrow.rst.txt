@@ -1,6 +1,0 @@
-﻿polars.DataFrame.to\_arrow
-==========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.to_arrow

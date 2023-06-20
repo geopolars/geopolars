@@ -1,6 +1,0 @@
-﻿polars.DataFrame.to\_avro
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.to_avro

@@ -1,6 +1,0 @@
-﻿polars.internals.series.DateTimeNameSpace.median
-================================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: DateTimeNameSpace.median

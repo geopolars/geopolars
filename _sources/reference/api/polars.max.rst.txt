@@ -1,6 +1,0 @@
-﻿polars.max
-==========
-
-.. currentmodule:: polars
-
-.. autofunction:: max

@@ -1,6 +1,0 @@
-﻿polars.Series.shape
-===================
-
-.. currentmodule:: polars
-
-.. autoproperty:: Series.shape

@@ -1,6 +1,0 @@
-﻿polars.element
-==============
-
-.. currentmodule:: polars
-
-.. autofunction:: element

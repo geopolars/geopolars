@@ -1,6 +1,0 @@
-﻿polars.Expr.dt
-==============
-
-.. currentmodule:: polars
-
-.. autoproperty:: Expr.dt

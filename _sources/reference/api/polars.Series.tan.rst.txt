@@ -1,6 +1,0 @@
-﻿polars.Series.tan
-=================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.tan

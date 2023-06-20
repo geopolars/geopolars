@@ -1,6 +1,0 @@
-﻿polars.DataFrame.filter
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.filter

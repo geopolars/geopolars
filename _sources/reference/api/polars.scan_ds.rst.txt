@@ -1,6 +1,0 @@
-﻿polars.scan\_ds
-===============
-
-.. currentmodule:: polars
-
-.. autofunction:: scan_ds

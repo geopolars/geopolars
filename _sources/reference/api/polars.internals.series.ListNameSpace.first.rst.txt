@@ -1,6 +1,0 @@
-﻿polars.internals.series.ListNameSpace.first
-===========================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: ListNameSpace.first

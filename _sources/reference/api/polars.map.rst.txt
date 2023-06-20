@@ -1,6 +1,0 @@
-﻿polars.map
-==========
-
-.. currentmodule:: polars
-
-.. autofunction:: map

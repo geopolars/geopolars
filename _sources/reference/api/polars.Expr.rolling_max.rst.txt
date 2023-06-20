@@ -1,6 +1,0 @@
-﻿polars.Expr.rolling\_max
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.rolling_max

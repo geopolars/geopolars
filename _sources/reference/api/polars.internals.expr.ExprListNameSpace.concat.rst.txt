@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.concat
-==============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.concat

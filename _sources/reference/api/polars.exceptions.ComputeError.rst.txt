@@ -1,6 +1,0 @@
-﻿polars.exceptions.ComputeError
-==============================
-
-.. currentmodule:: polars.exceptions
-
-.. autoexception:: ComputeError

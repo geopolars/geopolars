@@ -1,6 +1,0 @@
-﻿polars.Expr.alias
-=================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.alias

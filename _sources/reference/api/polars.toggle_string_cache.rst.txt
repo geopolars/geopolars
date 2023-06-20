@@ -1,6 +1,0 @@
-﻿polars.toggle\_string\_cache
-============================
-
-.. currentmodule:: polars
-
-.. autofunction:: toggle_string_cache

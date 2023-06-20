@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.filter
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.filter

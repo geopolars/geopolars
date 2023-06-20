@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.year
-================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.year

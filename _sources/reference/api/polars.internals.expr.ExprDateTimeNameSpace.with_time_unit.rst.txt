@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.with\_time\_unit
-============================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.with_time_unit

@@ -1,6 +1,0 @@
-﻿polars.Expr.where
-=================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.where

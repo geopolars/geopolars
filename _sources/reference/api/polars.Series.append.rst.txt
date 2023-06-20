@@ -1,6 +1,0 @@
-﻿polars.Series.append
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.append

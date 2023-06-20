@@ -1,6 +1,0 @@
-﻿polars.struct
-=============
-
-.. currentmodule:: polars
-
-.. autofunction:: struct

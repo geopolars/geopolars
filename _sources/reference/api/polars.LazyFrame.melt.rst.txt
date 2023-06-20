@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.melt
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.melt

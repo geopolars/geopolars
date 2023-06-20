@@ -1,6 +1,0 @@
-﻿polars.duration
-===============
-
-.. currentmodule:: polars
-
-.. autofunction:: duration

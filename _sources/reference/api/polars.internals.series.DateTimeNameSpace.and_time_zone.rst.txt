@@ -1,6 +1,0 @@
-﻿polars.internals.series.DateTimeNameSpace.and\_time\_zone
-=========================================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: DateTimeNameSpace.and_time_zone

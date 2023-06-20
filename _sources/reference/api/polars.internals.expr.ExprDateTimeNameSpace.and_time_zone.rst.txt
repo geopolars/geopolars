@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.and\_time\_zone
-===========================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.and_time_zone

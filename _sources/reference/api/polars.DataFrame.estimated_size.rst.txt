@@ -1,6 +1,0 @@
-﻿polars.DataFrame.estimated\_size
-================================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.estimated_size

@@ -1,6 +1,0 @@
-﻿polars.Expr.map
-===============
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.map

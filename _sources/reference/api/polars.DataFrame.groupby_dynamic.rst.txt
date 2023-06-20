@@ -1,6 +1,0 @@
-﻿polars.DataFrame.groupby\_dynamic
-=================================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.groupby_dynamic

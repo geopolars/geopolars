@@ -1,6 +1,0 @@
-﻿polars.internals.series.StringNameSpace.encode
-==============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: StringNameSpace.encode

@@ -1,6 +1,0 @@
-﻿polars.DataFrame.replace
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.replace

@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.distance
-============================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.distance

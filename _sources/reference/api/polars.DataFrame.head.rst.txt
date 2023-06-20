@@ -1,6 +1,0 @@
-﻿polars.DataFrame.head
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.head

@@ -1,6 +1,0 @@
-﻿polars.concat
-=============
-
-.. currentmodule:: polars
-
-.. autofunction:: concat

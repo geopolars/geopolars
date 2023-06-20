@@ -1,6 +1,0 @@
-﻿polars.Series.is\_boolean
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.is_boolean

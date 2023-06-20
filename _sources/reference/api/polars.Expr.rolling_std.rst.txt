@@ -1,6 +1,0 @@
-﻿polars.Expr.rolling\_std
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.rolling_std

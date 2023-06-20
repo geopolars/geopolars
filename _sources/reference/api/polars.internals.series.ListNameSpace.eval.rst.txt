@@ -1,6 +1,0 @@
-﻿polars.internals.series.ListNameSpace.eval
-==========================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: ListNameSpace.eval

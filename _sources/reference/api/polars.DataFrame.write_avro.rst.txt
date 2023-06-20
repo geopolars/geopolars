@@ -1,6 +1,0 @@
-﻿polars.DataFrame.write\_avro
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.write_avro

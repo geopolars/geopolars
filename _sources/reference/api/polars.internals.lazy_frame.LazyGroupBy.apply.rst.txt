@@ -1,6 +1,0 @@
-﻿polars.internals.lazy\_frame.LazyGroupBy.apply
-==============================================
-
-.. currentmodule:: polars.internals.lazy_frame
-
-.. automethod:: LazyGroupBy.apply

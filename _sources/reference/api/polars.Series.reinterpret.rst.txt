@@ -1,6 +1,0 @@
-﻿polars.Series.reinterpret
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.reinterpret

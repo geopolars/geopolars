@@ -1,6 +1,0 @@
-﻿polars.Series.str
-=================
-
-.. currentmodule:: polars
-
-.. autoproperty:: Series.str

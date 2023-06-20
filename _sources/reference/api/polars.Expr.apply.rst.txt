@@ -1,6 +1,0 @@
-﻿polars.Expr.apply
-=================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.apply

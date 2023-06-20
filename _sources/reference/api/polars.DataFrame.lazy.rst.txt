@@ -1,6 +1,0 @@
-﻿polars.DataFrame.lazy
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.lazy

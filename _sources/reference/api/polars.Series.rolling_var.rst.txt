@@ -1,6 +1,0 @@
-﻿polars.Series.rolling\_var
-==========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.rolling_var

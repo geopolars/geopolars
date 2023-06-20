@@ -1,6 +1,0 @@
-﻿polars.Expr.drop\_nulls
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.drop_nulls

@@ -1,6 +1,0 @@
-﻿polars.datetime
-===============
-
-.. currentmodule:: polars
-
-.. autofunction:: datetime

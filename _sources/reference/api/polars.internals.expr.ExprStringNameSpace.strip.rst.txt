@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprStringNameSpace.strip
-===============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprStringNameSpace.strip

@@ -1,6 +1,0 @@
-﻿polars.DataFrame.schema
-=======================
-
-.. currentmodule:: polars
-
-.. autoproperty:: DataFrame.schema

@@ -1,6 +1,0 @@
-﻿polars.DataFrame.width
-======================
-
-.. currentmodule:: polars
-
-.. autoproperty:: DataFrame.width

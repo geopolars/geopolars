@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.groupby\_dynamic
-=================================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.groupby_dynamic

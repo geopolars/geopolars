@@ -1,6 +1,0 @@
-﻿polars.Expr.dot
-===============
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.dot

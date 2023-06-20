@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.get
-===========================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.get

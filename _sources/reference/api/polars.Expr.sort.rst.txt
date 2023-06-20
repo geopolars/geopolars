@@ -1,6 +1,0 @@
-﻿polars.Expr.sort
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.sort

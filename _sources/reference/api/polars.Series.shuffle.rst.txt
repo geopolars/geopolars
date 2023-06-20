@@ -1,6 +1,0 @@
-﻿polars.Series.shuffle
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.shuffle

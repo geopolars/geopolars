@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprStringNameSpace.contains
-==================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprStringNameSpace.contains

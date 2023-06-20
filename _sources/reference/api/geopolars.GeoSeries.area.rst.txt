@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.area
-========================
-
-.. currentmodule:: geopolars
-
-.. autoproperty:: GeoSeries.area

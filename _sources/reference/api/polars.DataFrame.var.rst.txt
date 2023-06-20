@@ -1,6 +1,0 @@
-﻿polars.DataFrame.var
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.var

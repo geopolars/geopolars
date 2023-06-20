@@ -1,6 +1,0 @@
-﻿polars.DataFrame.limit
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.limit

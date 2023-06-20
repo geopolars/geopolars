@@ -1,6 +1,0 @@
-﻿polars.Expr.cumcount
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.cumcount

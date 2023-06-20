@@ -1,6 +1,0 @@
-﻿polars.exceptions.PanicException
-================================
-
-.. currentmodule:: polars.exceptions
-
-.. autoexception:: PanicException

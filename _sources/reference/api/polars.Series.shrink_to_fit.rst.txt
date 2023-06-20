@@ -1,6 +1,0 @@
-﻿polars.Series.shrink\_to\_fit
-=============================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.shrink_to_fit

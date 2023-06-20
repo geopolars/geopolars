@@ -1,6 +1,0 @@
-﻿polars.Series.rolling\_skew
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.rolling_skew

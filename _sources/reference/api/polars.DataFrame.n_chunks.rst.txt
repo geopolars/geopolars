@@ -1,6 +1,0 @@
-﻿polars.DataFrame.n\_chunks
-==========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.n_chunks

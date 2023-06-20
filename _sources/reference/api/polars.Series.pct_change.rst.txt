@@ -1,6 +1,0 @@
-﻿polars.Series.pct\_change
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.pct_change

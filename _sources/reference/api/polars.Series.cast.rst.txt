@@ -1,6 +1,0 @@
-﻿polars.Series.cast
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.cast

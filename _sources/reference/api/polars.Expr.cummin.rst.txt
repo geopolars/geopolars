@@ -1,6 +1,0 @@
-﻿polars.Expr.cummin
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.cummin

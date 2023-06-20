@@ -1,6 +1,0 @@
-﻿polars.Series.drop\_nulls
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.drop_nulls

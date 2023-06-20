@@ -1,6 +1,0 @@
-﻿polars.Series.chunk\_lengths
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.chunk_lengths

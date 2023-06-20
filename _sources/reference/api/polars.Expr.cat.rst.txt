@@ -1,6 +1,0 @@
-﻿polars.Expr.cat
-===============
-
-.. currentmodule:: polars
-
-.. autoproperty:: Expr.cat

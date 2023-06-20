@@ -1,6 +1,0 @@
-﻿polars.Expr.ewm\_var
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.ewm_var

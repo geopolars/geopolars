@@ -1,6 +1,0 @@
-﻿polars.Expr.arg\_min
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.arg_min

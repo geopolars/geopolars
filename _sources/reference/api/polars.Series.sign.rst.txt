@@ -1,6 +1,0 @@
-﻿polars.Series.sign
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.sign

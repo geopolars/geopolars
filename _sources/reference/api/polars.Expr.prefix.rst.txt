@@ -1,6 +1,0 @@
-﻿polars.Expr.prefix
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.prefix

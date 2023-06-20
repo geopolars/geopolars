@@ -1,6 +1,0 @@
-﻿polars.DataFrame.fill\_nan
-==========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.fill_nan

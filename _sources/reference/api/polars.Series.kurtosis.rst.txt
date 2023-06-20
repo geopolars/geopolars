@@ -1,6 +1,0 @@
-﻿polars.Series.kurtosis
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.kurtosis

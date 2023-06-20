@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.to\_struct
-==================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.to_struct

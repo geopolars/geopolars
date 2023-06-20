@@ -1,6 +1,0 @@
-﻿polars.internals.frame.PivotOps.last
-====================================
-
-.. currentmodule:: polars.internals.frame
-
-.. automethod:: PivotOps.last

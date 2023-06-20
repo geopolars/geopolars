@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.sort
-============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.sort

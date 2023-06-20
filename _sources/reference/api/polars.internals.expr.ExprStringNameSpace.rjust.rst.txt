@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprStringNameSpace.rjust
-===============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprStringNameSpace.rjust

@@ -1,6 +1,0 @@
-﻿polars.when
-===========
-
-.. currentmodule:: polars
-
-.. autofunction:: when

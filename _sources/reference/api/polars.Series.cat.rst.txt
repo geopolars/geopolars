@@ -1,6 +1,0 @@
-﻿polars.Series.cat
-=================
-
-.. currentmodule:: polars
-
-.. autoproperty:: Series.cat

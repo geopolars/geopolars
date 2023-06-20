@@ -1,6 +1,0 @@
-﻿polars.Expr.clip
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.clip

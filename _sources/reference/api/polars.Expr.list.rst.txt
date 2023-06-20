@@ -1,6 +1,0 @@
-﻿polars.Expr.list
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.list

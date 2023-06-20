@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.describe\_optimized\_plan
-==========================================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.describe_optimized_plan

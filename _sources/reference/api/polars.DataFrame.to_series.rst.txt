@@ -1,6 +1,0 @@
-﻿polars.DataFrame.to\_series
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.to_series

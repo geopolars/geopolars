@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprStringNameSpace.to\_lowercase
-=======================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprStringNameSpace.to_lowercase

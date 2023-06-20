@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.unique
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.unique

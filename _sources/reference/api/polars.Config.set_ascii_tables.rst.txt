@@ -1,6 +1,0 @@
-﻿polars.Config.set\_ascii\_tables
-================================
-
-.. currentmodule:: polars
-
-.. automethod:: Config.set_ascii_tables

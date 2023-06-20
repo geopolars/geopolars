@@ -1,6 +1,0 @@
-﻿polars.DataFrame.to\_parquet
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.to_parquet

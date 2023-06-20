@@ -1,6 +1,0 @@
-﻿polars.DataFrame.interpolate
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.interpolate

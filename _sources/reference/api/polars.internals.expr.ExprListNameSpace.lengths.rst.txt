@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.lengths
-===============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.lengths

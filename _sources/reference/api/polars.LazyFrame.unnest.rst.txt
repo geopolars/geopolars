@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.unnest
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.unnest

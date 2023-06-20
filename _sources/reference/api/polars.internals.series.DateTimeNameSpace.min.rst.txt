@@ -1,6 +1,0 @@
-﻿polars.internals.series.DateTimeNameSpace.min
-=============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: DateTimeNameSpace.min

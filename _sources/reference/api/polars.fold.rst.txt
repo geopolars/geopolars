@@ -1,6 +1,0 @@
-﻿polars.fold
-===========
-
-.. currentmodule:: polars
-
-.. autofunction:: fold

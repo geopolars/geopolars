@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.geodesic\_length
-====================================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.geodesic_length

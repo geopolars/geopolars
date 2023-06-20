@@ -1,6 +1,0 @@
-﻿polars.Series.ceil
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.ceil

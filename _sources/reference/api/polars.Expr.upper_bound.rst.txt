@@ -1,6 +1,0 @@
-﻿polars.Expr.upper\_bound
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.upper_bound

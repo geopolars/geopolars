@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.seconds
-===================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.seconds

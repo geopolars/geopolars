@@ -1,6 +1,0 @@
-﻿polars.Series.rechunk
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.rechunk

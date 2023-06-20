@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.month
-=================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.month

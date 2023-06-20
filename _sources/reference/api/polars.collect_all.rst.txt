@@ -1,6 +1,0 @@
-﻿polars.collect\_all
-===================
-
-.. currentmodule:: polars
-
-.. autofunction:: collect_all

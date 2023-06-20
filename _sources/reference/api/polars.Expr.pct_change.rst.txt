@@ -1,6 +1,0 @@
-﻿polars.Expr.pct\_change
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.pct_change

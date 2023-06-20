@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.schema
-=======================
-
-.. currentmodule:: polars
-
-.. autoproperty:: LazyFrame.schema

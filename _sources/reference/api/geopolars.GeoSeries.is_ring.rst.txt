@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.is\_ring
-============================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.is_ring

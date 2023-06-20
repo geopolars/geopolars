@@ -1,6 +1,0 @@
-﻿polars.Expr.value\_counts
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.value_counts

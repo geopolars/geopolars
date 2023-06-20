@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.translate
-=============================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.translate

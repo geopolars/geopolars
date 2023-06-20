@@ -1,6 +1,0 @@
-﻿polars.DataFrame.sort
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.sort

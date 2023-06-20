@@ -1,6 +1,0 @@
-﻿polars.internals.series.StringNameSpace.concat
-==============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: StringNameSpace.concat

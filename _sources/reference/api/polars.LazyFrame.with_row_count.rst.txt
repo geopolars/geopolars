@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.with\_row\_count
-=================================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.with_row_count

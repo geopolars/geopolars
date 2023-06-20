@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.nanosecond
-======================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.nanosecond

@@ -1,6 +1,0 @@
-﻿polars.internals.series.StringNameSpace.slice
-=============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: StringNameSpace.slice

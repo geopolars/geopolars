@@ -1,6 +1,0 @@
-﻿polars.Expr.flatten
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.flatten

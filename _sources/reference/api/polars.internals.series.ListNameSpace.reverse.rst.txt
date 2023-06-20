@@ -1,6 +1,0 @@
-﻿polars.internals.series.ListNameSpace.reverse
-=============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: ListNameSpace.reverse

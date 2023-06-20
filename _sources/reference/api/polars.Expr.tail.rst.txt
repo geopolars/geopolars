@@ -1,6 +1,0 @@
-﻿polars.Expr.tail
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.tail

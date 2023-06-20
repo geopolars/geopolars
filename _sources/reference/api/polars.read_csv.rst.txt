@@ -1,6 +1,0 @@
-﻿polars.read\_csv
-================
-
-.. currentmodule:: polars
-
-.. autofunction:: read_csv

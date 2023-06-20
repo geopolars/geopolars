@@ -1,6 +1,0 @@
-﻿polars.Series.cumulative\_eval
-==============================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.cumulative_eval

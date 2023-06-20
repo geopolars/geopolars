@@ -1,6 +1,0 @@
-﻿polars.Expr.rank
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.rank

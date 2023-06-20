@@ -1,6 +1,0 @@
-﻿polars.DataFrame.melt
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.melt

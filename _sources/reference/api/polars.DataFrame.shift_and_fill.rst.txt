@@ -1,6 +1,0 @@
-﻿polars.DataFrame.shift\_and\_fill
-=================================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.shift_and_fill

@@ -1,6 +1,0 @@
-﻿polars.Series.sum
-=================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.sum

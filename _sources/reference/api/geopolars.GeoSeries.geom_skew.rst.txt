@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.geom\_skew
-==============================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.geom_skew

@@ -1,6 +1,0 @@
-﻿polars.DataFrame.to\_ipc
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.to_ipc

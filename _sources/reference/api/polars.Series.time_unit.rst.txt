@@ -1,6 +1,0 @@
-﻿polars.Series.time\_unit
-========================
-
-.. currentmodule:: polars
-
-.. autoproperty:: Series.time_unit

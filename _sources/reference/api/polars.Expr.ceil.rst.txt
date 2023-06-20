@@ -1,6 +1,0 @@
-﻿polars.Expr.ceil
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.ceil

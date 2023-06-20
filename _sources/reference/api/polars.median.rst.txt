@@ -1,6 +1,0 @@
-﻿polars.median
-=============
-
-.. currentmodule:: polars
-
-.. autofunction:: median

@@ -1,6 +1,0 @@
-﻿polars.from\_dicts
-==================
-
-.. currentmodule:: polars
-
-.. autofunction:: from_dicts

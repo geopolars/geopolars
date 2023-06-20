@@ -1,6 +1,0 @@
-﻿polars.Expr.filter
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.filter

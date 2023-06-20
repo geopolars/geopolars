@@ -1,6 +1,0 @@
-﻿polars.Series.series\_equal
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.series_equal

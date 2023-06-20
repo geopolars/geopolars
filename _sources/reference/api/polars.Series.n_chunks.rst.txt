@@ -1,6 +1,0 @@
-﻿polars.Series.n\_chunks
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.n_chunks

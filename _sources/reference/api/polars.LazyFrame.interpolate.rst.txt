@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.interpolate
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.interpolate

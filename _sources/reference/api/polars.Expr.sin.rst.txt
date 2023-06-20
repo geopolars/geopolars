@@ -1,6 +1,0 @@
-﻿polars.Expr.sin
-===============
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.sin

@@ -1,6 +1,0 @@
-﻿geopolars.from\_arrow
-=====================
-
-.. currentmodule:: geopolars
-
-.. autofunction:: from_arrow

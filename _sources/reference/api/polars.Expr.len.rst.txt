@@ -1,6 +1,0 @@
-﻿polars.Expr.len
-===============
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.len

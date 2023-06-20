@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.inspect
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.inspect

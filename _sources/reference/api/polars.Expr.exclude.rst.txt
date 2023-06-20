@@ -1,6 +1,0 @@
-﻿polars.Expr.exclude
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.exclude

@@ -1,6 +1,0 @@
-﻿polars.read\_sql
-================
-
-.. currentmodule:: polars
-
-.. autofunction:: read_sql

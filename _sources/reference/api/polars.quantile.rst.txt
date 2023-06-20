@@ -1,6 +1,0 @@
-﻿polars.quantile
-===============
-
-.. currentmodule:: polars
-
-.. autofunction:: quantile

@@ -1,6 +1,0 @@
-﻿polars.Series.value\_counts
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.value_counts

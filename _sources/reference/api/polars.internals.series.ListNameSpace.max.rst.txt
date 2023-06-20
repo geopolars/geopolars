@@ -1,6 +1,0 @@
-﻿polars.internals.series.ListNameSpace.max
-=========================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: ListNameSpace.max

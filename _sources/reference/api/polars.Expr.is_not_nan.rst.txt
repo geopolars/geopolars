@@ -1,6 +1,0 @@
-﻿polars.Expr.is\_not\_nan
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.is_not_nan

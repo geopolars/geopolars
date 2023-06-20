@@ -1,6 +1,0 @@
-﻿polars.Expr.sample
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.sample

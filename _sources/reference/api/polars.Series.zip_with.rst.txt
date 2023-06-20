@@ -1,6 +1,0 @@
-﻿polars.Series.zip\_with
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.zip_with

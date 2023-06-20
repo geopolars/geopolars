@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.join
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.join

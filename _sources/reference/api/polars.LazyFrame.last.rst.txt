@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.last
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.last

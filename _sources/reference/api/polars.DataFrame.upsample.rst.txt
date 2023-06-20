@@ -1,6 +1,0 @@
-﻿polars.DataFrame.upsample
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.upsample

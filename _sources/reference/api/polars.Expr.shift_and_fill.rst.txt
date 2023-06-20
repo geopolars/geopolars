@@ -1,6 +1,0 @@
-﻿polars.Expr.shift\_and\_fill
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.shift_and_fill

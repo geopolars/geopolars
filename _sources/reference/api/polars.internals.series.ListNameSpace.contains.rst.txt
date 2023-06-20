@@ -1,6 +1,0 @@
-﻿polars.internals.series.ListNameSpace.contains
-==============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: ListNameSpace.contains

@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.with\_column
-=============================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.with_column

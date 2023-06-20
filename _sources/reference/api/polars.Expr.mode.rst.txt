@@ -1,6 +1,0 @@
-﻿polars.Expr.mode
-================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.mode

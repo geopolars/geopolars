@@ -1,6 +1,0 @@
-﻿polars.Series.peak\_max
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.peak_max

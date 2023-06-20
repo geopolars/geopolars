@@ -1,6 +1,0 @@
-﻿polars.Expr.repeat\_by
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.repeat_by

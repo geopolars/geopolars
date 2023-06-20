@@ -1,6 +1,0 @@
-﻿polars.Series.cummin
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.cummin

@@ -1,6 +1,0 @@
-﻿geopolars.GeoDataFrame.get\_column
-==================================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoDataFrame.get_column

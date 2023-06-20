@@ -1,6 +1,0 @@
-﻿polars.Series.is\_not\_nan
-==========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.is_not_nan

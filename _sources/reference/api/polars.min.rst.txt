@@ -1,6 +1,0 @@
-﻿polars.min
-==========
-
-.. currentmodule:: polars
-
-.. autofunction:: min

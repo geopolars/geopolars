@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.shift
-=============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.shift

@@ -1,6 +1,0 @@
-﻿polars.Series.interpolate
-=========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.interpolate

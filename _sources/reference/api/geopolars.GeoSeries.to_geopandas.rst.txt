@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.to\_geopandas
-=================================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.to_geopandas

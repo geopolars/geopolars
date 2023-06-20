@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.week
-================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.week

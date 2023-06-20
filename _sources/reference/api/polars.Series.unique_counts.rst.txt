@@ -1,6 +1,0 @@
-﻿polars.Series.unique\_counts
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.unique_counts

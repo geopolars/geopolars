@@ -1,6 +1,0 @@
-﻿polars.DataFrame.write\_csv
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.write_csv

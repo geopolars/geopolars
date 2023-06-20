@@ -1,6 +1,0 @@
-﻿polars.DataFrame.select
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.select

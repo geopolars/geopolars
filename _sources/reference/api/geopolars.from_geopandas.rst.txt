@@ -1,6 +1,0 @@
-﻿geopolars.from\_geopandas
-=========================
-
-.. currentmodule:: geopolars
-
-.. autofunction:: from_geopandas

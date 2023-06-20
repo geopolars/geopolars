@@ -1,6 +1,0 @@
-﻿polars.DataFrame.rows
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.rows

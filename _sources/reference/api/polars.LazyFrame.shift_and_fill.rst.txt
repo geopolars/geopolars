@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.shift\_and\_fill
-=================================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.shift_and_fill

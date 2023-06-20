@@ -1,6 +1,0 @@
-﻿polars.Expr.interpolate
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.interpolate

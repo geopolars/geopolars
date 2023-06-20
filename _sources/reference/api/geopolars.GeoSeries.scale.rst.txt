@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.scale
-=========================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.scale

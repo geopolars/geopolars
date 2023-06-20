@@ -1,6 +1,0 @@
-﻿polars.internals.frame.GroupBy.agg\_list
-========================================
-
-.. currentmodule:: polars.internals.frame
-
-.. automethod:: GroupBy.agg_list

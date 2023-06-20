@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.affine\_transform
-=====================================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.affine_transform

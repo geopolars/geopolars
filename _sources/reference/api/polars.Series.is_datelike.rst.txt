@@ -1,6 +1,0 @@
-﻿polars.Series.is\_datelike
-==========================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.is_datelike

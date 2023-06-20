@@ -1,6 +1,0 @@
-﻿polars.Series.is\_utf8
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.is_utf8

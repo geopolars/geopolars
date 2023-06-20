@@ -1,6 +1,0 @@
-﻿polars.Expr.rechunk
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.rechunk

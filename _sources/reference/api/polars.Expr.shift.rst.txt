@@ -1,6 +1,0 @@
-﻿polars.Expr.shift
-=================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.shift

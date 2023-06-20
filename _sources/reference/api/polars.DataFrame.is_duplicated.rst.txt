@@ -1,6 +1,0 @@
-﻿polars.DataFrame.is\_duplicated
-===============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.is_duplicated

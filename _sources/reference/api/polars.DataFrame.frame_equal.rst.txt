@@ -1,6 +1,0 @@
-﻿polars.DataFrame.frame\_equal
-=============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.frame_equal

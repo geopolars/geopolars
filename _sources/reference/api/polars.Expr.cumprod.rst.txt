@@ -1,6 +1,0 @@
-﻿polars.Expr.cumprod
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.cumprod

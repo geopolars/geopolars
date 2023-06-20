@@ -1,6 +1,0 @@
-﻿polars.internals.series.StringNameSpace.extract
-===============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: StringNameSpace.extract

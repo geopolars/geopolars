@@ -1,6 +1,0 @@
-﻿polars.DataFrame.shape
-======================
-
-.. currentmodule:: polars
-
-.. autoproperty:: DataFrame.shape

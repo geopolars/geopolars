@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprListNameSpace.first
-=============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprListNameSpace.first

@@ -1,6 +1,0 @@
-﻿polars.DataFrame.clone
-======================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.clone

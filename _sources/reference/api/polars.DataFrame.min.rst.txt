@@ -1,6 +1,0 @@
-﻿polars.DataFrame.min
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.min

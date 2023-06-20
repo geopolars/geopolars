@@ -1,6 +1,0 @@
-﻿polars.internals.series.DateTimeNameSpace.truncate
-==================================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: DateTimeNameSpace.truncate

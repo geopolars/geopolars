@@ -1,6 +1,0 @@
-﻿polars.Series.limit
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.limit

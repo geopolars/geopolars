@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.tail
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.tail

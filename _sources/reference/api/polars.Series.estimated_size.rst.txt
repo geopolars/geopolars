@@ -1,6 +1,0 @@
-﻿polars.Series.estimated\_size
-=============================
-
-.. currentmodule:: polars
-
-.. automethod:: Series.estimated_size

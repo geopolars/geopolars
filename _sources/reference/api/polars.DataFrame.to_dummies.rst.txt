@@ -1,6 +1,0 @@
-﻿polars.DataFrame.to\_dummies
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.to_dummies

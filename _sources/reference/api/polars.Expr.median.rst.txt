@@ -1,6 +1,0 @@
-﻿polars.Expr.median
-==================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.median

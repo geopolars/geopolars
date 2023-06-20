@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprDateTimeNameSpace.strftime
-====================================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprDateTimeNameSpace.strftime

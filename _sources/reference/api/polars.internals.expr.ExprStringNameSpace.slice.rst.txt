@@ -1,6 +1,0 @@
-﻿polars.internals.expr.ExprStringNameSpace.slice
-===============================================
-
-.. currentmodule:: polars.internals.expr
-
-.. automethod:: ExprStringNameSpace.slice

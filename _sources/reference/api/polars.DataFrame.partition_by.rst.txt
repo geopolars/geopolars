@@ -1,6 +1,0 @@
-﻿polars.DataFrame.partition\_by
-==============================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.partition_by

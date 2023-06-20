@@ -1,6 +1,0 @@
-﻿polars.read\_parquet\_schema
-============================
-
-.. currentmodule:: polars
-
-.. autofunction:: read_parquet_schema

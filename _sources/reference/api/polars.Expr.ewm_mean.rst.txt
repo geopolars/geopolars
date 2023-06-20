@@ -1,6 +1,0 @@
-﻿polars.Expr.ewm\_mean
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.ewm_mean

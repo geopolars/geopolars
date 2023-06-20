@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.rotate
-==========================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.rotate

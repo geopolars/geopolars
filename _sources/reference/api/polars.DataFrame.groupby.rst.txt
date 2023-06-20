@@ -1,6 +1,0 @@
-﻿polars.DataFrame.groupby
-========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.groupby

@@ -1,6 +1,0 @@
-﻿polars.exceptions.DuplicateError
-================================
-
-.. currentmodule:: polars.exceptions
-
-.. autoexception:: DuplicateError

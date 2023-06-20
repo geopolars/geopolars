@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.pipe
-=====================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.pipe

@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.write\_json
-============================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.write_json

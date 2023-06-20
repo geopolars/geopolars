@@ -1,6 +1,0 @@
-﻿polars.DataFrame.sum
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.sum

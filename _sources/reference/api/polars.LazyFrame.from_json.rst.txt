@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.from\_json
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.from_json

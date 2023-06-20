@@ -1,6 +1,0 @@
-﻿polars.internals.series.StringNameSpace.lstrip
-==============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: StringNameSpace.lstrip

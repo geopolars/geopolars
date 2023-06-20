@@ -1,6 +1,0 @@
-﻿polars.read\_excel
-==================
-
-.. currentmodule:: polars
-
-.. autofunction:: read_excel

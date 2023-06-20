@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.sum
-====================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.sum

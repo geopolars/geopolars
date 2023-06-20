@@ -1,6 +1,0 @@
-﻿polars.DataFrame.to\_struct
-===========================
-
-.. currentmodule:: polars
-
-.. automethod:: DataFrame.to_struct

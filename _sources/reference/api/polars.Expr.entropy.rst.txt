@@ -1,6 +1,0 @@
-﻿polars.Expr.entropy
-===================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.entropy

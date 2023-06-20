@@ -1,6 +1,0 @@
-﻿polars.std
-==========
-
-.. currentmodule:: polars
-
-.. autofunction:: std

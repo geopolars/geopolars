@@ -1,6 +1,0 @@
-﻿polars.Expr.rolling\_quantile
-=============================
-
-.. currentmodule:: polars
-
-.. automethod:: Expr.rolling_quantile

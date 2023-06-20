@@ -1,6 +1,0 @@
-﻿polars.LazyFrame.median
-=======================
-
-.. currentmodule:: polars
-
-.. automethod:: LazyFrame.median

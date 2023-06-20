@@ -1,6 +1,0 @@
-﻿polars.internals.series.ListNameSpace.sum
-=========================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: ListNameSpace.sum

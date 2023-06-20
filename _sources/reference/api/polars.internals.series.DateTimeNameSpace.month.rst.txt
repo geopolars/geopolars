@@ -1,6 +1,0 @@
-﻿polars.internals.series.DateTimeNameSpace.month
-===============================================
-
-.. currentmodule:: polars.internals.series
-
-.. automethod:: DateTimeNameSpace.month

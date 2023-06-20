@@ -1,6 +1,0 @@
-﻿geopolars.GeoSeries.envelope
-============================
-
-.. currentmodule:: geopolars
-
-.. automethod:: GeoSeries.envelope
