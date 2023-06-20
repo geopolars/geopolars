@@ -47,8 +47,10 @@ class GeoRustSeries:
 
         ## See also
 
-        - [`euclidean_length`][geopolars.GeoRustSeries.euclidean_length]: measure euclidean length
-        - [`geodesic_length`][geopolars.GeoRustSeries.geodesic_length]: measure geodesic length
+        - [`euclidean_length`][geopolars.GeoRustSeries.euclidean_length]: measure
+          euclidean length
+        - [`geodesic_length`][geopolars.GeoRustSeries.geodesic_length]: measure geodesic
+          length
 
         ## Notes
 
@@ -134,9 +136,10 @@ class GeoRustSeries:
                 `'vincenty'`.
 
                 `'geodesic'` uses the geodesic measurement methods given by
-                [`Karney (2013)`][Karney]. As opposed to older methods like Vincenty, this method is
-                accurate to a few nanometers and always converges. `'vincenty'` uses
-                [`Vincenty's formulae`][Vincenty]. `'haversine'` uses the [`haversine formula`][Haversine].
+                [`Karney (2013)`][Karney]. As opposed to older methods like Vincenty,
+                this method is accurate to a few nanometers and always converges.
+                `'vincenty'` uses [`Vincenty's formulae`][Vincenty]. `'haversine'` uses
+                the [`haversine formula`][Haversine].
 
                 [Karney]: https://arxiv.org/pdf/1109.4448.pdf
                 [Vincenty]: https://en.wikipedia.org/wiki/Vincenty%27s_formulae
@@ -266,7 +269,8 @@ class GeoRustSeries:
 
         Returns:
 
-            GeoSeries containing the distance from each element to the element in `other`.
+            GeoSeries containing the distance from each element to the element in
+            `other`.
         """
 
         return core.distance(self, other)

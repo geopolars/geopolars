@@ -51,7 +51,8 @@ def read_file(
             the order they occur in the data source.  To avoid reading any columns,
             pass an empty list-like.
         read_geometry:
-            If True, will read geometry into WKB.  If False, geometry will be None. Defaults to True.
+            If True, will read geometry into WKB. If False, geometry will be None.
+            Defaults to True.
         force_2d:
             If the geometry has Z values, setting this to True will cause those to
             be ignored and 2D geometries to be returned. Defaults to False.
