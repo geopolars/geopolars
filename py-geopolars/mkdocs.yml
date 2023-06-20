@@ -50,7 +50,6 @@ theme:
 
 plugins:
   - search
-  - autorefs
   - social
   - mike:
       # TODO: change this to latest
