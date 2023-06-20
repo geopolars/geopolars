@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 
 class GeoSeries(pl.Series):
-    """Extension of :class:`polars.Series` to handle geospatial vector data."""
+    """Extension of `polars.Series` to handle geospatial vector data."""
 
     _geom_type: GeometryType | None
 
@@ -140,15 +140,14 @@ class GeoSeries(pl.Series):
             raise ValueError("wrong type ", geom_type)
 
     def to_geopandas(self) -> geopandas.GeoSeries:
-        """Converts this ``GeoSeries`` to a :class:`geopandas.GeoSeries`.
+        """Converts this `GeoSeries` to a [`geopandas.GeoSeries`][geopandas.GeoSeries].
 
-        This operation clones data. This requires that :mod:`geopandas` and
-        :mod:`pyarrow` are installed.
+        This operation clones data. This requires that `geopandas` and
+        `pyarrow` are installed.
 
-        Returns
-        -------
+        Returns:
 
-        :class:`geopandas.GeoSeries`
+            This `GeoSeries` as a `geopandas.GeoSeries`.
         """
         if geopandas is None:
             raise ImportError("Geopandas is required when using to_geopandas().")
@@ -216,10 +215,10 @@ class GeoSeries(pl.Series):
 
         raise ValueError()
 
-    def to_crs(self, from_crs: str | pyproj.CRS, to_crs: str | pyproj.CRS) -> GeoSeries:
-        """Returns a ``GeoSeries`` with all geometries transformed to a new
-        coordinate reference system.
-
+    def to_crs(
+        self, from_crs: str | pyproj.crs.CRS, to_crs: str | pyproj.crs.CRS
+    ) -> GeoSeries:
+        """
         Transform all geometries in a GeoSeries to a different coordinate
         reference system.
 
@@ -232,20 +231,19 @@ class GeoSeries(pl.Series):
         crossing the dateline (or other projection boundary) will have
         undesirable behavior.
 
-        Parameters
-        ----------
-        from_crs : :class:`pyproj.CRS <pyproj.crs.CRS>` or str
-            Origin coordinate system. The value can be anything accepted
-            by :meth:`pyproj.CRS.from_user_input() <pyproj.crs.CRS.from_user_input>`,
-            such as an authority string (eg "EPSG:4326") or a WKT string.
-        to_crs : :class:`pyproj.CRS <pyproj.crs.CRS>` or str
-            Destination coordinate system. The value can be anything accepted
-            by :meth:`pyproj.CRS.from_user_input() <pyproj.crs.CRS.from_user_input>`,
-            such as an authority string (eg "EPSG:4326") or a WKT string.
+        Parameters:
 
-        Returns
-        -------
-        GeoSeries
+            from_crs: Origin coordinate system. The value can be anything accepted
+                by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input], such as
+                an authority string (eg "EPSG:4326") or a WKT string.
+            to_crs: Destination coordinate system. The value can be anything accepted
+                by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input], such as
+                an authority string (eg "EPSG:4326") or a WKT string.
+
+        Returns:
+
+            A `GeoSeries` with all geometries transformed to a new coordinate reference
+                system.
         """
 
         if not hasattr(_geopolars.proj, "to_crs"):

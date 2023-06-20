@@ -35,6 +35,10 @@ class GeoDataFrame(pl.DataFrame):
 
             name: Name of the column to retrieve.
 
+        Returns:
+
+            A column of the DataFrame as either a polars `Series` or a `GeoSeries`.
+
         Examples:
 
         ```py
