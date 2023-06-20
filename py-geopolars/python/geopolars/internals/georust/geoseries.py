@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import polars
 import polars as pl
 
-from geopolars import _geopolars as core
+from geopolars._geopolars import geo as georust
 from geopolars.internals.types import AffineTransform, GeodesicMethod, TransformOrigin
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ class GeoRustSeries:
         """  # noqa (E501 link is longer than max line length)
         # TODO: check if transform is an instance of Affine? Or add a test?
         # Since Affine is a namedtuple, will it *just work*?
-        return core.affine_transform(self, matrix)
+        return georust.affine_transform(self, matrix)
 
     @property
     def area(self) -> pl.Series:
@@ -56,7 +56,7 @@ class GeoRustSeries:
         [`to_crs`][geopolars.GeoSeries.to_crs] to project geometries to a planar CRS
         before using this function.
         """
-        return core.area(self)
+        return georust.area(self)
 
     @property
     def centroid(self) -> GeoSeries:
@@ -69,7 +69,7 @@ class GeoRustSeries:
 
             New `GeoSeries` with centroids.
         """
-        return core.centroid(self)
+        return georust.centroid(self)
 
     def convex_hull(self) -> GeoSeries:
         """Returns a `GeoSeries` of geometries representing the convex hull
@@ -85,7 +85,7 @@ class GeoRustSeries:
         - [`envelope`][geopolars.GeoRustSeries.envelope]: bounding rectangle geometry
 
         """
-        return core.convex_hull(self)
+        return georust.convex_hull(self)
 
     def envelope(self) -> GeoSeries:
         """Returns a `GeoSeries` of geometries representing the envelope of
@@ -99,7 +99,7 @@ class GeoRustSeries:
 
         [`convex_hull`][geopolars.GeoRustSeries.convex_hull]: convex hull geometry
         """
-        return core.envelope(self)
+        return georust.envelope(self)
 
     def euclidean_length(self) -> pl.Series:
         """Returns a `Series` containing the euclidean length of each geometry
@@ -115,13 +115,13 @@ class GeoRustSeries:
         use [`GeoSeries.to_crs`][geopolars.GeoSeries.to_crs] to project geometries to a
         planar CRS before using this function.
         """
-        return core.euclidean_length(self)
+        return georust.euclidean_length(self)
 
     def exterior(self) -> GeoSeries:
         """Returns a `GeoSeries` of LinearRings representing the outer
         boundary of each polygon in the GeoSeries.
         """
-        return core.exterior(self)
+        return georust.exterior(self)
 
     def geodesic_length(self, method: GeodesicMethod = "geodesic") -> polars.Series:
         """Returns a `Series` containing the geodesic length of each geometry
@@ -160,26 +160,26 @@ class GeoRustSeries:
         use [`GeoSeries.to_crs`][geopolars.GeoSeries.to_crs] to project geometries to a
         planar CRS before using this function.
         """
-        return core.geodesic_length(self, method)
+        return georust.geodesic_length(self, method)
 
     @property
     def geom_type(self) -> pl.Series:
         """Returns a `Series` of strings specifying the `Geometry Type` of each
         object.
         """
-        return core.geom_type(self)
+        return georust.geom_type(self)
 
     def is_empty(self) -> pl.Series:
         """Returns a `Series` of `dtype('bool')` with value `True` for
         empty geometries.
         """
-        return core.is_empty(self)
+        return georust.is_empty(self)
 
     def is_ring(self) -> pl.Series:
         """Returns a `Series` of `dtype('bool')` with value `True` for
         features that are closed.
         """
-        return core.is_ring(self)
+        return georust.is_ring(self)
 
     def rotate(self, angle: float, origin: TransformOrigin = "center") -> GeoSeries:
         """Returns a `GeoSeries` with rotated geometries.
@@ -200,7 +200,7 @@ class GeoRustSeries:
                 center (default), 'centroid' for the geometry's centroid, or a
                 coordinate tuple (x, y).
         """
-        return core.rotate(self, angle, origin)
+        return georust.rotate(self, angle, origin)
 
     def scale(
         self, xfact: float = 1.0, yfact: float = 1.0, origin: TransformOrigin = "center"
@@ -224,7 +224,7 @@ class GeoRustSeries:
             box center (default), 'centroid' for the geometry's 2D centroid
             or a coordinate tuple (x, y).
         """
-        return core.scale(self, xfact, yfact, origin)
+        return georust.scale(self, xfact, yfact, origin)
 
     def skew(
         self, xs: float = 0.0, ys: float = 0.0, origin: TransformOrigin = "center"
@@ -251,7 +251,7 @@ class GeoRustSeries:
             `GeoSeries` with skewed geometries.
         """
 
-        return core.skew(self, xs, ys, origin)
+        return georust.skew(self, xs, ys, origin)
 
     def distance(self, other: GeoSeries) -> GeoSeries:
         """Returns a Series containing the distance to aligned other.
@@ -269,7 +269,7 @@ class GeoRustSeries:
             GeoSeries containing the distance from each element to the element in `other`.
         """
 
-        return core.distance(self, other)
+        return georust.distance(self, other)
 
     def translate(self, xoff: float = 0.0, yoff: float = 0.0) -> GeoSeries:
         """Returns a `GeoSeries` with translated geometries.
@@ -285,7 +285,7 @@ class GeoRustSeries:
             xoff: Amount of offset along the x dimension.
             yoff: Amount of offset along the y dimension.
         """  # noqa (E501 link is longer than max line length)
-        return core.translate(self, xoff, yoff)
+        return georust.translate(self, xoff, yoff)
 
     @property
     def x(self) -> pl.Series:
@@ -299,7 +299,7 @@ class GeoRustSeries:
 
             Series with x values
         """
-        return core.x(self)
+        return georust.x(self)
 
     @property
     def y(self) -> pl.Series:
@@ -313,4 +313,4 @@ class GeoRustSeries:
 
             Series with y values
         """
-        return core.y(self)
+        return georust.y(self)
