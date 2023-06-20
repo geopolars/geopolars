@@ -35,7 +35,7 @@ class GeoRustSeries:
         Returns:
 
             New `GeoSeries` with translated geometries.
-        """  # noqa (E501 link is longer than max line length)
+        """
         # TODO: check if transform is an instance of Affine? Or add a test?
         # Since Affine is a namedtuple, will it *just work*?
         return core.affine_transform(self, matrix)
@@ -288,7 +288,7 @@ class GeoRustSeries:
 
             xoff: Amount of offset along the x dimension.
             yoff: Amount of offset along the y dimension.
-        """  # noqa (E501 link is longer than max line length)
+        """
         return core.translate(self, xoff, yoff)
 
     @property
