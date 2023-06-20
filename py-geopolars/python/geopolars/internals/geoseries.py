@@ -6,7 +6,7 @@ import polars as pl
 
 from geopolars import _geopolars as core
 from geopolars.enums import GeometryType
-from geopolars.internals.georust import GeoRustSeriesOperations
+from geopolars.internals.georust import GeoRustSeries
 from geopolars.internals.geos import GEOSSeriesOperations
 from geopolars.proj import PROJ_DATA_PATH
 
@@ -46,8 +46,8 @@ class GeoSeries(pl.Series):
 
     # TODO: these are named too similarly
     @property
-    def geo(self) -> GeoRustSeriesOperations:
-        return GeoRustSeriesOperations(series=self)
+    def geo(self) -> GeoRustSeries:
+        return GeoRustSeries(series=self)
 
     @property
     def geos(self) -> GEOSSeriesOperations:
