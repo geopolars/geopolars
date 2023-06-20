@@ -210,6 +210,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
+name = "c_vec"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdd7a427adc0135366d99db65b36dae9237130997e560ed61118041fb72be6e8"
+
+[[package]]
 name = "cc"
 version = "1.0.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -556,6 +562,7 @@ dependencies = [
  "anyhow",
  "arrow2",
  "geo",
+ "geos",
  "geozero",
  "rstar",
  "thiserror",
@@ -590,6 +597,7 @@ dependencies = [
  "geo",
  "geoarrow",
  "geopolars-geo",
+ "geopolars-geos",
  "geozero",
  "polars",
  "proj",
@@ -607,6 +615,40 @@ dependencies = [
  "polars",
  "proj",
  "thiserror",
+]
+
+[[package]]
+name = "geopolars-geos"
+version = "0.1.0-alpha.4"
+dependencies = [
+ "geoarrow",
+ "geos",
+ "polars",
+]
+
+[[package]]
+name = "geos"
+version = "8.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c82f7975ac793c4ebf6d48e58d1f30401587d97068cb3b8cc1da054590a1aacb"
+dependencies = [
+ "c_vec",
+ "geo-types",
+ "geos-sys",
+ "libc",
+ "num",
+ "wkt",
+]
+
+[[package]]
+name = "geos-sys"
+version = "2.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2d813c12b0d614852eca1e6381cdeab09d34c31113442219f6ea7c0cafb3859"
+dependencies = [
+ "libc",
+ "pkg-config",
+ "semver",
 ]
 
 [[package]]

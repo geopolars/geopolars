@@ -24,7 +24,7 @@ default = [
 
 proj = ["dep:proj", "geopolars-geo/proj"]
 bundled_proj = ["proj", "proj/bundled_proj"]
-geos = []
+geos = ["dep:geopolars-geos"]
 
 [dependencies]
 polars.workspace = true
