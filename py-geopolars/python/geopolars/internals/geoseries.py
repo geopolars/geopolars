@@ -234,11 +234,11 @@ class GeoSeries(pl.Series):
         Parameters:
 
             from_crs: Origin coordinate system. The value can be anything accepted
-                by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input], such as
-                an authority string (eg "EPSG:4326") or a WKT string.
+                by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input],
+                such as an authority string (eg "EPSG:4326") or a WKT string.
             to_crs: Destination coordinate system. The value can be anything accepted
-                by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input], such as
-                an authority string (eg "EPSG:4326") or a WKT string.
+                by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input],
+                such as an authority string (eg "EPSG:4326") or a WKT string.
 
         Returns:
 
