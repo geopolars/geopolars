@@ -10,8 +10,8 @@ env:
   PROJ_VERSION: "9.1.0"
 
 jobs:
-  build-wheel-manylinux-2-24:
-    name: "Build manylinux 2.24 wheels"
+  build-wheel-manylinux2014:
+    name: "Build manylinux2014 wheels"
     runs-on: ubuntu-latest
     container: quay.io/pypa/manylinux2014_x86_64
     defaults:
@@ -57,7 +57,9 @@ jobs:
         run: |
           source $HOME/.cargo/env
           export PATH="/opt/python/cp38-cp38/bin/:$PATH"
-          poetry run maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2_24 -o wheels --features proj
+          poetry run maturin build --release --strip --interpreter /opt/python/cp38-cp38/bin/python --manylinux 2014 -o wheels
+          # TODO: restore proj feature. Unclear why pkg-config isn't picking up the proj version we built above
+          # --features proj
 
       - name: List wheels
         run: find ./wheels
@@ -306,7 +308,7 @@ jobs:
   upload_pypi:
     needs:
       [
-        build-wheel-manylinux-2-24,
+        build-wheel-manylinux2014,
         build-wheel-mac-x86_64,
         build-wheel-mac-aarch64,
         build-wheel-windows,
