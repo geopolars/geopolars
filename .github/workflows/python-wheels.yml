@@ -13,7 +13,7 @@ jobs:
   build-wheel-manylinux-2-24:
     name: "Build manylinux 2.24 wheels"
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_24_x86_64
+    container: quay.io/pypa/manylinux2014_x86_64
     defaults:
       run:
         working-directory: py-geopolars
@@ -33,9 +33,7 @@ jobs:
           pip install -U pip
           pip install poetry
           poetry install
-          apt update
-          echo "after update"
-          apt install -y clang-7
+          yum update
 
       - name: Compile PROJ
         run: |
@@ -44,7 +42,6 @@ jobs:
           export PROJ_VERSION=${{ env.PROJ_VERSION }}
           export PKG_CONFIG_PATH="/project/pyproj/proj_dir/lib/pkgconfig/:$PKG_CONFIG_PATH"
           export PROJ_DIR=/project/pyproj/proj_dir
-          export MB_ML_VER=_2_24
 
           bash ./ci/proj-compile-wheels.sh
           find /project/pyproj/proj_dir
