@@ -34,6 +34,8 @@
   </a> -->
 </p>
 
+> Update (September 2023): Preparatory work for managing geospatial data in Apache Arrow memory is ongoing in [kylebarron/geoarrow-rs](https://github.com/kylebarron/geoarrow-rs). GeoPolars itself is likely to see development again in early 2024.
+
 ## Summary
 
 GeoPolars extends the [Polars][polars] DataFrame library for use with geospatial data.
