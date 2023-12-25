@@ -13,13 +13,11 @@ authors = ["Kyle Barron <kylebarron2@gmail.com>"]
 
 [workspace.dependencies]
 # Only the _minimal_ features to get polars to compile should be declared here
-polars = { version = "0.26", features = [
+polars = { version = "0.35", features = [
   "dtype-u8",
   "dtype-i8",
-  "dtype-binary",
   "dtype-struct",
   "ipc",
-  "private",
 ], default-features = false }
 thiserror = "1"
 geo = "0.23"

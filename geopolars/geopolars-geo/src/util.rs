@@ -37,7 +37,7 @@ pub(crate) fn iter_geom(series: &Series) -> impl Iterator<Item = Geometry<f64>> 
 }
 
 // This is a workaround hack because StructChunked::from_chunks doesn't exist
-pub(crate) fn struct_series_from_chunks(chunks: Vec<Box<dyn Array>>) -> Result<Series> {
+pub fn struct_series_from_chunks(chunks: Vec<Box<dyn Array>>) -> Result<Series> {
     let refs: Vec<&dyn Array> = chunks.iter().map(|chunk| chunk.as_ref()).collect();
     let output = concatenate(refs.as_slice()).unwrap();
     Ok(Series::try_from(("geometry", output))?)
@@ -46,7 +46,7 @@ pub(crate) fn struct_series_from_chunks(chunks: Vec<Box<dyn Array>>) -> Result<S
 // This is a temporary workaround instead of remembering when to call StructChunked::from_chunks,
 // ListChunked::from_chunks, and BinaryChunked::from_chunks depending on the geometry type of the
 // column returned from a generic operation like simplify
-pub(crate) fn series_from_any_chunks(chunks: Vec<Box<dyn Array>>) -> Result<Series> {
+pub fn series_from_any_chunks(chunks: Vec<Box<dyn Array>>) -> Result<Series> {
     let refs: Vec<&dyn Array> = chunks.iter().map(|chunk| chunk.as_ref()).collect();
     let output = concatenate(refs.as_slice()).unwrap();
     Ok(Series::try_from(("geometry", output))?)

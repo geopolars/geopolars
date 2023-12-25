@@ -15,7 +15,6 @@ rust-version = "1.60"
 
 [features]
 default = [
-  "polars/csv-file",
   "polars/dtype-slim",
   "polars/fmt",
   "polars/temporal",
