@@ -10,7 +10,7 @@ description = "GEOS backend for GeoPolars"
 [dependencies]
 polars.workspace = true
 geos = { version = "8", features = ["v3_10_0"] }
-geoarrow = { version = "0.0.1", git = "https://github.com/geopolars/geoarrow", features = ["geos"] }
+geoarrow = { git = "https://github.com/geoarrow/geoarrow-rs", features = ["geos"] }
 
 [dev-dependencies]
 geo.workspace = true
