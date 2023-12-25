@@ -34,15 +34,15 @@ geopolars-geo = { version = "0.1.0-alpha.4", path = "./geopolars-geo" }
 geopolars-geos = { version = "0.1.0-alpha.4", path = "./geopolars-geos", optional = true }
 geoarrow = { version = "0.0.1", git = "https://github.com/geopolars/geoarrow" }
 
-geozero = { version = "0.9.4", features = ["with-wkb"] }
-rstar = "0.9.3"
+geozero = { version = "0.11", features = ["with-wkb"] }
+rstar = "0.11"
 
 proj = { version = "0.27.0", optional = true, features = [
   "geo-types",
 ] }
 
 [dev-dependencies]
-criterion = { version = "0.4", features = ["html_reports"] }
+criterion = { version = "0.5", features = ["html_reports"] }
 
 # see: https://bheisler.github.io/criterion.rs/book/faq.html
 [lib]
