@@ -163,20 +163,24 @@ pub fn spatial_join(
 
     // Apply the suffixes if specified
     if let Some(suffix) = options.l_suffix {
-        lhs_with_index.get_columns_mut().iter_mut().for_each(|c| {
-            if c.name() != "lhs_index" {
-                c.rename(&format!("{}{}", c.name(), suffix));
-            }
-        });
+        unsafe { lhs_with_index.get_columns_mut() }
+            .iter_mut()
+            .for_each(|c| {
+                if c.name() != "lhs_index" {
+                    c.rename(&format!("{}{}", c.name(), suffix));
+                }
+            });
     };
 
     // Apply the suffixes if specified
     if let Some(suffix) = options.r_suffix {
-        rhs_with_index.get_columns_mut().iter_mut().for_each(|c| {
-            if c.name() != "rhs_index" {
-                c.rename(&format!("{}{}", c.name(), suffix));
-            }
-        });
+        unsafe { rhs_with_index.get_columns_mut() }
+            .iter_mut()
+            .for_each(|c| {
+                if c.name() != "rhs_index" {
+                    c.rename(&format!("{}{}", c.name(), suffix));
+                }
+            });
     };
 
     // Finish up the join

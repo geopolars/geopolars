@@ -3,8 +3,7 @@ use geozero::{wkb::Wkb, ToGeo};
 use polars::datatypes::{AnyValue, DataType};
 use polars::export::arrow::array::{ListArray, PrimitiveArray, StructArray};
 use polars::export::num;
-use polars::prelude::{PolarsError, PolarsResult, Series};
-use std::convert::Into;
+use polars::prelude::{PolarsResult, Series};
 
 // TODO: the rest of the code here can probably be removed
 pub enum GeoArrowType {
@@ -45,7 +44,7 @@ pub fn geom_at_index(series: &Series, index: usize) -> PolarsResult<Geometry<f64
 fn geom_at_index_wkb(series: &Series, index: usize) -> PolarsResult<Geometry<f64>> {
     let buffer = match series.get(index) {
         Ok(AnyValue::Binary(buf)) => buf,
-        _ => return Err(PolarsError::SchemaMisMatch("".into())),
+        _ => panic!(),
     };
 
     let geom = Wkb(buffer.to_vec())
