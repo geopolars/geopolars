@@ -34,7 +34,7 @@
   </a> -->
 </p>
 
-> Update (September 2023): Preparatory work for managing geospatial data in Apache Arrow memory is ongoing in [kylebarron/geoarrow-rs](https://github.com/kylebarron/geoarrow-rs). GeoPolars itself is likely to see development again in early 2024.
+> Update (July 2024): GeoPolars is [blocked](https://github.com/pola-rs/polars/issues/1830#issuecomment-2218102856) on Polars supporting [Arrow extension types](https://github.com/pola-rs/polars/issues/9112), which would allow GeoPolars to persist geometry type information and coordinate reference system (CRS) metadata. The primary workaround would be subclassing `polars.DataFrame`, similar to how the `geopandas.GeoDataFrame` is a subclass of `pandas.DataFrame`, but this requires a high maintenance burden and wouldn't work with polars' `LazyFrame`.
 
 ## Summary
 
