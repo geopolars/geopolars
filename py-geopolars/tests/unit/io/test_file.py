@@ -1,13 +1,11 @@
-import geopandas
-import geopandas.datasets
+import geodatasets
 
 import geopolars as gpl
 
 
 class TestReadFile:
     def test_read_file_geopandas_ne_cities(self):
-        path = geopandas.datasets.get_path("naturalearth_cities")
+        path = geodatasets.get_path("nybb")
         gdf = gpl.read_file(path)
-        # dataset size depends on version of geopandas
-        assert len(gdf) > 200
+        assert len(gdf) == 5
         assert isinstance(gdf, gpl.GeoDataFrame)

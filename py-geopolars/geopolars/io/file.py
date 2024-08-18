@@ -88,7 +88,7 @@ def read_file(
 
         A GeoPolars GeoDataFrame or Polars DataFrame
     """
-    metadata, table = open_arrow(
+    with open_arrow(
         path_or_buffer,
         layer=layer,
         encoding=encoding,
@@ -104,5 +104,6 @@ def read_file(
         sql_dialect=sql_dialect,
         return_fids=return_fids,
         use_pyarrow=False,
-    )
-    return GeoDataFrame(table)
+    ) as source:
+        metadata, stream = source
+        return GeoDataFrame(stream)
