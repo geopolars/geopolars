@@ -86,26 +86,22 @@ description = "Geospatial extensions for Polars"
 authors = ["Kyle Barron"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 # Runtime dependencies must also be declared in [project] for maturin
 
-# Minimum version with binary dtype
-polars = ">=0.14.19"
-pyarrow = ">=4"
+polars = "^1.3"
+arro3-core = "^0.2.1"
 numpy = ">=1.16.0"
 importlib_resources = { version = "*", python = "<3.11" }
-# For easy interop with geoarrow
-shapely = "^2"
-pyogrio = "^0.6"
-geopandas = "^0.13.2"
 
 # TODO: create separate docs group
+arro3-compute = "^0.2.1"
 [tool.poetry.group.dev.dependencies]
 # Docs
 mkdocs = "^1.4.3"
 mkdocs-material = "^9.1.16"
 mike = "^1.1.2"
-mkdocstrings = {version = "^0.22.0", extras = ["python"]}
+mkdocstrings = { version = "^0.22.0", extras = ["python"] }
 pillow = "^9.5.0"
 cairosvg = "^2.7.0"
 
@@ -114,12 +110,20 @@ maturin = "^1.1.0"
 pytest = "^7.3.2"
 mypy = "^1.3.0"
 black = "^23.3.0"
-# Pinned to match pre-commit
-ruff = "0.0.272"
+
+ruff = ">=0.6.1"
 pandas-stubs = "^2.0.2.230605"
 poethepoet = "^0.20.0"
 # Ipython has had issues with autocompletions in later releases
 ipython = "8.8.0"
+
+shapely = "^2"
+pyogrio = ">=0.9"
+geopandas = "^1"
+ipykernel = "^6.29.5"
+pyarrow = "^17.0.0"
+geoarrow-types = "^0.2.0"
+geoarrow-pyarrow = "^0.1.2"
 
 
 [tool.ruff]

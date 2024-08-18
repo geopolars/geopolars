@@ -1,143 +1,115 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import json
+from typing import TYPE_CHECKING, Any
 
 import polars as pl
+from arro3.core import Array, ChunkedArray, Field, Table
 
-from geopolars import _geopolars
-from geopolars.enums import GeometryType
-from geopolars.internals.georust import GeoRustSeries
-from geopolars.internals.geos import GEOSSeriesOperations
-from geopolars.proj import PROJ_DATA_PATH
-
-try:
-    import geopandas
-except ImportError:
-    geopandas = None
-
-try:
-    import pyarrow
-except ImportError:
-    pyarrow = None
-
-try:
-    import shapely
-except ImportError:
-    shapely = None
+from geopolars.internals.base import SeriesWrapper
+from geopolars.internals.enums import GeoArrowExtensionName
+from geopolars.internals.georust.geoseries import GeoRustSeries
+from geopolars.proj.reproject import reproject_column
 
 if TYPE_CHECKING:
     import geopandas
     import pyproj
+    from polars.series.series import ArrayLike
+
+import geoarrow.pyarrow
+import numpy as np
+import pyarrow as pa
+
+geoarrow.pyarrow.register_extension_types()
+
+x = np.arange(0, 4, dtype=np.float64)
+y = np.arange(4, 8, dtype=np.float64)
+arr = pa.StructArray.from_arrays([x, y], ["x", "y"])
+s = pl.Series(arr)
+arr2 = pa.array(s)
+arr2.type
 
 
 class GeoSeries(pl.Series):
     """Extension of `polars.Series` to handle geospatial vector data."""
 
-    _geom_type: GeometryType | None
+    geoarrow_type: GeoArrowExtensionName
+    geoarrow_metadata: dict[str, str]
 
-    def __init__(self, *args, _geom_type: GeometryType | None = None, **kwargs):
-        self._geom_type = _geom_type
+    def __init__(
+        self,
+        name: str | ArrayLike | None = None,
+        values: ArrayLike | None = None,
+        *args,
+        ga_type: GeoArrowExtensionName | None = None,
+        ga_meta: dict[str, str] | None = None,
+        **kwargs,
+    ):
+        # The GeoSeries constructor has a bunch of overloads. In particular, either name
+        # or value can hold the actual data input.
 
-        if isinstance(args[0], pl.Series):
-            self._s = args[0]._s
-            return
+        # First check for __arrow_c_stream__ and then check for __arrow_c_array__ to
+        # make absolutely sure that the source is not rechunking to a contiguous array
+        if hasattr(name, "__arrow_c_stream__"):
+            name = ChunkedArray.from_arrow(name)
+            extracted_ga_type, extracted_ga_meta = _extract_geoarrow_metadata(
+                name.field.metadata_str
+            )
+            name = _remove_chunked_array_field_metadata(name)
 
-        super().__init__(*args, **kwargs)
+        elif hasattr(values, "__arrow_c_stream__"):
+            values = ChunkedArray.from_arrow(values)
+            extracted_ga_type, extracted_ga_meta = _extract_geoarrow_metadata(
+                values.field.metadata_str
+            )
+            values = _remove_chunked_array_field_metadata(values)
 
-    # TODO: these are named too similarly
-    @property
-    def geo(self) -> GeoRustSeries:
-        return GeoRustSeries(series=self)
+        elif hasattr(name, "__arrow_c_array__"):
+            raise NotImplementedError()
+            name = Array.from_arrow(name)
+            extracted_ga_type, extracted_ga_meta = _extract_geoarrow_metadata(
+                name.field.metadata_str
+            )
 
-    @property
-    def geos(self) -> GEOSSeriesOperations:
-        return GEOSSeriesOperations(series=self)
+        elif hasattr(values, "__arrow_c_array__"):
+            raise NotImplementedError()
+        else:
+            extracted_ga_type = None
+            extracted_ga_meta = None
+
+        geoarrow_type = ga_type if ga_type is not None else extracted_ga_type
+        if geoarrow_type is None:
+            raise ValueError("Must pass `ga_type` for non-geoarrow input.")
+        self.geoarrow_type = geoarrow_type
+        self.geoarrow_metadata = (
+            ga_meta if ga_meta is not None else extracted_ga_meta or {}
+        )
+
+        super().__init__(name, values, *args, **kwargs)
+
+        # TODO: Validate input for the given types
+        # (at least when passed in by user)
+
+    def __arrow_c_stream__(self, requested_schema: object | None = None) -> object:
+        """
+        Export a Series via the Arrow PyCapsule Interface.
+
+        https://arrow.apache.org/docs/dev/format/CDataInterface/PyCapsuleInterface.html
+        """
+        sw = SeriesWrapper(
+            s=self,
+            geoarrow_type=self.geoarrow_type,
+            geoarrow_metadata=self.geoarrow_metadata,
+        )
+        return sw.__arrow_c_stream__(requested_schema)
 
     @classmethod
-    def _from_geopandas(cls, geoseries: geopandas.GeoSeries, force_wkb: bool):
-        if geopandas is None:
-            raise ImportError("Geopandas is required when using from_geopandas().")
+    def from_geopandas(cls, data: geopandas.GeoSeries):
+        if not hasattr(data, "to_arrow"):
+            raise ValueError("geopandas 1.0 or higher required")
 
-        if pyarrow is None:
-            raise ImportError("Pyarrow is required when using from_geopandas().")
-
-        if shapely is None or shapely.__version__[0] != "2":
-            raise ImportError(
-                "Shapely version 2 is required when using from_geopandas()."
-            )
-
-        import numpy as np
-
-        if len(np.unique(shapely.get_type_id(geoseries))) != 1:
-            print("Multiple geometry types: falling back to WKB encoding")
-            force_wkb = True
-
-        if force_wkb:
-            wkb_arrow_array = pyarrow.Array.from_pandas(geoseries.to_wkb())
-            polars_series = pl.Series._from_arrow(
-                geoseries.name or "geometry", wkb_arrow_array
-            )
-            return cls(polars_series, _geom_type=GeometryType.MISSING)
-
-        geom_type, coords, offsets = shapely.to_ragged_array(geoseries, include_z=False)
-
-        # From https://github.com/jorisvandenbossche/python-geoarrow/blob/80b76e74e0492a8f0914ed5331155154d0776593/src/geoarrow/extension_types.py#LL135-L172 # noqa E501
-        # In the future restore extension array type?
-        if geom_type == shapely.GeometryType.POINT:
-            parr = pyarrow.StructArray.from_arrays(
-                [coords[:, 0], coords[:, 1]], ["x", "y"]
-            )
-            return cls(parr, _geom_type=GeometryType.POINT)
-
-        elif geom_type == shapely.GeometryType.LINESTRING:
-            offsets1 = offsets[0]
-            _parr = pyarrow.StructArray.from_arrays(
-                [coords[:, 0], coords[:, 1]], ["x", "y"]
-            )
-            parr = pyarrow.ListArray.from_arrays(pyarrow.array(offsets1), _parr)
-            return cls(parr, _geom_type=GeometryType.LINESTRING)
-
-        elif geom_type == shapely.GeometryType.POLYGON:
-            offsets1, offsets2 = offsets
-            _parr = pyarrow.StructArray.from_arrays(
-                [coords[:, 0], coords[:, 1]], ["x", "y"]
-            )
-            _parr1 = pyarrow.ListArray.from_arrays(pyarrow.array(offsets1), _parr)
-            parr = pyarrow.ListArray.from_arrays(pyarrow.array(offsets2), _parr1)
-            return cls(parr, _geom_type=GeometryType.POLYGON)
-
-        elif geom_type == shapely.GeometryType.MULTIPOINT:
-            raise NotImplementedError("Multi types not yet supported")
-
-            _parr = pyarrow.StructArray.from_arrays(
-                [coords[:, 0], coords[:, 1]], ["x", "y"]
-            )
-            parr = pyarrow.ListArray.from_arrays(pyarrow.array(offsets), _parr)
-            return geom_type, parr
-
-        elif geom_type == shapely.GeometryType.MULTILINESTRING:
-            raise NotImplementedError("Multi types not yet supported")
-            offsets1, offsets2 = offsets
-            _parr = pyarrow.StructArray.from_arrays(
-                [coords[:, 0], coords[:, 1]], ["x", "y"]
-            )
-            _parr1 = pyarrow.ListArray.from_arrays(pyarrow.array(offsets1), _parr)
-            parr = pyarrow.ListArray.from_arrays(pyarrow.array(offsets2), _parr1)
-            return geom_type, parr
-
-        elif geom_type == shapely.GeometryType.MULTIPOLYGON:
-            raise NotImplementedError("Multi types not yet supported")
-
-            offsets1, offsets2, offsets3 = offsets
-            _parr = pyarrow.StructArray.from_arrays(
-                [coords[:, 0], coords[:, 1]], ["x", "y"]
-            )
-            _parr1 = pyarrow.ListArray.from_arrays(pyarrow.array(offsets1), _parr)
-            _parr2 = pyarrow.ListArray.from_arrays(pyarrow.array(offsets2), _parr1)
-            parr = pyarrow.ListArray.from_arrays(pyarrow.array(offsets3), _parr2)
-            return geom_type, parr
-        else:
-            raise ValueError("wrong type ", geom_type)
+        arrow_array = data.to_arrow(geometry_encoding="geoarrow")
+        return cls(arrow_array)
 
     def to_geopandas(self) -> geopandas.GeoSeries:
         """Converts this `GeoSeries` to a [`geopandas.GeoSeries`][geopandas.GeoSeries].
@@ -149,81 +121,60 @@ class GeoSeries(pl.Series):
 
             This `GeoSeries` as a `geopandas.GeoSeries`.
         """
-        if geopandas is None:
+        try:
+            import geopandas
+        except ImportError:
             raise ImportError("Geopandas is required when using to_geopandas().")
 
-        import numpy as np
+        if not hasattr(geopandas.GeoSeries, "from_arrow"):
+            raise ValueError("geopandas 1.0 or higher required")
 
-        pyarrow_array = self.to_arrow()
-        if not self._geom_type or pyarrow_array.type == pyarrow.binary():
-            numpy_array = pyarrow_array.to_numpy(zero_copy_only=False)
-            # Ideally we shouldn't need the cast to numpy, but the pyarrow BinaryScalar
-            # hasn't implemented len()
-            return geopandas.GeoSeries(geopandas.array.from_wkb(numpy_array))
+        return geopandas.GeoSeries.from_arrow(self)
 
-        def geoarrow_coords_to_numpy(struct_array: pyarrow.StructArray):
-            x_coords = struct_array.field("x").to_numpy()
-            y_coords = struct_array.field("y").to_numpy()
-            return np.vstack([x_coords, y_coords]).T
+    def crs(self) -> pyproj.CRS | None:
+        crs_obj = self.geoarrow_metadata.get("crs")
+        return pyproj.CRS.from_user_input(crs_obj) if crs_obj is not None else None
 
-        # Assume it's a geoarrow column
-        if self._geom_type == GeometryType.POINT:
-            coords = geoarrow_coords_to_numpy(pyarrow_array)
-            return shapely.from_ragged_array(shapely.GeometryType.POINT, coords, None)
+    @property
+    def geo(self) -> GeoRustSeries:
+        sw = SeriesWrapper(
+            s=self,
+            geoarrow_type=self.geoarrow_type,
+            geoarrow_metadata=self.geoarrow_metadata,
+        )
+        return GeoRustSeries(s=sw)
 
-        elif self._geom_type == GeometryType.LINESTRING:
-            coords = geoarrow_coords_to_numpy(pyarrow_array.values)
-            offsets = np.asarray(pyarrow_array.offsets)
-            return shapely.from_ragged_array(
-                shapely.GeometryType.LINESTRING, coords, offsets
-            )
+    # @property
+    # def geos(self) -> GEOSSeriesOperations:
+    #     return GEOSSeriesOperations(series=self)
 
-        elif self._geom_type == GeometryType.POLYGON:
-            coords = geoarrow_coords_to_numpy(pyarrow_array.values.values)
-            offsets2 = np.asarray(pyarrow_array.offsets)
-            offsets1 = np.asarray(pyarrow_array.values.offsets)
-            offsets = (offsets1, offsets2)  # type: ignore
-            return shapely.from_ragged_array(
-                shapely.GeometryType.POLYGON, coords, offsets
-            )
-
-        elif self._geom_type == GeometryType.MULTIPOINT:
-            coords = geoarrow_coords_to_numpy(pyarrow_array.values)
-            offsets = np.asarray(pyarrow_array.offsets)
-            return shapely.from_ragged_array(
-                shapely.GeometryType.MULTIPOINT, coords, offsets
-            )
-
-        elif self._geom_type == GeometryType.MULTILINESTRING:
-            coords = geoarrow_coords_to_numpy(pyarrow_array.values.values)
-            offsets2 = np.asarray(pyarrow_array.offsets)
-            offsets1 = np.asarray(pyarrow_array.values.offsets)
-            offsets = (offsets1, offsets2)  # type: ignore
-            return shapely.from_ragged_array(
-                shapely.GeometryType.MULTILINESTRING, coords, offsets
-            )
-
-        elif self._geom_type == GeometryType.MULTIPOLYGON:
-            coords = geoarrow_coords_to_numpy(pyarrow_array.values.values.values)
-            offsets3 = np.asarray(pyarrow_array.offsets)
-            offsets2 = np.asarray(pyarrow_array.values.offsets)
-            offsets1 = np.asarray(pyarrow_array.values.values.offsets)
-            offsets = (offsets1, offsets2, offsets3)  # type: ignore
-            return shapely.from_ragged_array(
-                shapely.GeometryType.MULTIPOLYGON, coords, offsets
-            )
-
-        raise ValueError()
-
-    def to_crs(
-        self, from_crs: str | pyproj.crs.CRS, to_crs: str | pyproj.crs.CRS
+    def set_crs(
+        self,
+        crs: Any | None = None,
+        epsg: int | None = None,
     ) -> GeoSeries:
+        from pyproj import CRS
+
+        if isinstance(crs, pyproj.CRS):
+            crs_obj = crs
+        elif crs is not None:
+            crs_obj = CRS.from_user_input(crs)
+        elif epsg is not None:
+            crs_obj = CRS.from_epsg(epsg)
+        else:
+            raise ValueError("Either crs or epsg must be provided")
+
+        naive_series = pl.Series._from_pyseries(self._s)
+
+        ga_meta = self.geoarrow_metadata.copy()
+        ga_meta["crs"] = crs_obj.to_json()
+
+        return GeoSeries(naive_series, ga_type=self.geoarrow_type, ga_meta=ga_meta)
+
+    def to_crs(self, to_crs: Any | pyproj.CRS) -> GeoSeries:
         """
         Transform all geometries in a GeoSeries to a different coordinate
         reference system.
-
-        For now, you must pass in both ``from_crs`` and ``to_crs``. In the future, we'll
-        handle the current CRS automatically.
 
         This method will transform all points in all objects.  It has no notion
         of projecting entire geometries.  All segments joining points are
@@ -233,9 +184,6 @@ class GeoSeries(pl.Series):
 
         Parameters:
 
-            from_crs: Origin coordinate system. The value can be anything accepted
-                by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input],
-                such as an authority string (eg "EPSG:4326") or a WKT string.
             to_crs: Destination coordinate system. The value can be anything accepted
                 by [`pyproj.CRS.from_user_input()`][pyproj.crs.CRS.from_user_input],
                 such as an authority string (eg "EPSG:4326") or a WKT string.
@@ -245,19 +193,49 @@ class GeoSeries(pl.Series):
             A `GeoSeries` with all geometries transformed to a new coordinate reference
                 system.
         """
+        from pyproj import CRS
 
-        if not hasattr(_geopolars.proj, "to_crs"):
-            # TODO: use a custom geopolars exception class here
-            raise ValueError("Geopolars not built with proj support")
+        to_crs_obj = CRS.from_user_input(to_crs)
+        ca = ChunkedArray.from_arrow(self)
+        out_field, out_ca = reproject_column(
+            field=ca.field, column=ca, to_crs=to_crs_obj
+        )
+        return GeoSeries(ChunkedArray(out_ca.chunks, out_field))
 
-        if not PROJ_DATA_PATH:
-            raise ValueError("PROJ_DATA could not be found.")
 
-        # If pyproj.CRS objects are passed in, serialize them to PROJJSON
-        if not isinstance(from_crs, str) and hasattr(from_crs, "to_json"):
-            from_crs = from_crs.to_json()
+def _extract_geoarrow_metadata(
+    meta: dict[str, str],
+) -> tuple[GeoArrowExtensionName | None, dict[str, str] | None]:
+    ext_name = meta.get("ARROW:extension:name")
+    ga_type = GeoArrowExtensionName(ext_name) if ext_name is not None else None
+    ga_meta_str = meta.get("ARROW:extension:metadata")
+    ga_meta = json.loads(ga_meta_str) if ga_meta_str is not None else None
+    return ga_type, ga_meta
 
-        if not isinstance(to_crs, str) and hasattr(to_crs, "to_json"):
-            to_crs = to_crs.to_json()
 
-        return _geopolars.proj.to_crs(self, from_crs, to_crs, PROJ_DATA_PATH)
+def _remove_chunked_array_field_metadata(ca: ChunkedArray) -> ChunkedArray:
+    if "ARROW:extension:name" not in ca.field.metadata_str:
+        return ca
+
+    # Workaround for
+    # PanicException: assertion failed: !self.name.is_null()
+    field = Field("", ca.type)
+    return ChunkedArray(ca.chunks, field)
+
+
+def _remove_array_field_metadata(arr: Array) -> Array:
+    if "ARROW:extension:name" not in arr.field.metadata_str:
+        return arr
+
+    # Workaround for
+    # PanicException: assertion failed: !self.name.is_null()
+    field = Field("", ca.type)
+    return Array(arr, field)
+
+
+name = s.to_arrow()
+self = GeoSeries(s, ga_type=GeoArrowExtensionName.POINT)
+ca = ChunkedArray.from_arrow(self)
+GeoSeries(ca)
+
+self[0]
