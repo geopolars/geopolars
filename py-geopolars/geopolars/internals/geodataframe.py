@@ -44,6 +44,10 @@ class GeoDataFrame(pl.DataFrame):
         ga_col_meta: dict[str, dict[str, str]] | None = None,
         **kwargs,
     ):
+        # Temporary workaround because arro3 doesn't support view types yet
+        if isinstance(data, pl.DataFrame):
+            data = data.to_arrow()
+
         if hasattr(data, "__arrow_c_stream__"):
             table = Table.from_arrow(data)
             extracted_column_types, extracted_column_metadata = (
@@ -72,6 +76,9 @@ class GeoDataFrame(pl.DataFrame):
         # (at least when passed in by user)
 
     def __arrow_c_stream__(self, requested_schema: object | None = None) -> object:
+        # Temporary workaround because arro3 doesn't support view types yet
+        return self.to_arrow().__arrow_c_stream__(requested_schema)
+
         table = Table.from_arrow(super())
         table = self._add_geoarrow_metadata_to_table(table)
         return table.__arrow_c_stream__(requested_schema)

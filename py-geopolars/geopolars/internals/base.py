@@ -19,7 +19,7 @@ class SeriesWrapper:
 
         https://arrow.apache.org/docs/dev/format/CDataInterface/PyCapsuleInterface.html
         """
-        ca = ChunkedArray.from_arrow(self.s)
+        ca = ChunkedArray.from_arrow(self.s.to_arrow())
         metadata: dict[str, str] = {
             "ARROW:extension:name": self.geoarrow_type,
         }

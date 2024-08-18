@@ -13,6 +13,7 @@ from geopolars.proj.reproject import reproject_column
 
 if TYPE_CHECKING:
     import geopandas
+    import pyarrow
     import pyproj
     from polars.series.series import ArrayLike
 
@@ -45,6 +46,12 @@ class GeoSeries(pl.Series):
         ga_meta: dict[str, str] | None = None,
         **kwargs,
     ):
+        # Temporary workaround because arro3 doesn't support view types yet
+        if isinstance(name, pl.Series):
+            name = ChunkedArray.from_arrow(name.to_arrow())
+        if isinstance(values, pl.Series):
+            values = ChunkedArray.from_arrow(values.to_arrow())
+
         # The GeoSeries constructor has a bunch of overloads. In particular, either name
         # or value can hold the actual data input.
 
@@ -102,6 +109,11 @@ class GeoSeries(pl.Series):
             geoarrow_metadata=self.geoarrow_metadata,
         )
         return sw.__arrow_c_stream__(requested_schema)
+
+    def to_arrow(self, *args, **kwargs) -> pyarrow.Array:
+        import pyarrow
+
+        return pyarrow.array(self)
 
     @classmethod
     def from_geopandas(cls, data: geopandas.GeoSeries):
