@@ -34,7 +34,7 @@
   </a> -->
 </p>
 
-> Update (July 2024): GeoPolars is [blocked](https://github.com/pola-rs/polars/issues/1830#issuecomment-2218102856) on Polars supporting [Arrow extension types](https://github.com/pola-rs/polars/issues/9112), which would allow GeoPolars to persist geometry type information and coordinate reference system (CRS) metadata. The primary workaround would be subclassing `polars.DataFrame`, similar to how the `geopandas.GeoDataFrame` is a subclass of `pandas.DataFrame`, but this requires a high maintenance burden and wouldn't work with polars' `LazyFrame`.
+> Update (July 2024): GeoPolars is [blocked](https://github.com/pola-rs/polars/issues/1830#issuecomment-2218102856) on Polars supporting [Arrow extension types](https://github.com/pola-rs/polars/issues/9112), which would allow GeoPolars to persist geometry type information and coordinate reference system (CRS) metadata. It's not feasible to create a `geopolars.GeoDataFrame` as a subclass of a `polars.DataFrame` (similar to how the `geopandas.GeoDataFrame` is a subclass of `pandas.DataFrame`) because polars explicitly [does not support subclassing of core data types](https://github.com/pola-rs/polars/issues/2846#issuecomment-1711799869). See https://github.com/geopolars/geopolars/pull/240.
 
 ## Summary
 
