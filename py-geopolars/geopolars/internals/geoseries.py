@@ -4,7 +4,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 import polars as pl
-from arro3.core import Array, ChunkedArray, Field, Table
+from arro3.core import Array, ChunkedArray, Field
 
 from geopolars.internals.base import SeriesWrapper
 from geopolars.internals.enums import GeoArrowExtensionName
@@ -16,18 +16,18 @@ if TYPE_CHECKING:
     import pyproj
     from polars.series.series import ArrayLike
 
-import geoarrow.pyarrow
-import numpy as np
-import pyarrow as pa
+# import geoarrow.pyarrow
+# import numpy as np
+# import pyarrow as pa
 
-geoarrow.pyarrow.register_extension_types()
+# geoarrow.pyarrow.register_extension_types()
 
-x = np.arange(0, 4, dtype=np.float64)
-y = np.arange(4, 8, dtype=np.float64)
-arr = pa.StructArray.from_arrays([x, y], ["x", "y"])
-s = pl.Series(arr)
-arr2 = pa.array(s)
-arr2.type
+# x = np.arange(0, 4, dtype=np.float64)
+# y = np.arange(4, 8, dtype=np.float64)
+# arr = pa.StructArray.from_arrays([x, y], ["x", "y"])
+# s = pl.Series(arr)
+# arr2 = pa.array(s)
+# arr2.type
 
 
 class GeoSeries(pl.Series):
@@ -231,11 +231,3 @@ def _remove_array_field_metadata(arr: Array) -> Array:
     # PanicException: assertion failed: !self.name.is_null()
     field = Field("", ca.type)
     return Array(arr, field)
-
-
-name = s.to_arrow()
-self = GeoSeries(s, ga_type=GeoArrowExtensionName.POINT)
-ca = ChunkedArray.from_arrow(self)
-GeoSeries(ca)
-
-self[0]

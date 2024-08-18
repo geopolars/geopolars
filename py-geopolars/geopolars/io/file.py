@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
-import polars as pl
-from polars import DataFrame
-from pyogrio.raw import read_arrow as _read_arrow
+from pyogrio import open_arrow
 
 from geopolars.internals.geodataframe import GeoDataFrame
 
@@ -28,7 +26,7 @@ def read_file(
     sql=None,
     sql_dialect=None,
     return_fids=False,
-) -> DataFrame | GeoDataFrame:
+) -> GeoDataFrame:
     """Read OGR data source into numpy arrays.
 
     IMPORTANT: non-linear geometry types (e.g., MultiSurface) are converted
@@ -90,7 +88,7 @@ def read_file(
 
         A GeoPolars GeoDataFrame or Polars DataFrame
     """
-    metadata, table = _read_arrow(
+    metadata, table = open_arrow(
         path_or_buffer,
         layer=layer,
         encoding=encoding,
@@ -105,15 +103,6 @@ def read_file(
         sql=sql,
         sql_dialect=sql_dialect,
         return_fids=return_fids,
+        use_pyarrow=False,
     )
-    # TODO: check for metadata['geometry_type'] not Unknown for whether to cast to
-    # geoarrow
-
-    geometry_name = metadata["geometry_name"] or "wkb_geometry"
-    # Note: we're passing in a pyarrow.Table so the result will always be a
-    # DataFrame, not series
-    df = cast(DataFrame, pl.from_arrow(table))
-    if geometry_name not in table.column_names:
-        return df
-
-    return GeoDataFrame(df)
+    return GeoDataFrame(table)

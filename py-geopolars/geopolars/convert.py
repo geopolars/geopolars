@@ -8,22 +8,6 @@ from polars import DataFrame, Series
 from geopolars.internals.geodataframe import GeoDataFrame
 from geopolars.internals.geoseries import GeoSeries
 
-try:
-    import geopandas
-except ImportError:
-    geopandas = None
-
-try:
-    import pyarrow
-except ImportError:
-    pyarrow = None
-
-try:
-    import shapely
-except ImportError:
-    shapely = None
-
-
 if TYPE_CHECKING:  # pragma: no cover
     import geopandas
     import pandas
@@ -61,7 +45,6 @@ def from_geopandas(
     | geopandas.GeoSeries
     | pandas.DataFrame
     | pandas.Series,
-    force_wkb: bool = True,
 ) -> GeoDataFrame | GeoSeries | DataFrame | Series:
     """
     Construct a GeoPolars `GeoDataFrame` or `GeoSeries` from a
@@ -80,15 +63,17 @@ def from_geopandas(
 
         A GeoPolars `GeoDataFrame` or `GeoSeries`
     """
-    if geopandas is None:
+    try:
+        import geopandas
+    except ImportError:
         raise ImportError("Geopandas is required when using from_geopandas().")
 
     import pandas
 
     if isinstance(gdf, geopandas.GeoSeries):
-        return GeoSeries._from_geopandas(gdf, force_wkb=force_wkb)
+        return GeoSeries.from_geopandas(gdf)
     elif isinstance(gdf, geopandas.GeoDataFrame):
-        return GeoDataFrame._from_geopandas(gdf, force_wkb=force_wkb)
+        return GeoDataFrame.from_geopandas(gdf)
     elif isinstance(gdf, (pandas.DataFrame, pandas.Series)):
         return pl.from_pandas(gdf)
     else:

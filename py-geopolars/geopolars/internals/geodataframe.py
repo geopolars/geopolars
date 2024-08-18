@@ -11,23 +11,25 @@ from geopolars.internals.geoseries import GeoSeries
 
 if TYPE_CHECKING:
     import geopandas
+    import pyarrow
     from polars._typing import FrameInitTypes
 
 
-class Subclass(pl.DataFrame):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+# df = pl.DataFrame({"a": [1, 2, 3, 4]})
+# sdf = Subclass(df)
+# t = Table.from_arrow(sdf)
 
-    def __arrow_c_stream__(self, requested_schema: object | None = None) -> object:
-        print("__arrow_c_stream__")
-        x = Table.from_arrow(super())
-        return x.__arrow_c_stream__(requested_schema)
-        # return super().__arrow_c_stream__(requested_schema)
+# import geodatasets
+# import geopandas as gpd
 
+# gdf = gpd.read_file(geodatasets.get_path("nybb"))
 
-df = pl.DataFrame({"a": [1, 2, 3, 4]})
-sdf = Subclass(df)
-t = Table.from_arrow(sdf)
+# gdf2 = GeoDataFrame.from_geopandas(gdf)
+# gdf2.column_metadata
+
+# pa_table = gdf2.to_arrow()
+# pa_table.schema
+# table = Table.from_arrow(gdf2)
 
 
 class GeoDataFrame(pl.DataFrame):
@@ -71,7 +73,19 @@ class GeoDataFrame(pl.DataFrame):
 
     def __arrow_c_stream__(self, requested_schema: object | None = None) -> object:
         table = Table.from_arrow(super())
+        table = self._add_geoarrow_metadata_to_table(table)
+        return table.__arrow_c_stream__(requested_schema)
 
+    def to_arrow(self, *args, **kwargs) -> pyarrow.Table:
+        import pyarrow
+
+        pa_table = super().to_arrow(*args, **kwargs)
+        table = Table.from_arrow(pa_table)
+        table = self._add_geoarrow_metadata_to_table(table)
+
+        return pyarrow.table(table)
+
+    def _add_geoarrow_metadata_to_table(self, table: Table) -> Table:
         new_fields: list[Field] = []
         schema = table.schema
         for field_idx in range(len(schema)):
@@ -92,7 +106,7 @@ class GeoDataFrame(pl.DataFrame):
             new_fields.append(field.with_metadata(metadata))
 
         new_schema = Schema(new_fields, metadata=schema.metadata)
-        return table.with_schema(new_schema).__arrow_c_stream__(requested_schema)
+        return table.with_schema(new_schema)
 
     def geometry(self, name: str | None = None):
         if name is None:
