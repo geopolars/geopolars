@@ -1,6 +1,91 @@
 [build-system]
-requires = ["maturin>=1,<2"]
-build-backend = "maturin"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "geopolars"
+version = "0.1.0-alpha.4"
+description = "Geospatial extensions for Polars"
+authors = ["Kyle Barron"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "geopolars" }]
+repository = "https://github.com/geopolars/geopolars"
+documentation = "https://geopolars.org/lonboard/latest/"
+keywords = ["GIS"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+polars = "^1.3"
+arro3-core = "^0.2.1"
+arro3-compute = "^0.2.1"
+
+
+[tool.poetry.extras]
+cli = ["click", "pyogrio", "shapely"]
+geopandas = ["geopandas", "pandas", "shapely"]
+
+[tool.poetry.group.dev.dependencies]
+ruff = ">=0.6.1"
+shapely = "^2"
+pyogrio = ">=0.9"
+geopandas = "^1"
+ipykernel = "^6.29.5"
+pyarrow = "^17.0.0"
+geoarrow-types = "^0.2.0"
+geoarrow-pyarrow = "^0.1.2"
+
+pre-commit = "^3.4.0"
+pytest = "^7.4.2"
+geoarrow-rust-core = "^0.2.0"
+geodatasets = "^2023.12.0"
+duckdb = "^0.10.2"
+
+[tool.poetry.group.docs.dependencies]
+# We use ruff format ourselves, but mkdocstrings requires black to be installed
+# to format signatures in the docs
+black = "^23.10.1"
+griffe-inherited-docstrings = "^1.0.0"
+mkdocs = "^1.4.3"
+mkdocs-material = { version = "^9.5", extras = ["imaging"] }
+mkdocstrings = { version = "^0.25.1", extras = ["python"] }
+# This version only on 3.9+. Ok because it's a dev dependency
+mkdocs-jupyter = { version = "^0.24.5", python = "^3.9" }
+mike = "^2"
+
+[tool.ruff]
+select = [
+  "E",   # pycodestyle
+  "F",   # pyflakes
+  "I",   # isort
+  "UP",  # pyupgrade
+  "SIM", # simplify
+  "ARG", # unused arguments
+  "PTH", # use pathlib
+  "NPY", # numpy-specific rules
+  "RUF", # ruff-specific rules
+  "W",
+]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+
+[tool.ruff.extend-per-file-ignores]
+"__init__.py" = [
+  "F401", # Allow unused imports in __init__.py files
+]
+
 
 [project]
 name = "geopolars"
@@ -62,86 +147,3 @@ module = [
   "geopolars._geopolars.*",
 ]
 ignore_missing_imports = true
-
-[tool.poe.tasks]
-build = "poetry run maturin build --release -o dist"
-build-debug = "poetry run maturin build -o dist"
-build-with-proj = "poetry run maturin build --release -o dist --features \"proj\""
-copy-proj-data = "poetry run python copy-proj-data.py"
-clippy = "cargo clippy -- -D warnings"
-develop = "poetry run maturin develop"
-develop-release = "poetry run maturin develop --release"
-test-python = "poetry run python -m pytest tests/unit/"
-test-rust = "cargo test"
-test = [
-  "test-python",
-  # Uncomment when we have rust tests
-  # "test-rust"
-]
-
-[tool.poetry]
-name = "geopolars"
-version = "0.1.0-alpha.4"
-description = "Geospatial extensions for Polars"
-authors = ["Kyle Barron"]
-
-[tool.poetry.dependencies]
-python = "^3.9"
-# Runtime dependencies must also be declared in [project] for maturin
-
-polars = "^1.3"
-arro3-core = "^0.2.1"
-numpy = ">=1.16.0"
-importlib_resources = { version = "*", python = "<3.11" }
-
-# TODO: create separate docs group
-arro3-compute = "^0.2.1"
-[tool.poetry.group.dev.dependencies]
-# Docs
-mkdocs = "^1.4.3"
-mkdocs-material = "^9.1.16"
-mike = "^1.1.2"
-mkdocstrings = { version = "^0.22.0", extras = ["python"] }
-pillow = "^9.5.0"
-cairosvg = "^2.7.0"
-
-# Tooling
-maturin = "^1.1.0"
-pytest = "^7.3.2"
-mypy = "^1.3.0"
-black = "^23.3.0"
-
-ruff = ">=0.6.1"
-pandas-stubs = "^2.0.2.230605"
-poethepoet = "^0.20.0"
-# Ipython has had issues with autocompletions in later releases
-ipython = "8.8.0"
-
-shapely = "^2"
-pyogrio = ">=0.9"
-geopandas = "^1"
-ipykernel = "^6.29.5"
-pyarrow = "^17.0.0"
-geoarrow-types = "^0.2.0"
-geoarrow-pyarrow = "^0.1.2"
-
-
-[tool.ruff]
-select = [
-  "E",   # pycodestyle
-  "F",   # pyflakes
-  "I",   # isort
-  "UP",  # pyupgrade
-  "SIM", # simplify
-  "ARG", # unused arguments
-  "PTH", # use pathlib
-  "NPY", # numpy-specific rules
-  "RUF", # ruff-specific rules
-  # "D",   # pydocstyle
-]
-
-[tool.ruff.pydocstyle]
-convention = "google"
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
