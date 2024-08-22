@@ -3,11 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import geoarrow.rust.core as ga
+import geoarrow.rust.core.types
 import polars
 import polars as pl
 
-from geopolars._geopolars import geo as georust
-from geopolars.internals.types import AffineTransform, GeodesicMethod, TransformOrigin
+from geopolars.internals._types import AffineTransform, GeodesicMethod, TransformOrigin
+from geopolars.internals.base import SeriesWrapper
 
 if TYPE_CHECKING:
     from geopolars import GeoSeries
@@ -17,7 +19,7 @@ if TYPE_CHECKING:
 class GeoRustSeries:
     """Operations to be done via GeoRust native algorithms"""
 
-    series: pl.Series
+    s: SeriesWrapper
 
     def affine_transform(self, matrix: list[float] | AffineTransform) -> GeoSeries:
         """Returns a `GeoSeries` with translated geometries.
@@ -58,7 +60,7 @@ class GeoRustSeries:
         [`to_crs`][geopolars.GeoSeries.to_crs] to project geometries to a planar CRS
         before using this function.
         """
-        return georust.area(self)
+        return pl.Series(ga.area(self.s))
 
     @property
     def centroid(self) -> GeoSeries:
@@ -71,7 +73,7 @@ class GeoRustSeries:
 
             New `GeoSeries` with centroids.
         """
-        return georust.centroid(self)
+        return GeoSeries(ga.centroid(self.s))
 
     def convex_hull(self) -> GeoSeries:
         """Returns a `GeoSeries` of geometries representing the convex hull
@@ -87,7 +89,7 @@ class GeoRustSeries:
         - [`envelope`][geopolars.GeoRustSeries.envelope]: bounding rectangle geometry
 
         """
-        return georust.convex_hull(self)
+        return GeoSeries(ga.convex_hull(self.s))
 
     def envelope(self) -> GeoSeries:
         """Returns a `GeoSeries` of geometries representing the envelope of
@@ -101,10 +103,14 @@ class GeoRustSeries:
 
         [`convex_hull`][geopolars.GeoRustSeries.convex_hull]: convex hull geometry
         """
-        return georust.envelope(self)
+        return GeoSeries(ga.envelope(self.s))
 
-    def euclidean_length(self) -> pl.Series:
-        """Returns a `Series` containing the euclidean length of each geometry
+    def length(
+        self,
+        method: ga.enums.LengthMethod
+        | ga.types.LengthMethodT = ga.enums.LengthMethod.Euclidean,
+    ) -> pl.Series:
+        """Returns a `Series` containing the length of each geometry
         expressed in the units of the CRS.
 
         ## See also
@@ -117,7 +123,7 @@ class GeoRustSeries:
         use [`GeoSeries.to_crs`][geopolars.GeoSeries.to_crs] to project geometries to a
         planar CRS before using this function.
         """
-        return georust.euclidean_length(self)
+        return pl.Series(ga.length(self.s, method=method))
 
     def exterior(self) -> GeoSeries:
         """Returns a `GeoSeries` of LinearRings representing the outer
@@ -176,7 +182,7 @@ class GeoRustSeries:
         """Returns a `Series` of `dtype('bool')` with value `True` for
         empty geometries.
         """
-        return georust.is_empty(self)
+        return pl.Series(ga.is_empty(self.s))
 
     def is_ring(self) -> pl.Series:
         """Returns a `Series` of `dtype('bool')` with value `True` for
@@ -184,7 +190,12 @@ class GeoRustSeries:
         """
         return georust.is_ring(self)
 
-    def rotate(self, angle: float, origin: TransformOrigin = "center") -> GeoSeries:
+    def rotate(
+        self,
+        angle: float,
+        origin: ga.enums.RotateOrigin
+        | ga.types.RotateOriginT = ga.enums.RotateOrigin.Center,
+    ) -> GeoSeries:
         """Returns a `GeoSeries` with rotated geometries.
 
         See Shapely's [`rotate`][shapely_docs] or Rust's [`Rotate`][rust_docs] for
@@ -203,7 +214,7 @@ class GeoRustSeries:
                 center (default), 'centroid' for the geometry's centroid, or a
                 coordinate tuple (x, y).
         """
-        return georust.rotate(self, angle, origin)
+        return GeoSeries(ga.rotate(self.s, angle, origin=origin))
 
     def scale(
         self, xfact: float = 1.0, yfact: float = 1.0, origin: TransformOrigin = "center"

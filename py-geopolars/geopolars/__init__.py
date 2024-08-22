@@ -1,11 +1,10 @@
-from geopolars._geopolars import version
 from geopolars.convert import from_arrow, from_geopandas
 from geopolars.internals.geodataframe import GeoDataFrame
 from geopolars.internals.georust import GeoRustSeries
 from geopolars.internals.geoseries import GeoSeries
 from geopolars.io.file import read_file
 
-from . import datasets
+from ._version import __version__
 
 __all__ = [
     # geopolars.io.file
@@ -18,5 +17,3 @@ __all__ = [
     "GeoSeries",
     "GeoRustSeries",
 ]
-
-__version__: str = version()
