@@ -1,23 +1,20 @@
 [workspace]
-members = [
-  "geopolars",
-  "geopolars/geopolars-geos",
-  "geopolars/geopolars-geo",
-]
+members = ["geopolars/geopolars-arrow"]
 exclude = ["py-geopolars", "wasm-geopolars"]
+resolver = "2"
 
 [workspace.package]
 version = "0.1.0-alpha.4"
-edition = "2021"
 authors = ["Kyle Barron <kylebarron2@gmail.com>"]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/geopolars/geopolars"
+rust-version = "1.85"
+categories = ["science::geo"]
 
 [workspace.dependencies]
-# Only the _minimal_ features to get polars to compile should be declared here
-polars = { version = "0.35", features = [
-  "dtype-u8",
-  "dtype-i8",
-  "dtype-struct",
-  "ipc",
-], default-features = false }
-thiserror = "1"
-geo = "0.27"
+arrow-array = "57"
+arrow-buffer = "57"
+arrow-data = "57"
+arrow-schema = "57"
+polars-arrow = "0.52"
