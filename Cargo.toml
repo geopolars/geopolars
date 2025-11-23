@@ -13,8 +13,10 @@ rust-version = "1.85"
 categories = ["science::geo"]
 
 [workspace.dependencies]
-arrow-array = "57"
-arrow-buffer = "57"
-arrow-data = "57"
-arrow-schema = "57"
+arrow-array = "56"
+arrow-buffer = "56"
+arrow-data = { version = "56", features = ["ffi"] }
+arrow-schema = "56"
+geoarrow-array = "0.6"
+geoarrow-schema = "0.6"
 polars-arrow = "0.52"

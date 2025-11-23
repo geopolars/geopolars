@@ -16,6 +16,8 @@ arrow-array = { workspace = true }
 arrow-buffer = { workspace = true }
 arrow-data = { workspace = true }
 arrow-schema = { workspace = true }
+geoarrow-array = { workspace = true }
+geoarrow-schema = { workspace = true }
 polars-arrow = { workspace = true }
 
 [dev-dependencies]
