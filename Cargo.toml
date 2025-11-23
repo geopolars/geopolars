@@ -13,7 +13,7 @@ rust-version = "1.85"
 categories = ["science::geo"]
 
 [workspace.dependencies]
-arrow-array = "56"
+arrow-array = { version = "56", features = ["ffi"] }
 arrow-buffer = "56"
 arrow-data = { version = "56", features = ["ffi"] }
 arrow-schema = "56"
