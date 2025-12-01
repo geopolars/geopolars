@@ -19,5 +19,5 @@ polars = { version = "0.35", features = [
   "dtype-struct",
   "ipc",
 ], default-features = false }
-thiserror = "1"
+thiserror = "2"
 geo = "0.27"

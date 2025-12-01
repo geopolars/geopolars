@@ -18,7 +18,7 @@ proj = ["geopolars/proj"]
 polars = "0.35"
 pyo3 = { version = "0.20", features = ["abi3-py38", "extension-module"] }
 geopolars = { path = "../geopolars" }
-thiserror = "1.0"
+thiserror = "2.0"
 
 [package.metadata.maturin]
 name = "geopolars._geopolars"
