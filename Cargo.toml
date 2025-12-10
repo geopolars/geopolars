@@ -1,5 +1,5 @@
 [workspace]
-members = ["geopolars/geopolars-arrow"]
+members = ["geopolars/geopolars-arrow", "geopolars/geopolars-extension"]
 exclude = ["py-geopolars", "wasm-geopolars"]
 resolver = "2"
 
@@ -19,4 +19,10 @@ arrow-data = { version = "56", features = ["ffi"] }
 arrow-schema = "56"
 geoarrow-array = "0.6"
 geoarrow-schema = "0.6"
-polars-arrow = "0.52"
+polars = { git = "https://github.com/pola-rs/polars", rev = "0c6dca54ae4a33b3f31191748ad6a5ffd5452822", features = [
+    "dtype-extension",
+] }
+polars-core = { git = "https://github.com/pola-rs/polars", rev = "0c6dca54ae4a33b3f31191748ad6a5ffd5452822", features = [
+    "dtype-extension",
+] }
+polars-arrow = { git = "https://github.com/pola-rs/polars", rev = "0c6dca54ae4a33b3f31191748ad6a5ffd5452822" }

@@ -1,0 +1,29 @@
+[package]
+name = "geopolars-extension"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+description = "Definition of GeoPolars extension type."
+categories = { workspace = true }
+rust-version = { workspace = true }
+
+[features]
+
+[dependencies]
+arrow-array = { workspace = true }
+arrow-buffer = { workspace = true }
+arrow-data = { workspace = true }
+arrow-schema = { workspace = true }
+geoarrow-array = { workspace = true }
+geoarrow-schema = { workspace = true }
+polars-arrow = { workspace = true }
+polars-core = { workspace = true }
+polars = { workspace = true }
+
+[dev-dependencies]
+geoarrow-array = { workspace = true, features = ["test-data"] }
+
+[package.metadata.docs.rs]
+all-features = true
