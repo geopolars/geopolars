@@ -3,7 +3,7 @@
 <!-- Layout copied from rio-tiler -->
 <!-- https://github.com/cogeotiff/rio-tiler/blob/c6b097aa5b6f1bae5231d17db7d595a0bb2a7b26/README.md -->
 <p align="center">
-  <img src="static/logo.svg" height="300px" alt="geopolars"></a>
+  <img src="static/logo.svg" height="250px" alt="geopolars"></a>
 </p>
 <p align="center">
   <em>
@@ -34,7 +34,14 @@
   </a> -->
 </p>
 
-> Update (August 2024): GeoPolars is [blocked](https://github.com/pola-rs/polars/issues/1830#issuecomment-2218102856) on Polars supporting [Arrow extension types](https://github.com/pola-rs/polars/issues/9112), which would allow GeoPolars to persist geometry type information and coordinate reference system (CRS) metadata. It's not feasible to create a `geopolars.GeoDataFrame` as a subclass of a `polars.DataFrame` (similar to how the `geopandas.GeoDataFrame` is a subclass of `pandas.DataFrame`) because polars explicitly [does not support subclassing of core data types](https://github.com/pola-rs/polars/issues/2846#issuecomment-1711799869). See https://github.com/geopolars/geopolars/pull/240.
+> Update (December 2025): GeoPolars _had been_ [blocked](https://github.com/pola-rs/polars/issues/1830#issuecomment-2218102856) on Polars supporting [Arrow extension types](https://github.com/pola-rs/polars/issues/9112), but as of November 2025, Polars has now [added support for Arrow extension types](https://github.com/pola-rs/polars/pull/25322).
+>
+> This project will now move forward, subject to time constraints. See [issue
+> thread
+> here](https://github.com/pola-rs/geopolars/issues/245#issuecomment-3568363838)
+> for more information. If you'd like to contribute, for the time being, feel
+> free to comment on that thread. Soon we'll have better contributor
+> documentation.
 
 ## Summary
 
