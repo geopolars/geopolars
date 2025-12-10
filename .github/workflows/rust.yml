@@ -24,7 +24,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Run
-        run: cd geopolars && cargo fmt --all -- --check
+        run: cargo fmt --all -- --check
 
   clippy:
     name: Clippy
@@ -47,7 +47,7 @@ jobs:
           sudo apt-get install libprotobuf-dev protobuf-compiler libgeos-dev
 
       - name: "clippy --all"
-        run: cd geopolars && cargo clippy --all --all-features --tests -- -D warnings
+        run: cargo clippy --all --all-features --tests -- -D warnings
 
   check:
     name: Check
@@ -69,7 +69,7 @@ jobs:
           sudo apt-get install libgeos-dev
 
       - name: "cargo check"
-        run: cd geopolars && cargo check --all --all-features
+        run: cargo check --all --all-features
 
   test:
     name: Tests
@@ -91,4 +91,4 @@ jobs:
           sudo apt-get install libgeos-dev
 
       - name: "cargo test"
-        run: cd geopolars && cargo test --all --all-features
+        run: cargo test --all --all-features
