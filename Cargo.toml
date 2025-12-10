@@ -19,6 +19,7 @@ arrow-data = { version = "56", features = ["ffi"] }
 arrow-schema = "56"
 geoarrow-array = "0.6"
 geoarrow-schema = "0.6"
+geopolars-arrow = { path = "geopolars/geopolars-arrow" }
 polars = { git = "https://github.com/pola-rs/polars", rev = "0c6dca54ae4a33b3f31191748ad6a5ffd5452822", features = [
     "dtype-extension",
 ] }

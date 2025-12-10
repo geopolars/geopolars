@@ -1,3 +1,8 @@
+//! Definitions of GeoArrow extension types for the Polars extension registry.
+//!
+//! Each of the types contained in this module is a thin wrapper around the corresponding type in
+//! [`geoarrow_schema`] to implement Polars' [`ExtensionTypeImpl`].
+
 use std::any::Any;
 use std::borrow::Cow;
 use std::hash::{BuildHasher, Hash};

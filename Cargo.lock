@@ -880,6 +880,7 @@ dependencies = [
  "arrow-schema",
  "geoarrow-array",
  "geoarrow-schema",
+ "geopolars-arrow",
  "polars",
  "polars-arrow",
  "polars-core",

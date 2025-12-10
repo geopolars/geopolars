@@ -18,9 +18,10 @@ arrow-data = { workspace = true }
 arrow-schema = { workspace = true }
 geoarrow-array = { workspace = true }
 geoarrow-schema = { workspace = true }
+geopolars-arrow = { workspace = true }
+polars = { workspace = true }
 polars-arrow = { workspace = true }
 polars-core = { workspace = true }
-polars = { workspace = true }
 
 [dev-dependencies]
 geoarrow-array = { workspace = true, features = ["test-data"] }
