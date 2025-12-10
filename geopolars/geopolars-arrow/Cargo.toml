@@ -21,6 +21,7 @@ geoarrow-schema = { workspace = true }
 polars-arrow = { workspace = true }
 
 [dev-dependencies]
+geoarrow-array = { workspace = true, features = ["test-data"] }
 
 [package.metadata.docs.rs]
 all-features = true

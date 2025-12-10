@@ -346,7 +346,9 @@ dependencies = [
  "arrow-buffer",
  "arrow-schema",
  "geo-traits",
+ "geo-types",
  "geoarrow-schema",
+ "geoarrow-test",
  "num-traits",
  "wkb",
  "wkt",
@@ -363,6 +365,15 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "geoarrow-test"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3bb2f8243ab49517de64d8fcc41253046977fe3fc430e49629ceb85d4b512db4"
+dependencies = [
+ "wkt",
 ]
 
 [[package]]
