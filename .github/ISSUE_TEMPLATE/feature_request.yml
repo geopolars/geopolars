@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest a new spatial operation or capability
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! GeoPolars is early-stage, so community input on what operations matter most is very helpful.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What feature or spatial operation would you like to see?
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What problem would this solve? What are you trying to accomplish?
+    validations:
+      required: true
+
+  - type: textarea
+    id: geopandas-equivalent
+    attributes:
+      label: GeoPandas / Shapely equivalent
+      description: |
+        If there is a GeoPandas or Shapely equivalent, link it or show example usage.
+        GeoPolars aims to provide a similar API surface.
+      render: python
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Any other context, links, or references (e.g. GeoRust crate that could implement this).

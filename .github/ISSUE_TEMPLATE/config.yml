@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discussions
+    url: https://github.com/pola-rs/geopolars/discussions
+    about: For questions, ideas, and general discussion about GeoPolars
