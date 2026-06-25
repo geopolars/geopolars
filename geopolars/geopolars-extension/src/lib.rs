@@ -1,6 +1,9 @@
 pub mod factory;
 pub mod geoarrow;
 
+#[cfg(test)]
+mod tests;
+
 use std::sync::Arc;
 
 use arrow_schema::extension::ExtensionType;

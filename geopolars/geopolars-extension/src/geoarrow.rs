@@ -18,11 +18,22 @@ macro_rules! define_basic_type {
     ) => {
         $(#[$($attrss)*])*
         #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-        pub struct $struct_name(geoarrow_schema::$struct_name);
+        pub struct $struct_name(Result<geoarrow_schema::$struct_name, String>);
 
         impl $struct_name {
             pub fn new(inner: geoarrow_schema::$struct_name) -> Self {
-                Self(inner)
+                Self(Ok(inner))
+            }
+
+            pub fn invalid(error: impl std::fmt::Display) -> Self {
+                Self(Err(error.to_string()))
+            }
+
+            fn format_inner(&self) -> String {
+                match &self.0 {
+                    Ok(inner) => format!("{:?}", inner),
+                    Err(e) => format!("InvalidExtensionType({})", e),
+                }
             }
         }
 
@@ -32,7 +43,7 @@ macro_rules! define_basic_type {
             }
 
             fn serialize_metadata(&self) -> Option<Cow<'_, str>> {
-                self.0.serialize_metadata().map(Cow::Owned)
+                self.0.as_ref().ok()?.serialize_metadata().map(Cow::Owned)
             }
 
             fn dyn_clone(&self) -> Box<dyn ExtensionTypeImpl> {
@@ -52,11 +63,11 @@ macro_rules! define_basic_type {
             }
 
             fn dyn_display(&self) -> Cow<'_, str> {
-                Cow::Owned(format!("{:?}", self.0))
+                Cow::Owned(self.format_inner())
             }
 
             fn dyn_debug(&self) -> Cow<'_, str> {
-                Cow::Owned(format!("{:?}", self.0))
+                Cow::Owned(self.format_inner())
             }
         }
 
@@ -66,8 +77,10 @@ macro_rules! define_basic_type {
             }
         }
 
-        impl From<$struct_name> for geoarrow_schema::$struct_name {
-            fn from(value: $struct_name) -> Self {
+        impl TryFrom<$struct_name> for geoarrow_schema::$struct_name {
+            type Error = String;
+
+            fn try_from(value: $struct_name) -> Result<Self, Self::Error> {
                 value.0
             }
         }
